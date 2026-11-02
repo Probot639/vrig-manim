@@ -818,6 +818,43 @@
      "winTitle": "CTF Windows Solved!"
     }
    ]
+  },
+  {
+   "id": "imagine-rit",
+   "name": "Imagine RIT",
+   "track": "Workshop",
+   "lessons": [
+    {
+     "id": "rit-00",
+     "title": "00: How to Use 0xVRIG",
+     "winTitle": "Orientation Complete"
+    },
+    {
+     "id": "rit-01",
+     "title": "01: The Stack Frame",
+     "winTitle": "Stack Frame Complete"
+    },
+    {
+     "id": "rit-02",
+     "title": "02: The Overflow",
+     "winTitle": "CRASH! The program broke."
+    },
+    {
+     "id": "rit-03",
+     "title": "03: Hijack Execution",
+     "winTitle": "FLAG{you_own_the_program}"
+    },
+    {
+     "id": "rit-04",
+     "title": "04: Randomized Addresses",
+     "winTitle": "FLAG{aslr_defeated}"
+    },
+    {
+     "id": "rit-rop",
+     "title": "05: Baby's First ROP",
+     "winTitle": "FLAG{baby_rop}"
+    }
+   ]
   }
  ]
 }

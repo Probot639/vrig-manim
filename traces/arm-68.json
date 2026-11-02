@@ -1,0 +1,464 @@
+{
+ "exercise": "arm-68",
+ "title": "ARM Stack Frame",
+ "unit": "unit13-arm",
+ "mode": "asm-quiz",
+ "vizMode": "asm-stack",
+ "arch": "arm",
+ "desc": "Goal: Understand the ARM function prologue and epilogue. Prologue: PUSH {fp, lr} saves the frame pointer and return address, MOV fp, sp sets the new frame, SUB sp, sp, #N allocates local space. Epilogue: MOV sp, fp deallocates, POP {fp, lr} restores, BX lr returns. The saved LR on the stack is the target for buffer overflow attacks on ARM.",
+ "source": [
+  "// ARM Stack Frame",
+  "// Prologue: push {fp, lr}",
+  "//           mov fp, sp",
+  "//           sub sp, sp, #N",
+  "// Epilogue: mov sp, fp",
+  "//           pop {fp, lr}",
+  "//           bx lr",
+  "",
+  "// Stack layout (high → low):",
+  "//   [fp+0]  → saved old FP",
+  "//   [fp-4]  → saved LR (return addr!)",
+  "//   [fp-8]  → local var x",
+  "//   [fp-12] → local var y",
+  "",
+  "; — Prologue —",
+  "push {fp, lr}",
+  "mov fp, sp",
+  "sub sp, sp, #16",
+  "",
+  "mov r0, #10",
+  "str r0, [fp, #-8]   ; x = 10",
+  "mov r1, #20",
+  "str r1, [fp, #-12]  ; y = 20",
+  "",
+  "; — Epilogue —",
+  "mov sp, fp",
+  "pop {fp, lr}",
+  "bx lr",
+  "hlt"
+ ],
+ "instructions": [
+  {
+   "addr": 65536,
+   "bytes": [
+    233,
+    45,
+    72,
+    0
+   ],
+   "mnemonic": "push",
+   "operands": "{fp, lr}",
+   "comment": "Save frame pointer and return address"
+  },
+  {
+   "addr": 65540,
+   "bytes": [
+    225,
+    160,
+    176,
+    13
+   ],
+   "mnemonic": "mov",
+   "operands": "fp, sp",
+   "comment": "Set frame pointer to current SP"
+  },
+  {
+   "addr": 65544,
+   "bytes": [
+    226,
+    77,
+    208,
+    16
+   ],
+   "mnemonic": "sub",
+   "operands": "sp, sp, #16",
+   "comment": "Allocate 16 bytes for local variables"
+  },
+  {
+   "addr": 65548,
+   "bytes": [
+    227,
+    160,
+    0,
+    10
+   ],
+   "mnemonic": "mov",
+   "operands": "r0, #10",
+   "comment": "R0 = 10"
+  },
+  {
+   "addr": 65552,
+   "bytes": [
+    229,
+    11,
+    0,
+    8
+   ],
+   "mnemonic": "str",
+   "operands": "r0, [fp, #-8]",
+   "comment": "Store local var x at [fp-8]"
+  },
+  {
+   "addr": 65556,
+   "bytes": [
+    227,
+    160,
+    16,
+    20
+   ],
+   "mnemonic": "mov",
+   "operands": "r1, #20",
+   "comment": "R1 = 20"
+  },
+  {
+   "addr": 65560,
+   "bytes": [
+    229,
+    11,
+    16,
+    12
+   ],
+   "mnemonic": "str",
+   "operands": "r1, [fp, #-12]",
+   "comment": "Store local var y at [fp-12]"
+  },
+  {
+   "addr": 65564,
+   "bytes": [
+    225,
+    160,
+    208,
+    11
+   ],
+   "mnemonic": "mov",
+   "operands": "sp, fp",
+   "comment": "Deallocate locals (restore SP)"
+  },
+  {
+   "addr": 65568,
+   "bytes": [
+    232,
+    189,
+    72,
+    0
+   ],
+   "mnemonic": "pop",
+   "operands": "{fp, lr}",
+   "comment": "Restore frame pointer and return address"
+  },
+  {
+   "addr": 65572,
+   "bytes": [
+    225,
+    47,
+    255,
+    30
+   ],
+   "mnemonic": "bx",
+   "operands": "lr",
+   "comment": "Return to caller"
+  },
+  {
+   "addr": 65576,
+   "bytes": [
+    231,
+    254,
+    222,
+    240
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialRegs": {
+  "lr": 32896,
+  "fp": 3221160512
+ },
+ "initialMemory": [],
+ "stackBase": 3221160448,
+ "memWords": [
+  3221160432,
+  3221160436
+ ],
+ "initial": {
+  "regs": {
+   "r0": 0,
+   "r1": 0,
+   "r2": 0,
+   "r3": 0,
+   "r4": 0,
+   "r5": 0,
+   "r6": 0,
+   "r7": 0,
+   "r8": 0,
+   "r9": 0,
+   "r10": 0,
+   "r11": 0,
+   "r12": 0,
+   "r13": 3221160448,
+   "r14": 32896,
+   "r15": 65536,
+   "fp": 3221160512
+  },
+  "flags": {
+   "N": false,
+   "Z": false,
+   "C": false,
+   "V": false
+  },
+  "memory": {
+   "0xbfff01f0": 0,
+   "0xbfff01f4": 0
+  }
+ },
+ "steps": [
+  {
+   "addr": 65544,
+   "pcBefore": 65536,
+   "fetched": 65544,
+   "fetchSkew": 8,
+   "mnemonic": "sub",
+   "operands": "sp, sp, #16",
+   "log": "0x00010008: sub sp, sp, #16 -> SP=0xbfff01f0",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r13",
+     "oldValue": 3221160448,
+     "newValue": 3221160432
+    },
+    {
+     "reg": "r15",
+     "oldValue": 65536,
+     "newValue": 65548
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 0,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160432,
+    "r14": 32896,
+    "r15": 65548,
+    "fp": 3221160512
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {
+    "0xbfff01f0": 0,
+    "0xbfff01f4": 0
+   }
+  },
+  {
+   "addr": 65556,
+   "pcBefore": 65548,
+   "fetched": 65556,
+   "fetchSkew": 8,
+   "mnemonic": "mov",
+   "operands": "r1, #20",
+   "log": "0x00010014: mov r1, #20 -> R1=0x00000014",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r1",
+     "oldValue": 0,
+     "newValue": 20
+    },
+    {
+     "reg": "r15",
+     "oldValue": 65548,
+     "newValue": 65560
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 20,
+    "r2": 0,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160432,
+    "r14": 32896,
+    "r15": 65560,
+    "fp": 3221160512
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {
+    "0xbfff01f0": 0,
+    "0xbfff01f4": 0
+   }
+  },
+  {
+   "addr": 65568,
+   "pcBefore": 65560,
+   "fetched": 65568,
+   "fetchSkew": 8,
+   "mnemonic": "pop",
+   "operands": "{fp, lr}",
+   "log": "0x00010020: pop {fp, lr} -> SP=0xbfff01f8, LR=0x00000000",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r13",
+     "oldValue": 3221160432,
+     "newValue": 3221160440
+    },
+    {
+     "reg": "r14",
+     "oldValue": 32896,
+     "newValue": 0
+    },
+    {
+     "reg": "r15",
+     "oldValue": 65560,
+     "newValue": 65572
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160432,
+     "value": 0,
+     "size": 4
+    },
+    {
+     "addr": 3221160436,
+     "value": 0,
+     "size": 4
+    }
+   ],
+   "regs": {
+    "r0": 0,
+    "r1": 20,
+    "r2": 0,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160440,
+    "r14": 0,
+    "r15": 65572,
+    "fp": 0
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {
+    "0xbfff01f0": 0,
+    "0xbfff01f4": 0
+   }
+  }
+ ],
+ "halted": true,
+ "endedAtHlt": false,
+ "ended": true,
+ "stepCount": 3,
+ "hitStepCap": false,
+ "pcFetchBug": true,
+ "fetchSkew": 8,
+ "executedAddrs": [
+  65544,
+  65556,
+  65568
+ ],
+ "neverRan": [
+  65536,
+  65540,
+  65548,
+  65552,
+  65560,
+  65564,
+  65572,
+  65576
+ ],
+ "quiz": [
+  {
+   "question": "What is SP after \"push {fp, lr}\"? (SP starts at 0xBFFF0200, two 4-byte values pushed)",
+   "answer": 3221160440,
+   "format": "hex",
+   "hint": "PUSH {fp, lr} pushes two 4-byte registers. SP decreases by 8: 0xBFFF0200 - 8 = 0xBFFF01F8.",
+   "emulator": null,
+   "where": "arm-68: never executed 10000",
+   "typed": "",
+   "accepted": false
+  },
+  {
+   "question": "What is SP after \"sub sp, sp, #16\"?",
+   "answer": 3221160424,
+   "format": "hex",
+   "hint": "After the push, SP = 0xBFFF01F8. Subtracting 16: 0xBFFF01F8 - 0x10 = 0xBFFF01E8.",
+   "emulator": 3221160432,
+   "where": "r13 after 0x10008",
+   "typed": "0xbfff01f0",
+   "accepted": false
+  },
+  {
+   "question": "How many bytes total does this function use on the stack (pushed regs + locals)?",
+   "answer": 24,
+   "format": "decimal",
+   "hint": "PUSH {fp, lr} = 8 bytes, SUB sp, sp, #16 = 16 bytes. Total = 8 + 16 = 24 bytes.",
+   "emulator": 16,
+   "where": "sp at entry minus lowest sp",
+   "typed": "16",
+   "accepted": false
+  }
+ ],
+ "solved": false,
+ "winTitle": "ARM Stack Frames Mastered!",
+ "winMsg": "You understand the ARM prologue/epilogue. The saved LR on the stack is the ARM equivalent of the saved return address on x86 — and the target for stack buffer overflow attacks."
+}

@@ -1,0 +1,140 @@
+{
+ "exercise": "logic-07",
+ "title": "07: Format String: Reading",
+ "mode": "input-fmt-read",
+ "source": [
+  "#include <stdio.h>",
+  "",
+  "void vuln() {",
+  "    int secret = 0xCAFEBABE;",
+  "    char buf[64];",
+  "    fgets(buf, 64, stdin);",
+  "    printf(buf);",
+  "    // BUG: user input IS the format string!",
+  "}",
+  "",
+  "int main() {",
+  "    vuln();",
+  "    return 0;",
+  "}"
+ ],
+ "input": "%x.%x.%x.%x",
+ "stack": [
+  {
+   "slot": 1,
+   "value": 3221160448,
+   "label": "printf internal"
+  },
+  {
+   "slot": 2,
+   "value": 3221160192,
+   "label": "buf pointer"
+  },
+  {
+   "slot": 3,
+   "value": 64,
+   "label": "saved register (ecx)"
+  },
+  {
+   "slot": 4,
+   "value": 3405691582,
+   "label": "★ secret"
+  },
+  {
+   "slot": 5,
+   "value": 1,
+   "label": "argc"
+  },
+  {
+   "slot": 6,
+   "value": 3221160960,
+   "label": "argv pointer"
+  },
+  {
+   "slot": 7,
+   "value": 3221160968,
+   "label": "envp pointer"
+  },
+  {
+   "slot": 8,
+   "value": 3221160704,
+   "label": "saved EBP"
+  },
+  {
+   "slot": 9,
+   "value": 134512677,
+   "label": "return address"
+  },
+  {
+   "slot": 10,
+   "value": 0,
+   "label": "stack frame padding"
+  },
+  {
+   "slot": 11,
+   "value": 4158528256,
+   "label": "libc __start_main"
+  },
+  {
+   "slot": 12,
+   "value": 0,
+   "label": "stack cookie residual"
+  }
+ ],
+ "secretValue": 3405691582,
+ "secretSlot": 4,
+ "baseAddr": 3221160192,
+ "logs": [
+  {
+   "cls": "info",
+   "msg": "═══ 07: Format String: Reading ═══"
+  },
+  {
+   "cls": "action",
+   "msg": "printf(buf) — interpreting your input as a format string..."
+  },
+  {
+   "cls": "info",
+   "msg": ""
+  },
+  {
+   "cls": "action",
+   "msg": "%x → read stack slot 1: 0xbfff0200 (printf internal)"
+  },
+  {
+   "cls": "action",
+   "msg": "%x → read stack slot 2: 0xbfff0100 (buf pointer)"
+  },
+  {
+   "cls": "action",
+   "msg": "%x → read stack slot 3: 0x00000040 (saved register (ecx))"
+  },
+  {
+   "cls": "action",
+   "msg": "%x → read stack slot 4: 0xcafebabe (★ secret)"
+  },
+  {
+   "cls": "success",
+   "msg": "★ That's the secret! You found it: 0xCAFEBABE"
+  },
+  {
+   "cls": "info",
+   "msg": ""
+  },
+  {
+   "cls": "action",
+   "msg": "printf output: \"bfff0200.bfff0100.00000040.cafebabe\""
+  },
+  {
+   "cls": "info",
+   "msg": ""
+  },
+  {
+   "cls": "success",
+   "msg": "The secret was at stack slot 4. Tip: in real exploits you can use %4$x to read a specific slot directly."
+  }
+ ],
+ "solved": true,
+ "winTitle": "Secret Leaked!",
+ "winMsg": "You used %x to walk up the stack and read the secret value. In real exploits, this technique leaks canaries, return addresses, and heap pointers — anything stored on the stack."
+}

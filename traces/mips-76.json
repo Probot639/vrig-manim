@@ -1,0 +1,1190 @@
+{
+ "exercise": "mips-76",
+ "title": "MIPS Stack Frame",
+ "unit": "unit14-mips",
+ "mode": "asm-quiz",
+ "vizMode": "asm-stack",
+ "arch": "mips",
+ "desc": "Goal: Understand the MIPS stack frame. The prologue saves $ra and $fp on the stack, then sets up a new frame. The epilogue restores them. Key insight for exploitation: the saved $ra on the stack is what a buffer overflow overwrites to hijack control flow — just like the saved return address in x86, but MIPS stores it explicitly because $ra is a register, not pushed by CALL.",
+ "source": [
+  "# MIPS Stack Frame Layout",
+  "# $sp initially at 0x7ffffffc",
+  "",
+  "# After prologue (24 bytes allocated):",
+  "#   20($sp) — saved $ra",
+  "#   16($sp) — saved $fp",
+  "#    0($sp) — local var x",
+  "",
+  "# --- Prologue ---",
+  "addiu $sp, $sp, -24     # allocate",
+  "sw    $ra, 20($sp)      # save $ra",
+  "sw    $fp, 16($sp)      # save $fp",
+  "or    $fp, $sp, $zero   # set frame ptr",
+  "",
+  "# --- Function body ---",
+  "addiu $t0, $zero, 7     # x = 7",
+  "sw    $t0, 0($fp)       # store on stack",
+  "lw    $t1, 0($fp)       # load from stack",
+  "",
+  "# --- Epilogue ---",
+  "or    $sp, $fp, $zero   # restore $sp",
+  "lw    $ra, 20($sp)      # restore $ra",
+  "lw    $fp, 16($sp)      # restore $fp",
+  "addiu $sp, $sp, 24      # deallocate",
+  "hlt"
+ ],
+ "instructions": [
+  {
+   "addr": 4194304,
+   "bytes": [
+    39,
+    189,
+    255,
+    232
+   ],
+   "mnemonic": "addiu",
+   "operands": "$sp, $sp, -24",
+   "comment": "Prologue: allocate 24 bytes on stack"
+  },
+  {
+   "addr": 4194308,
+   "bytes": [
+    175,
+    191,
+    0,
+    20
+   ],
+   "mnemonic": "sw",
+   "operands": "$ra, 20($sp)",
+   "comment": "Save return address on stack"
+  },
+  {
+   "addr": 4194312,
+   "bytes": [
+    175,
+    190,
+    0,
+    16
+   ],
+   "mnemonic": "sw",
+   "operands": "$fp, 16($sp)",
+   "comment": "Save old frame pointer on stack"
+  },
+  {
+   "addr": 4194316,
+   "bytes": [
+    3,
+    160,
+    240,
+    37
+   ],
+   "mnemonic": "or",
+   "operands": "$fp, $sp, $zero",
+   "comment": "Set frame pointer = stack pointer"
+  },
+  {
+   "addr": 4194320,
+   "bytes": [
+    36,
+    8,
+    0,
+    7
+   ],
+   "mnemonic": "addiu",
+   "operands": "$t0, $zero, 7",
+   "comment": "Local variable x = 7"
+  },
+  {
+   "addr": 4194324,
+   "bytes": [
+    175,
+    200,
+    0,
+    0
+   ],
+   "mnemonic": "sw",
+   "operands": "$t0, 0($fp)",
+   "comment": "Store x on stack at 0($fp)"
+  },
+  {
+   "addr": 4194328,
+   "bytes": [
+    143,
+    201,
+    0,
+    0
+   ],
+   "mnemonic": "lw",
+   "operands": "$t1, 0($fp)",
+   "comment": "Load x back from stack"
+  },
+  {
+   "addr": 4194332,
+   "bytes": [
+    3,
+    192,
+    232,
+    37
+   ],
+   "mnemonic": "or",
+   "operands": "$sp, $fp, $zero",
+   "comment": "Epilogue: restore $sp from $fp"
+  },
+  {
+   "addr": 4194336,
+   "bytes": [
+    143,
+    191,
+    0,
+    20
+   ],
+   "mnemonic": "lw",
+   "operands": "$ra, 20($sp)",
+   "comment": "Restore return address"
+  },
+  {
+   "addr": 4194340,
+   "bytes": [
+    143,
+    190,
+    0,
+    16
+   ],
+   "mnemonic": "lw",
+   "operands": "$fp, 16($sp)",
+   "comment": "Restore old frame pointer"
+  },
+  {
+   "addr": 4194344,
+   "bytes": [
+    39,
+    189,
+    0,
+    24
+   ],
+   "mnemonic": "addiu",
+   "operands": "$sp, $sp, 24",
+   "comment": "Deallocate stack frame"
+  },
+  {
+   "addr": 4194348,
+   "bytes": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "stackBase": 2147483644,
+ "memWords": [
+  2147483620,
+  2147483636,
+  2147483640
+ ],
+ "initial": {
+  "regs": {
+   "$zero": 0,
+   "$at": 0,
+   "$v0": 0,
+   "$v1": 0,
+   "$a0": 0,
+   "$a1": 0,
+   "$a2": 0,
+   "$a3": 0,
+   "$t0": 0,
+   "$t1": 0,
+   "$t2": 0,
+   "$t3": 0,
+   "$t4": 0,
+   "$t5": 0,
+   "$t6": 0,
+   "$t7": 0,
+   "$s0": 0,
+   "$s1": 0,
+   "$s2": 0,
+   "$s3": 0,
+   "$s4": 0,
+   "$s5": 0,
+   "$s6": 0,
+   "$s7": 0,
+   "$t8": 0,
+   "$t9": 0,
+   "$k0": 0,
+   "$k1": 0,
+   "$gp": 0,
+   "$sp": 2147483644,
+   "$fp": 0,
+   "$ra": 0,
+   "hi": 0,
+   "lo": 0,
+   "pc": 4194304
+  },
+  "flags": {
+   "delaySlot": false
+  },
+  "memory": {
+   "0x7fffffe4": 0,
+   "0x7ffffff4": 0,
+   "0x7ffffff8": 0
+  }
+ },
+ "steps": [
+  {
+   "addr": 4194304,
+   "pcBefore": 4194304,
+   "fetched": 4194304,
+   "fetchSkew": 0,
+   "mnemonic": "addiu",
+   "operands": "$sp, $sp, -24",
+   "log": "0x00400000: addiu $sp, $sp, -24 -> $sp=0x7fffffe4",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "$sp",
+     "oldValue": 2147483644,
+     "newValue": 2147483620
+    },
+    {
+     "reg": "pc",
+     "oldValue": 4194304,
+     "newValue": 4194308
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 0,
+    "$t1": 0,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 0,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194308
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 0,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194308,
+   "pcBefore": 4194308,
+   "fetched": 4194308,
+   "fetchSkew": 0,
+   "mnemonic": "sw",
+   "operands": "$ra, 20($sp)",
+   "log": "0x00400004: sw $ra, 20($sp)",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "pc",
+     "oldValue": 4194308,
+     "newValue": 4194312
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 2147483640,
+     "value": 0,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 0,
+    "$t1": 0,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 0,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194312
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 0,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194312,
+   "pcBefore": 4194312,
+   "fetched": 4194312,
+   "fetchSkew": 0,
+   "mnemonic": "sw",
+   "operands": "$fp, 16($sp)",
+   "log": "0x00400008: sw $fp, 16($sp)",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "pc",
+     "oldValue": 4194312,
+     "newValue": 4194316
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 2147483636,
+     "value": 0,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 0,
+    "$t1": 0,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 0,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194316
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 0,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194316,
+   "pcBefore": 4194316,
+   "fetched": 4194316,
+   "fetchSkew": 0,
+   "mnemonic": "or",
+   "operands": "$fp, $sp, $zero",
+   "log": "0x0040000c: or $fp, $sp, $zero -> $fp=0x7fffffe4",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "$fp",
+     "oldValue": 0,
+     "newValue": 2147483620
+    },
+    {
+     "reg": "pc",
+     "oldValue": 4194316,
+     "newValue": 4194320
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 0,
+    "$t1": 0,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 2147483620,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194320
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 0,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194320,
+   "pcBefore": 4194320,
+   "fetched": 4194320,
+   "fetchSkew": 0,
+   "mnemonic": "addiu",
+   "operands": "$t0, $zero, 7",
+   "log": "0x00400010: addiu $t0, $zero, 7 -> $t0=0x00000007",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "$t0",
+     "oldValue": 0,
+     "newValue": 7
+    },
+    {
+     "reg": "pc",
+     "oldValue": 4194320,
+     "newValue": 4194324
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 7,
+    "$t1": 0,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 2147483620,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194324
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 0,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194324,
+   "pcBefore": 4194324,
+   "fetched": 4194324,
+   "fetchSkew": 0,
+   "mnemonic": "sw",
+   "operands": "$t0, 0($fp)",
+   "log": "0x00400014: sw $t0, 0($fp)",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "pc",
+     "oldValue": 4194324,
+     "newValue": 4194328
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 2147483620,
+     "value": 7,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 7,
+    "$t1": 0,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 2147483620,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194328
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 7,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194328,
+   "pcBefore": 4194328,
+   "fetched": 4194328,
+   "fetchSkew": 0,
+   "mnemonic": "lw",
+   "operands": "$t1, 0($fp)",
+   "log": "0x00400018: lw $t1, 0($fp) -> $t1=0x00000007",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "$t1",
+     "oldValue": 0,
+     "newValue": 7
+    },
+    {
+     "reg": "pc",
+     "oldValue": 4194328,
+     "newValue": 4194332
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 2147483620,
+     "value": 7,
+     "size": 4
+    }
+   ],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 7,
+    "$t1": 7,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 2147483620,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194332
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 7,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194332,
+   "pcBefore": 4194332,
+   "fetched": 4194332,
+   "fetchSkew": 0,
+   "mnemonic": "or",
+   "operands": "$sp, $fp, $zero",
+   "log": "0x0040001c: or $sp, $fp, $zero",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "pc",
+     "oldValue": 4194332,
+     "newValue": 4194336
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 7,
+    "$t1": 7,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 2147483620,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194336
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 7,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194336,
+   "pcBefore": 4194336,
+   "fetched": 4194336,
+   "fetchSkew": 0,
+   "mnemonic": "lw",
+   "operands": "$ra, 20($sp)",
+   "log": "0x00400020: lw $ra, 20($sp)",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "pc",
+     "oldValue": 4194336,
+     "newValue": 4194340
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 2147483640,
+     "value": 0,
+     "size": 4
+    }
+   ],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 7,
+    "$t1": 7,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 2147483620,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194340
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 7,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194340,
+   "pcBefore": 4194340,
+   "fetched": 4194340,
+   "fetchSkew": 0,
+   "mnemonic": "lw",
+   "operands": "$fp, 16($sp)",
+   "log": "0x00400024: lw $fp, 16($sp) -> $fp=0x00000000",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "$fp",
+     "oldValue": 2147483620,
+     "newValue": 0
+    },
+    {
+     "reg": "pc",
+     "oldValue": 4194340,
+     "newValue": 4194344
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 2147483636,
+     "value": 0,
+     "size": 4
+    }
+   ],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 7,
+    "$t1": 7,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483620,
+    "$fp": 0,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194344
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 7,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194344,
+   "pcBefore": 4194344,
+   "fetched": 4194344,
+   "fetchSkew": 0,
+   "mnemonic": "addiu",
+   "operands": "$sp, $sp, 24",
+   "log": "0x00400028: addiu $sp, $sp, 24 -> $sp=0x7ffffffc",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "$sp",
+     "oldValue": 2147483620,
+     "newValue": 2147483644
+    },
+    {
+     "reg": "pc",
+     "oldValue": 4194344,
+     "newValue": 4194348
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 7,
+    "$t1": 7,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483644,
+    "$fp": 0,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194348
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 7,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  },
+  {
+   "addr": 4194348,
+   "pcBefore": 4194348,
+   "fetched": 4194348,
+   "fetchSkew": 0,
+   "mnemonic": "hlt",
+   "operands": "",
+   "log": "0x0040002c: hlt ",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "pc",
+     "oldValue": 4194348,
+     "newValue": 4194352
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "$zero": 0,
+    "$at": 0,
+    "$v0": 0,
+    "$v1": 0,
+    "$a0": 0,
+    "$a1": 0,
+    "$a2": 0,
+    "$a3": 0,
+    "$t0": 7,
+    "$t1": 7,
+    "$t2": 0,
+    "$t3": 0,
+    "$t4": 0,
+    "$t5": 0,
+    "$t6": 0,
+    "$t7": 0,
+    "$s0": 0,
+    "$s1": 0,
+    "$s2": 0,
+    "$s3": 0,
+    "$s4": 0,
+    "$s5": 0,
+    "$s6": 0,
+    "$s7": 0,
+    "$t8": 0,
+    "$t9": 0,
+    "$k0": 0,
+    "$k1": 0,
+    "$gp": 0,
+    "$sp": 2147483644,
+    "$fp": 0,
+    "$ra": 0,
+    "hi": 0,
+    "lo": 0,
+    "pc": 4194352
+   },
+   "flags": {
+    "delaySlot": false
+   },
+   "halted": false,
+   "memory": {
+    "0x7fffffe4": 7,
+    "0x7ffffff4": 0,
+    "0x7ffffff8": 0
+   }
+  }
+ ],
+ "halted": false,
+ "endedAtHlt": true,
+ "ended": true,
+ "stepCount": 12,
+ "hitStepCap": false,
+ "pcFetchBug": false,
+ "fetchSkew": 0,
+ "executedAddrs": [
+  4194304,
+  4194308,
+  4194312,
+  4194316,
+  4194320,
+  4194324,
+  4194328,
+  4194332,
+  4194336,
+  4194340,
+  4194344,
+  4194348
+ ],
+ "neverRan": [],
+ "quiz": [
+  {
+   "question": "What is $sp after \"addiu $sp, $sp, -24\"? $sp starts at 0x7ffffffc. (Answer in hex.)",
+   "answer": 2147483620,
+   "format": "hex",
+   "hint": "0x7ffffffc - 24 = 0x7ffffffc - 0x18 = 0x7fffffe4.",
+   "emulator": 2147483620,
+   "where": "$sp after 0x400000",
+   "typed": "0x7fffffe4",
+   "accepted": true
+  },
+  {
+   "question": "At what address is $ra saved on the stack? ($sp after prologue + 20, in hex.)",
+   "answer": 2147483640,
+   "format": "hex",
+   "hint": "$sp = 0x7fffffe4 after allocation. 0x7fffffe4 + 20 = 0x7fffffe4 + 0x14 = 0x7ffffff8.",
+   "emulator": 2147483640,
+   "where": "address sw $ra wrote",
+   "typed": "0x7ffffff8",
+   "accepted": true
+  },
+  {
+   "question": "An attacker overflows a buffer at 0($sp). How many bytes past the buffer start is the saved $ra?",
+   "answer": 20,
+   "format": "decimal",
+   "hint": "The saved $ra is at 20($sp). A buffer overflow starting at 0($sp) needs 20 bytes of padding to reach $ra.",
+   "emulator": 20,
+   "where": "saved $ra minus $sp",
+   "typed": "20",
+   "accepted": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Stack Frame Expert!",
+ "winMsg": "You understand the MIPS stack frame layout. The saved $ra on the stack is the primary target for MIPS buffer overflow exploits — overwrite it to redirect execution when the function returns via JR $ra."
+}

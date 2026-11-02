@@ -1,0 +1,369 @@
+{
+ "exercise": "arm-64",
+ "title": "Data Processing",
+ "unit": "unit13-arm",
+ "mode": "asm-quiz",
+ "vizMode": "asm",
+ "arch": "arm",
+ "desc": "Goal: Learn ARM data processing instructions. ARM uses a 3-operand format: ADD Rd, Rn, Op2 means Rd = Rn + Op2. The barrel shifter lets you shift or rotate the second operand for free: MOV R5, R1, LSL #2 shifts R1 left by 2 before storing (equivalent to multiplying by 4). This is unique to ARM and extremely powerful.",
+ "source": [
+  "// ARM Data Processing",
+  "// Format: OP Rd, Rn, Operand2",
+  "// Barrel shifter: LSL, LSR, ASR, ROR",
+  "",
+  "mov r1, #7",
+  "mov r2, #3",
+  "add r0, r1, r2      ; r0 = 7 + 3",
+  "sub r3, r0, #5      ; r3 = r0 - 5",
+  "mul r4, r1, r0      ; r4 = r1 * r0",
+  "mov r5, r1, LSL #2  ; r5 = r1 << 2 (r1 * 4)",
+  "and r6, r0, r2      ; r6 = r0 AND r2",
+  "orr r7, r1, r2      ; r7 = r1 OR r2",
+  "hlt"
+ ],
+ "instructions": [
+  {
+   "addr": 65536,
+   "bytes": [
+    227,
+    160,
+    16,
+    7
+   ],
+   "mnemonic": "mov",
+   "operands": "r1, #7",
+   "comment": "R1 = 7"
+  },
+  {
+   "addr": 65540,
+   "bytes": [
+    227,
+    160,
+    32,
+    3
+   ],
+   "mnemonic": "mov",
+   "operands": "r2, #3",
+   "comment": "R2 = 3"
+  },
+  {
+   "addr": 65544,
+   "bytes": [
+    224,
+    129,
+    0,
+    2
+   ],
+   "mnemonic": "add",
+   "operands": "r0, r1, r2",
+   "comment": "R0 = R1 + R2"
+  },
+  {
+   "addr": 65548,
+   "bytes": [
+    226,
+    64,
+    48,
+    5
+   ],
+   "mnemonic": "sub",
+   "operands": "r3, r0, #5",
+   "comment": "R3 = R0 - 5"
+  },
+  {
+   "addr": 65552,
+   "bytes": [
+    224,
+    4,
+    64,
+    145
+   ],
+   "mnemonic": "mul",
+   "operands": "r4, r1, r0",
+   "comment": "R4 = R1 * R0"
+  },
+  {
+   "addr": 65556,
+   "bytes": [
+    225,
+    160,
+    81,
+    1
+   ],
+   "mnemonic": "mov",
+   "operands": "r5, r1, LSL #2",
+   "comment": "R5 = R1 shifted left by 2 (R1 * 4)"
+  },
+  {
+   "addr": 65560,
+   "bytes": [
+    224,
+    0,
+    96,
+    2
+   ],
+   "mnemonic": "and",
+   "operands": "r6, r0, r2",
+   "comment": "R6 = R0 AND R2"
+  },
+  {
+   "addr": 65564,
+   "bytes": [
+    225,
+    129,
+    112,
+    2
+   ],
+   "mnemonic": "orr",
+   "operands": "r7, r1, r2",
+   "comment": "R7 = R1 OR R2"
+  },
+  {
+   "addr": 65568,
+   "bytes": [
+    231,
+    254,
+    222,
+    240
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "stackBase": null,
+ "memWords": [],
+ "initial": {
+  "regs": {
+   "r0": 0,
+   "r1": 0,
+   "r2": 0,
+   "r3": 0,
+   "r4": 0,
+   "r5": 0,
+   "r6": 0,
+   "r7": 0,
+   "r8": 0,
+   "r9": 0,
+   "r10": 0,
+   "r11": 0,
+   "r12": 0,
+   "r13": 3221160448,
+   "r14": 0,
+   "r15": 65536
+  },
+  "flags": {
+   "N": false,
+   "Z": false,
+   "C": false,
+   "V": false
+  },
+  "memory": {}
+ },
+ "steps": [
+  {
+   "addr": 65544,
+   "pcBefore": 65536,
+   "fetched": 65544,
+   "fetchSkew": 8,
+   "mnemonic": "add",
+   "operands": "r0, r1, r2",
+   "log": "0x00010008: add r0, r1, r2",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r15",
+     "oldValue": 65536,
+     "newValue": 65548
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 0,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65548
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  },
+  {
+   "addr": 65556,
+   "pcBefore": 65548,
+   "fetched": 65556,
+   "fetchSkew": 8,
+   "mnemonic": "mov",
+   "operands": "r5, r1, LSL #2",
+   "log": "0x00010014: mov r5, r1, LSL #2",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r15",
+     "oldValue": 65548,
+     "newValue": 65560
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 0,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65560
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  },
+  {
+   "addr": 65568,
+   "pcBefore": 65560,
+   "fetched": 65568,
+   "fetchSkew": 8,
+   "mnemonic": "hlt",
+   "operands": "",
+   "log": "0x00010020: hlt ",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r15",
+     "oldValue": 65560,
+     "newValue": 65572
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 0,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65572
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  }
+ ],
+ "halted": false,
+ "endedAtHlt": true,
+ "ended": true,
+ "stepCount": 3,
+ "hitStepCap": false,
+ "pcFetchBug": true,
+ "fetchSkew": 8,
+ "executedAddrs": [
+  65544,
+  65556,
+  65568
+ ],
+ "neverRan": [
+  65536,
+  65540,
+  65548,
+  65552,
+  65560,
+  65564
+ ],
+ "quiz": [
+  {
+   "question": "What is R0 after \"add r0, r1, r2\" (7 + 3)?",
+   "answer": 10,
+   "format": "decimal",
+   "hint": "ADD Rd, Rn, Op2 computes Rn + Op2. R1=7, R2=3, so R0 = 7 + 3 = 10.",
+   "emulator": 0,
+   "where": "r0 after 0x10008",
+   "typed": "0",
+   "accepted": false
+  },
+  {
+   "question": "What is R5 after \"mov r5, r1, LSL #2\" (R1=7, shifted left 2)?",
+   "answer": 28,
+   "format": "decimal",
+   "hint": "LSL #2 shifts left by 2 bits, which is the same as multiplying by 4. R1=7, so 7 * 4 = 28.",
+   "emulator": 0,
+   "where": "r5 after 0x10014",
+   "typed": "0",
+   "accepted": false
+  },
+  {
+   "question": "What is R3 after \"sub r3, r0, #5\" (R0=10)?",
+   "answer": 5,
+   "format": "decimal",
+   "hint": "SUB Rd, Rn, Op2 computes Rn - Op2. R0=10, so R3 = 10 - 5 = 5.",
+   "emulator": null,
+   "where": "arm-64: never executed 1000c",
+   "typed": "",
+   "accepted": false
+  }
+ ],
+ "solved": false,
+ "winTitle": "Data Processing Mastered!",
+ "winMsg": "You understand ARM arithmetic and the barrel shifter. The ability to shift an operand for free in every instruction is one of ARM's most distinctive features."
+}

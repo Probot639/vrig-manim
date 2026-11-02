@@ -1,0 +1,274 @@
+{
+ "exercise": "arm-67",
+ "title": "ARM Calling Convention",
+ "unit": "unit13-arm",
+ "mode": "asm-quiz",
+ "vizMode": "asm",
+ "arch": "arm",
+ "desc": "Goal: Learn the ARM calling convention (AAPCS). Arguments go in R0-R3 (not on the stack like x86!). The return value goes in R0. BL (Branch with Link) calls a function by saving the return address in LR (R14), and BX LR returns by jumping to that address. No PUSH/POP needed for simple leaf functions.",
+ "source": [
+  "// ARM Calling Convention (AAPCS)",
+  "// R0-R3  — function arguments",
+  "// R0     — return value",
+  "// LR(R14)— return address (set by BL)",
+  "// BX LR  — return to caller",
+  "",
+  "// C equivalent:",
+  "// int add_values(int a, int b) {",
+  "//   return a + b;",
+  "// }",
+  "// int main() {",
+  "//   int result = add_values(12, 8);",
+  "// }",
+  "",
+  "main:",
+  "  mov r0, #12       ; arg1",
+  "  mov r1, #8        ; arg2",
+  "  bl add_values      ; call (saves ret addr in LR)",
+  "  mov r4, r0        ; save result",
+  "  hlt",
+  "",
+  "add_values:",
+  "  add r0, r0, r1    ; return a + b in R0",
+  "  bx lr             ; return"
+ ],
+ "instructions": [
+  {
+   "addr": 65536,
+   "bytes": [
+    227,
+    160,
+    0,
+    12
+   ],
+   "mnemonic": "mov",
+   "operands": "r0, #12",
+   "comment": "First argument = 12"
+  },
+  {
+   "addr": 65540,
+   "bytes": [
+    227,
+    160,
+    16,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "r1, #8",
+   "comment": "Second argument = 8"
+  },
+  {
+   "addr": 65544,
+   "bytes": [
+    235,
+    0,
+    0,
+    2
+   ],
+   "mnemonic": "bl",
+   "operands": "0x00010018",
+   "comment": "Call add_values — BL saves return addr in LR"
+  },
+  {
+   "addr": 65548,
+   "bytes": [
+    225,
+    160,
+    64,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "r4, r0",
+   "comment": "Save return value (R0) into R4"
+  },
+  {
+   "addr": 65552,
+   "bytes": [
+    231,
+    254,
+    222,
+    240
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  },
+  {
+   "addr": 65556,
+   "bytes": [
+    231,
+    254,
+    222,
+    240
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "padding"
+  },
+  {
+   "addr": 65560,
+   "bytes": [
+    224,
+    128,
+    0,
+    1
+   ],
+   "mnemonic": "add",
+   "operands": "r0, r0, r1",
+   "comment": "R0 = R0 + R1 (return value in R0)"
+  },
+  {
+   "addr": 65564,
+   "bytes": [
+    225,
+    47,
+    255,
+    30
+   ],
+   "mnemonic": "bx",
+   "operands": "lr",
+   "comment": "Return to caller (jump to LR)"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "stackBase": null,
+ "memWords": [],
+ "initial": {
+  "regs": {
+   "r0": 0,
+   "r1": 0,
+   "r2": 0,
+   "r3": 0,
+   "r4": 0,
+   "r5": 0,
+   "r6": 0,
+   "r7": 0,
+   "r8": 0,
+   "r9": 0,
+   "r10": 0,
+   "r11": 0,
+   "r12": 0,
+   "r13": 3221160448,
+   "r14": 0,
+   "r15": 65536
+  },
+  "flags": {
+   "N": false,
+   "Z": false,
+   "C": false,
+   "V": false
+  },
+  "memory": {}
+ },
+ "steps": [
+  {
+   "addr": 65544,
+   "pcBefore": 65536,
+   "fetched": 65544,
+   "fetchSkew": 8,
+   "mnemonic": "bl",
+   "operands": "0x00010018",
+   "log": "0x00010008: bl 0x00010018 -> LR=0x0001000c",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r14",
+     "oldValue": 0,
+     "newValue": 65548
+    },
+    {
+     "reg": "r15",
+     "oldValue": 65536,
+     "newValue": 65560
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 0,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 65548,
+    "r15": 65560
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  }
+ ],
+ "halted": true,
+ "endedAtHlt": false,
+ "ended": true,
+ "stepCount": 1,
+ "hitStepCap": false,
+ "pcFetchBug": true,
+ "fetchSkew": 8,
+ "executedAddrs": [
+  65544
+ ],
+ "neverRan": [
+  65536,
+  65540,
+  65548,
+  65552,
+  65556,
+  65560,
+  65564
+ ],
+ "quiz": [
+  {
+   "question": "What address does BL store in LR (the return address)?",
+   "answer": 65548,
+   "format": "hex",
+   "hint": "BL saves the address of the instruction AFTER the BL. The BL is at 0x00010008, so LR = 0x0001000C.",
+   "emulator": 65548,
+   "where": "r14 after 0x10008",
+   "typed": "0x1000c",
+   "accepted": true
+  },
+  {
+   "question": "What is R0 after add_values returns (add_values(12, 8))?",
+   "answer": 20,
+   "format": "decimal",
+   "hint": "The function computes R0 + R1 = 12 + 8 = 20 and returns it in R0.",
+   "emulator": null,
+   "where": "arm-67: never executed 1001c",
+   "typed": "",
+   "accepted": false
+  },
+  {
+   "question": "What is R4 at the end?",
+   "answer": 20,
+   "format": "decimal",
+   "hint": "R4 copies the return value from R0, which is 20.",
+   "emulator": 0,
+   "where": "r4 at halt",
+   "typed": "0",
+   "accepted": false
+  }
+ ],
+ "solved": false,
+ "winTitle": "Calling Convention Mastered!",
+ "winMsg": "You understand AAPCS. ARM passes arguments in registers (R0-R3) instead of the stack, making function calls faster. BL/BX LR replaces x86's CALL/RET."
+}

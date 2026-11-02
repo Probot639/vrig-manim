@@ -123,26 +123,38 @@ function runQuiz() {
   const initial = { regs: snapRegs(), flags: flagsOf() };
   const steps: any[] = [];
   let n = 0;
+  let endedAtHlt = false;
   // Run All caps at 500 steps. A program that hits the cap never halted.
   while (!emu.state.halted && n < 500) {
     const pcBefore = arch === 'arm' ? emu.state.registers.r15 : emu.state.registers.pc;
     const cur = emu.getCurrentInstruction();
-    const inDelaySlot = arch === 'mips' && pending() !== null;
+    // pending jump as we enter the step. On MIPS this is non-null exactly when
+    // the step is the delay slot, and it names where the branch will land.
+    const pendingBefore = arch === 'mips' ? pending() : null;
+    const inDelaySlot = pendingBefore !== null;
     const r = emu.step();
     if (!r) break;
     n++;
-    for (const w of r.memoryWrites) watch.add(w.addr & ~3);
-    for (const m of r.memoryReads) watch.add(m.addr & ~3);
+    // mask to the word, unsigned: a stack addr like 0xbfff01f0 is past 2^31,
+    // and a signed & would turn the watch key negative
+    for (const w of r.memoryWrites) watch.add((w.addr & ~3) >>> 0);
+    for (const m of r.memoryReads) watch.add((m.addr & ~3) >>> 0);
+    const fetched = cur ? cur.addr : r.instruction.addr;
     steps.push({
       addr: r.instruction.addr,
       pcBefore,
-      fetched: cur ? cur.addr : null,
+      fetched,
+      // How far the fetch landed from where pc points. 8 on ARM (the pc+8
+      // pipeline read is applied to the fetch too), 0 on MIPS.
+      fetchSkew: (fetched - pcBefore) | 0,
       mnemonic: r.instruction.mnemonic,
       operands: r.instruction.operands,
       log: r.log,
       skipped: r.log.includes('(skipped'),
       inDelaySlot,
-      branchPending: arch === 'mips' ? pending() : null,
+      // the target active in the delay slot, and the target a branch just set
+      branchPending: pendingBefore,
+      branchTarget: arch === 'mips' ? pending() : null,
       diffs: r.diffs,
       flagChanges: r.flagChanges,
       writes: r.memoryWrites,
@@ -151,6 +163,11 @@ function runQuiz() {
       flags: flagsOf(),
       halted: r.halted,
     });
+    // Neither emulator treats the hlt pseudo-op as a stop. Most programs end
+    // with hlt as the last line, so pc runs off and the fetch returns null.
+    // mips-75 keeps real code past its hlt, so it loops the body until the
+    // 500 cap. Treat reaching hlt as the end of the program.
+    if (r.instruction.mnemonic.toLowerCase() === 'hlt') { endedAtHlt = true; break; }
   }
 
   // memory snapshot per step for the watched words. Replay from scratch so
@@ -210,8 +227,19 @@ function runQuiz() {
     initial: run.initial,
     steps,
     halted: emu.state.halted,
+    endedAtHlt,
+    ended: emu.state.halted || endedAtHlt,
     stepCount: n,
     hitStepCap: n >= 500,
+    // Diagnostics for the ARM instruction-fetch bug. getCurrentInstruction
+    // reads r15, and getReg('pc') returns r15+8, so each fetch lands two
+    // instructions ahead of where pc points. Net effect: pc advances by one
+    // instruction per step but the fetch jumps three, so the program runs
+    // roughly every third line and most quiz answers never get computed.
+    pcFetchBug: arch === 'arm' && steps.some((s: any) => s.fetchSkew !== 0),
+    fetchSkew: steps.length ? steps[0].fetchSkew : 0,
+    executedAddrs: [...new Set(steps.map((s: any) => s.addr))].sort((a, b) => a - b),
+    neverRan: instrs.map(i => i.addr).filter(a => !steps.some((s: any) => s.addr === a)),
     quiz,
     solved: quiz.length > 0 && quiz.every(q => q.accepted),
     winTitle: strip(ex!.winTitle),

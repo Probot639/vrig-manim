@@ -1,0 +1,367 @@
+{
+ "exercise": "arm-65",
+ "title": "Memory Access",
+ "unit": "unit13-arm",
+ "mode": "asm-quiz",
+ "vizMode": "asm",
+ "arch": "arm",
+ "desc": "Goal: Learn ARM memory instructions. LDR loads a word from memory into a register. STR stores a register value to memory. Addressing uses a base register with an optional offset: LDR R0, [R1, #4] loads from address R1+4. Unlike x86, ARM can only access memory through LDR/STR — arithmetic instructions work only on registers (load-store architecture).",
+ "source": [
+  "// ARM Memory Access (Load-Store Architecture)",
+  "// LDR Rd, [Rn]       — load from [Rn]",
+  "// LDR Rd, [Rn, #off] — load from [Rn + offset]",
+  "// STR Rd, [Rn, #off] — store to [Rn + offset]",
+  "",
+  "// Memory at 0x00020000:",
+  "//   +0: 0xDEADBEEF",
+  "//   +4: 0xCAFEBABE",
+  "//   +8: 0x00000064 (100)",
+  "",
+  "mov r1, #0x00020000  ; base address",
+  "ldr r0, [r1]         ; load first word",
+  "ldr r2, [r1, #4]     ; load second word",
+  "ldr r3, [r1, #8]     ; load third word",
+  "mov r4, #0x42",
+  "str r4, [r1, #12]    ; store to memory",
+  "ldr r5, [r1, #12]    ; load it back",
+  "hlt"
+ ],
+ "instructions": [
+  {
+   "addr": 65536,
+   "bytes": [
+    227,
+    160,
+    24,
+    2
+   ],
+   "mnemonic": "mov",
+   "operands": "r1, #0x00020000",
+   "comment": "R1 = base address of our data"
+  },
+  {
+   "addr": 65540,
+   "bytes": [
+    229,
+    145,
+    0,
+    0
+   ],
+   "mnemonic": "ldr",
+   "operands": "r0, [r1]",
+   "comment": "Load word at [R1] into R0"
+  },
+  {
+   "addr": 65544,
+   "bytes": [
+    229,
+    145,
+    32,
+    4
+   ],
+   "mnemonic": "ldr",
+   "operands": "r2, [r1, #4]",
+   "comment": "Load word at [R1+4] into R2"
+  },
+  {
+   "addr": 65548,
+   "bytes": [
+    229,
+    145,
+    48,
+    8
+   ],
+   "mnemonic": "ldr",
+   "operands": "r3, [r1, #8]",
+   "comment": "Load word at [R1+8] into R3"
+  },
+  {
+   "addr": 65552,
+   "bytes": [
+    227,
+    160,
+    64,
+    66
+   ],
+   "mnemonic": "mov",
+   "operands": "r4, #0x42",
+   "comment": "R4 = 0x42"
+  },
+  {
+   "addr": 65556,
+   "bytes": [
+    229,
+    129,
+    64,
+    12
+   ],
+   "mnemonic": "str",
+   "operands": "r4, [r1, #12]",
+   "comment": "Store R4 at [R1+12]"
+  },
+  {
+   "addr": 65560,
+   "bytes": [
+    229,
+    145,
+    80,
+    12
+   ],
+   "mnemonic": "ldr",
+   "operands": "r5, [r1, #12]",
+   "comment": "Load back what we just stored"
+  },
+  {
+   "addr": 65564,
+   "bytes": [
+    231,
+    254,
+    222,
+    240
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialRegs": {
+  "r1": 131072
+ },
+ "initialMemory": [
+  {
+   "addr": 131072,
+   "value": 3735928559,
+   "size": 4
+  },
+  {
+   "addr": 131076,
+   "value": 3405691582,
+   "size": 4
+  },
+  {
+   "addr": 131080,
+   "value": 100,
+   "size": 4
+  }
+ ],
+ "stackBase": null,
+ "memWords": [
+  131072,
+  131076,
+  131080,
+  131084
+ ],
+ "initial": {
+  "regs": {
+   "r0": 0,
+   "r1": 131072,
+   "r2": 0,
+   "r3": 0,
+   "r4": 0,
+   "r5": 0,
+   "r6": 0,
+   "r7": 0,
+   "r8": 0,
+   "r9": 0,
+   "r10": 0,
+   "r11": 0,
+   "r12": 0,
+   "r13": 3221160448,
+   "r14": 0,
+   "r15": 65536
+  },
+  "flags": {
+   "N": false,
+   "Z": false,
+   "C": false,
+   "V": false
+  },
+  "memory": {
+   "0x20000": 3735928559,
+   "0x20004": 3405691582,
+   "0x20008": 100,
+   "0x2000c": 0
+  }
+ },
+ "steps": [
+  {
+   "addr": 65544,
+   "pcBefore": 65536,
+   "fetched": 65544,
+   "fetchSkew": 8,
+   "mnemonic": "ldr",
+   "operands": "r2, [r1, #4]",
+   "log": "0x00010008: ldr r2, [r1, #4] -> R2=0xcafebabe",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r2",
+     "oldValue": 0,
+     "newValue": 3405691582
+    },
+    {
+     "reg": "r15",
+     "oldValue": 65536,
+     "newValue": 65548
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 131076,
+     "value": 3405691582,
+     "size": 4
+    }
+   ],
+   "regs": {
+    "r0": 0,
+    "r1": 131072,
+    "r2": 3405691582,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65548
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {
+    "0x20000": 3735928559,
+    "0x20004": 3405691582,
+    "0x20008": 100,
+    "0x2000c": 0
+   }
+  },
+  {
+   "addr": 65556,
+   "pcBefore": 65548,
+   "fetched": 65556,
+   "fetchSkew": 8,
+   "mnemonic": "str",
+   "operands": "r4, [r1, #12]",
+   "log": "0x00010014: str r4, [r1, #12]",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r15",
+     "oldValue": 65548,
+     "newValue": 65560
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 131084,
+     "value": 0,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 131072,
+    "r2": 3405691582,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65560
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {
+    "0x20000": 3735928559,
+    "0x20004": 3405691582,
+    "0x20008": 100,
+    "0x2000c": 0
+   }
+  }
+ ],
+ "halted": true,
+ "endedAtHlt": false,
+ "ended": true,
+ "stepCount": 2,
+ "hitStepCap": false,
+ "pcFetchBug": true,
+ "fetchSkew": 8,
+ "executedAddrs": [
+  65544,
+  65556
+ ],
+ "neverRan": [
+  65536,
+  65540,
+  65548,
+  65552,
+  65560,
+  65564
+ ],
+ "quiz": [
+  {
+   "question": "What value is in R0 after \"ldr r0, [r1]\"?",
+   "answer": 3735928559,
+   "format": "hex",
+   "hint": "R1 points to 0x00020000, which contains 0xDEADBEEF.",
+   "emulator": null,
+   "where": "arm-65: never executed 10004",
+   "typed": "",
+   "accepted": false
+  },
+  {
+   "question": "What value is in R3 after \"ldr r3, [r1, #8]\"?",
+   "answer": 100,
+   "format": "decimal",
+   "hint": "R1=0x00020000, offset +8 = 0x00020008, which holds 0x64 = 100 in decimal.",
+   "emulator": null,
+   "where": "arm-65: never executed 1000c",
+   "typed": "",
+   "accepted": false
+  },
+  {
+   "question": "What value is in R5 after loading back the stored value?",
+   "answer": 66,
+   "format": "hex",
+   "hint": "We stored R4 (0x42) to [R1+12], then loaded it back into R5.",
+   "emulator": null,
+   "where": "arm-65: never executed 10018",
+   "typed": "",
+   "accepted": false
+  }
+ ],
+ "solved": false,
+ "winTitle": "Memory Access Mastered!",
+ "winMsg": "You understand ARM's load-store architecture. This separation of memory access from computation is a key RISC design principle."
+}

@@ -44,23 +44,23 @@ VRIG's `/demo` mode, one video per challenge. Data comes from `traces/demo.json`
 | 19 glibc bypass | double free on 2.31, tcache poison on 2.32+ (safe-linking), heap consolidation | |
 | 20 teaching gaps | info leak chaining, TOCTOU, shellcode crafting, partial overwrite and ASLR brute force, uninitialized memory | |
 
-139 exercises. 106 have a video in `videos/<unit>/<id>.mp4`, and stack2-12
-is `videos/RopBasics.mp4`.
+Every VRIG exercise has a video in `videos/<unit>/<id>.mp4`. Each unit also
+has an overview in `videos/overviews/<unit>.mp4`: a title card, a few seconds
+of each lesson, and a closing card.
 
-Not made yet:
-- unit1-stack: stack-02, stack-03, stack-04, stack-05
-- unit2-logic: logic-06 to logic-10
-- unit3-stack-ii: stack2-11, stack2-13, stack2-14
-- imagine-rit: rit-02, rit-03, rit-04, rit-rop
-- unit13-arm: arm-63 to arm-70 (`tools/vrig-trace/arch-entry.ts` exists, no scenes)
-- unit14-mips: mips-71 to mips-78 (same)
+Scene families, one `scenes/<family>.py` plus a matching
+`tools/vrig-trace/<family>-entry.ts` and `tests/test_<family>.py` each:
+`asm_x86` (x86 and x64 quizzes), `asm_adv` (advanced quizzes), `arch` (ARM and
+MIPS), `walk_stack` and `walk_heap` (step-mode lessons), `stack`, `stack_adv`,
+`heap`, and `windows` (the exploit lessons). The ROP pilot is in
+`scenes/unit3_stack_ii.py` and the booth demo is in `scenes/demo.py`.
 
-The ARM quizzes also hit a VRIG emulator bug. Instruction fetch reads pc+8, so
-programs run every third instruction and the quiz answers don't match.
-
-Scene families: `scenes/asm_x86.py`, `asm_adv.py`, `walk_stack.py`,
-`walk_heap.py`, `stack_adv.py`, `heap.py`, and `windows.py`. Each one has a
-matching `tools/vrig-trace/<family>-entry.ts` and `tests/test_<family>.py`.
+Some lessons can't be won in VRIG as shipped, so their videos end on a
+takeaway instead of a flag and say why: the five Houses (heap2-22 to 26),
+SROP (stack2-14), and the ARM and MIPS ROP lessons (arm-70, mips-78). The
+ARM quizzes also hit an emulator bug where instruction fetch reads pc+8, so
+programs run every third instruction. Each family's notes are in its agent
+report. These are bugs in VRIG, not in the videos.
 
 ## Part B: beyond VRIG
 

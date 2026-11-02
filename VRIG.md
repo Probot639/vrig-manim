@@ -44,6 +44,20 @@ In presenter mode, space or right arrow plays the next beat. Left arrow jumps
 back to the previous beat. Right then cuts forward through saved beats until
 you're back at the newest one, and plays from there.
 
+## Unit overviews
+
+One video per unit: a title card, the first few seconds of every lesson in the
+unit, then a closing card. Good for showing a whole unit at a glance.
+
+```sh
+node tools/vrig-trace/dist/vrig-units.mjs > traces/units.json   # once
+tools/overview.sh unit0-asm          # -> videos/overviews/unit0-asm.mp4
+tools/overview.sh unit0-asm 8        # 8 seconds of each lesson instead of 5
+```
+
+`traces/units.json` holds VRIG's unit and lesson titles. The cards are
+`scenes/overview.py` (`UnitIntro`, `UnitOutro`), driven by `VRIG_UNIT`.
+
 ## Themes
 
 Scenes never name a color. They ask for a role (`T.saved_ret`, `T.gadget`,

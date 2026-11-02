@@ -1,0 +1,490 @@
+{
+ "exercise": "arm-66",
+ "title": "Conditional Execution",
+ "unit": "unit13-arm",
+ "mode": "asm-quiz",
+ "vizMode": "asm",
+ "arch": "arm",
+ "desc": "Goal: Learn ARM's signature feature: conditional execution. On ARM, almost any instruction can have a condition code suffix. MOVEQ only executes if the Zero flag is set (equal). MOVGT only if greater than. This avoids branches and keeps the pipeline full. First, CMP sets the flags, then conditional instructions check them.",
+ "source": [
+  "// ARM Conditional Execution",
+  "// Condition codes: EQ, NE, GT, LT, GE, LE",
+  "// CMP sets N, Z, C, V flags",
+  "// Any instruction can be conditional!",
+  "",
+  "mov r0, #5",
+  "mov r1, #5",
+  "mov r2, #0          ; default",
+  "mov r3, #0          ; default",
+  "",
+  "cmp r0, r1          ; 5 vs 5",
+  "moveq r2, #1        ; if equal?",
+  "movne r2, #0        ; if not equal?",
+  "movgt r3, #99       ; if greater?",
+  "",
+  "mov r4, #10",
+  "cmp r0, r4          ; 5 vs 10",
+  "movlt r5, #1        ; if less than?",
+  "movge r6, #1        ; if greater or equal?",
+  "hlt"
+ ],
+ "instructions": [
+  {
+   "addr": 65536,
+   "bytes": [
+    227,
+    160,
+    0,
+    5
+   ],
+   "mnemonic": "mov",
+   "operands": "r0, #5",
+   "comment": "R0 = 5"
+  },
+  {
+   "addr": 65540,
+   "bytes": [
+    227,
+    160,
+    16,
+    5
+   ],
+   "mnemonic": "mov",
+   "operands": "r1, #5",
+   "comment": "R1 = 5"
+  },
+  {
+   "addr": 65544,
+   "bytes": [
+    227,
+    160,
+    32,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "r2, #0",
+   "comment": "R2 = 0 (default)"
+  },
+  {
+   "addr": 65548,
+   "bytes": [
+    227,
+    160,
+    48,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "r3, #0",
+   "comment": "R3 = 0 (default)"
+  },
+  {
+   "addr": 65552,
+   "bytes": [
+    225,
+    80,
+    0,
+    1
+   ],
+   "mnemonic": "cmp",
+   "operands": "r0, r1",
+   "comment": "Compare R0 with R1 (5 vs 5)"
+  },
+  {
+   "addr": 65556,
+   "bytes": [
+    3,
+    160,
+    32,
+    1
+   ],
+   "mnemonic": "moveq",
+   "operands": "r2, #1",
+   "comment": "If equal: R2 = 1"
+  },
+  {
+   "addr": 65560,
+   "bytes": [
+    19,
+    160,
+    32,
+    0
+   ],
+   "mnemonic": "movne",
+   "operands": "r2, #0",
+   "comment": "If not equal: R2 = 0"
+  },
+  {
+   "addr": 65564,
+   "bytes": [
+    195,
+    160,
+    48,
+    99
+   ],
+   "mnemonic": "movgt",
+   "operands": "r3, #99",
+   "comment": "If greater than: R3 = 99"
+  },
+  {
+   "addr": 65568,
+   "bytes": [
+    227,
+    160,
+    64,
+    10
+   ],
+   "mnemonic": "mov",
+   "operands": "r4, #10",
+   "comment": "R4 = 10"
+  },
+  {
+   "addr": 65572,
+   "bytes": [
+    225,
+    80,
+    0,
+    4
+   ],
+   "mnemonic": "cmp",
+   "operands": "r0, r4",
+   "comment": "Compare R0 with R4 (5 vs 10)"
+  },
+  {
+   "addr": 65576,
+   "bytes": [
+    179,
+    160,
+    80,
+    1
+   ],
+   "mnemonic": "movlt",
+   "operands": "r5, #1",
+   "comment": "If less than: R5 = 1"
+  },
+  {
+   "addr": 65580,
+   "bytes": [
+    163,
+    160,
+    96,
+    1
+   ],
+   "mnemonic": "movge",
+   "operands": "r6, #1",
+   "comment": "If greater or equal: R6 = 1"
+  },
+  {
+   "addr": 65584,
+   "bytes": [
+    231,
+    254,
+    222,
+    240
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialRegs": {
+  "r5": 0,
+  "r6": 0
+ },
+ "initialMemory": [],
+ "stackBase": null,
+ "memWords": [],
+ "initial": {
+  "regs": {
+   "r0": 0,
+   "r1": 0,
+   "r2": 0,
+   "r3": 0,
+   "r4": 0,
+   "r5": 0,
+   "r6": 0,
+   "r7": 0,
+   "r8": 0,
+   "r9": 0,
+   "r10": 0,
+   "r11": 0,
+   "r12": 0,
+   "r13": 3221160448,
+   "r14": 0,
+   "r15": 65536
+  },
+  "flags": {
+   "N": false,
+   "Z": false,
+   "C": false,
+   "V": false
+  },
+  "memory": {}
+ },
+ "steps": [
+  {
+   "addr": 65544,
+   "pcBefore": 65536,
+   "fetched": 65544,
+   "fetchSkew": 8,
+   "mnemonic": "mov",
+   "operands": "r2, #0",
+   "log": "0x00010008: mov r2, #0",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r15",
+     "oldValue": 65536,
+     "newValue": 65548
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 0,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65548
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  },
+  {
+   "addr": 65556,
+   "pcBefore": 65548,
+   "fetched": 65556,
+   "fetchSkew": 8,
+   "mnemonic": "moveq",
+   "operands": "r2, #1",
+   "log": "0x00010014: moveq r2, #1 (skipped, condition false)",
+   "skipped": true,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r15",
+     "oldValue": 65548,
+     "newValue": 65560
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 0,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65560
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  },
+  {
+   "addr": 65568,
+   "pcBefore": 65560,
+   "fetched": 65568,
+   "fetchSkew": 8,
+   "mnemonic": "mov",
+   "operands": "r4, #10",
+   "log": "0x00010020: mov r4, #10 -> R4=0x0000000a",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r4",
+     "oldValue": 0,
+     "newValue": 10
+    },
+    {
+     "reg": "r15",
+     "oldValue": 65560,
+     "newValue": 65572
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 0,
+    "r3": 0,
+    "r4": 10,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65572
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  },
+  {
+   "addr": 65580,
+   "pcBefore": 65572,
+   "fetched": 65580,
+   "fetchSkew": 8,
+   "mnemonic": "movge",
+   "operands": "r6, #1",
+   "log": "0x0001002c: movge r6, #1 -> R6=0x00000001",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r6",
+     "oldValue": 0,
+     "newValue": 1
+    },
+    {
+     "reg": "r15",
+     "oldValue": 65572,
+     "newValue": 65584
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 0,
+    "r3": 0,
+    "r4": 10,
+    "r5": 0,
+    "r6": 1,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65584
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  }
+ ],
+ "halted": true,
+ "endedAtHlt": false,
+ "ended": true,
+ "stepCount": 4,
+ "hitStepCap": false,
+ "pcFetchBug": true,
+ "fetchSkew": 8,
+ "executedAddrs": [
+  65544,
+  65556,
+  65568,
+  65580
+ ],
+ "neverRan": [
+  65536,
+  65540,
+  65548,
+  65552,
+  65560,
+  65564,
+  65572,
+  65576,
+  65584
+ ],
+ "quiz": [
+  {
+   "question": "After \"cmp r0, r1\" (5 vs 5), what is R2? (MOVEQ sets it to 1, MOVNE sets it to 0)",
+   "answer": 1,
+   "format": "decimal",
+   "hint": "5 == 5, so the EQ condition is true. MOVEQ executes (R2=1), then MOVNE does NOT execute because NE is false.",
+   "emulator": null,
+   "where": "arm-66: never executed 10018",
+   "typed": "",
+   "accepted": false
+  },
+  {
+   "question": "After \"cmp r0, r1\" (5 vs 5), what is R3? (MOVGT would set it to 99)",
+   "answer": 0,
+   "format": "decimal",
+   "hint": "5 is NOT greater than 5 (they are equal), so MOVGT does not execute. R3 stays at its default value of 0.",
+   "emulator": null,
+   "where": "arm-66: never executed 1001c",
+   "typed": "",
+   "accepted": false
+  },
+  {
+   "question": "After \"cmp r0, r4\" (5 vs 10), does MOVLT execute? What is R5? (1=yes, 0=no)",
+   "answer": 1,
+   "format": "decimal",
+   "hint": "5 < 10 is true, so the LT condition fires and R5 = 1.",
+   "emulator": null,
+   "where": "arm-66: never executed 10028",
+   "typed": "",
+   "accepted": false
+  }
+ ],
+ "solved": false,
+ "winTitle": "Conditional Execution Mastered!",
+ "winMsg": "You understand ARM conditional execution. This feature lets ARM avoid many branch instructions, which is why ARM code can be very compact and efficient."
+}

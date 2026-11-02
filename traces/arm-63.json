@@ -1,0 +1,305 @@
+{
+ "exercise": "arm-63",
+ "title": "ARM Registers",
+ "unit": "unit13-arm",
+ "mode": "asm-quiz",
+ "vizMode": "asm",
+ "arch": "arm",
+ "desc": "Goal: Learn the ARM register set. ARM has 16 general-purpose 32-bit registers: R0-R12 for general use, R13 (SP) as the stack pointer, R14 (LR) as the link register (holds return addresses), and R15 (PC) as the program counter. The CPSR holds condition flags (N, Z, C, V). Unlike x86, ARM registers are uniform — any general register can do arithmetic.",
+ "source": [
+  "// ARM Registers",
+  "// R0-R12  — general purpose",
+  "// R13 (SP) — stack pointer",
+  "// R14 (LR) — link register (return addr)",
+  "// R15 (PC) — program counter",
+  "// CPSR — flags: N, Z, C, V",
+  "",
+  "mov r0, #10",
+  "mov r1, #20",
+  "mov r2, #30",
+  "mov r3, r1          ; register copy",
+  "mov sp, #0x00800000 ; set stack pointer",
+  "mov r4, sp          ; SP and R13 are the same!",
+  "hlt"
+ ],
+ "instructions": [
+  {
+   "addr": 65536,
+   "bytes": [
+    227,
+    160,
+    0,
+    10
+   ],
+   "mnemonic": "mov",
+   "operands": "r0, #10",
+   "comment": "Load 10 into R0"
+  },
+  {
+   "addr": 65540,
+   "bytes": [
+    227,
+    160,
+    16,
+    20
+   ],
+   "mnemonic": "mov",
+   "operands": "r1, #20",
+   "comment": "Load 20 into R1"
+  },
+  {
+   "addr": 65544,
+   "bytes": [
+    227,
+    160,
+    32,
+    30
+   ],
+   "mnemonic": "mov",
+   "operands": "r2, #30",
+   "comment": "Load 30 into R2"
+  },
+  {
+   "addr": 65548,
+   "bytes": [
+    225,
+    160,
+    48,
+    1
+   ],
+   "mnemonic": "mov",
+   "operands": "r3, r1",
+   "comment": "Copy R1 into R3"
+  },
+  {
+   "addr": 65552,
+   "bytes": [
+    227,
+    160,
+    216,
+    2
+   ],
+   "mnemonic": "mov",
+   "operands": "sp, #0x00800000",
+   "comment": "Set SP (R13) to 0x00800000"
+  },
+  {
+   "addr": 65556,
+   "bytes": [
+    225,
+    160,
+    64,
+    13
+   ],
+   "mnemonic": "mov",
+   "operands": "r4, sp",
+   "comment": "Copy SP into R4 — same register as R13"
+  },
+  {
+   "addr": 65560,
+   "bytes": [
+    231,
+    254,
+    222,
+    240
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "stackBase": null,
+ "memWords": [],
+ "initial": {
+  "regs": {
+   "r0": 0,
+   "r1": 0,
+   "r2": 0,
+   "r3": 0,
+   "r4": 0,
+   "r5": 0,
+   "r6": 0,
+   "r7": 0,
+   "r8": 0,
+   "r9": 0,
+   "r10": 0,
+   "r11": 0,
+   "r12": 0,
+   "r13": 3221160448,
+   "r14": 0,
+   "r15": 65536
+  },
+  "flags": {
+   "N": false,
+   "Z": false,
+   "C": false,
+   "V": false
+  },
+  "memory": {}
+ },
+ "steps": [
+  {
+   "addr": 65544,
+   "pcBefore": 65536,
+   "fetched": 65544,
+   "fetchSkew": 8,
+   "mnemonic": "mov",
+   "operands": "r2, #30",
+   "log": "0x00010008: mov r2, #30 -> R2=0x0000001e",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r2",
+     "oldValue": 0,
+     "newValue": 30
+    },
+    {
+     "reg": "r15",
+     "oldValue": 65536,
+     "newValue": 65548
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 30,
+    "r3": 0,
+    "r4": 0,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65548
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  },
+  {
+   "addr": 65556,
+   "pcBefore": 65548,
+   "fetched": 65556,
+   "fetchSkew": 8,
+   "mnemonic": "mov",
+   "operands": "r4, sp",
+   "log": "0x00010014: mov r4, sp -> R4=0xbfff0200",
+   "skipped": false,
+   "inDelaySlot": false,
+   "branchPending": null,
+   "branchTarget": null,
+   "diffs": [
+    {
+     "reg": "r4",
+     "oldValue": 0,
+     "newValue": 3221160448
+    },
+    {
+     "reg": "r15",
+     "oldValue": 65548,
+     "newValue": 65560
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "regs": {
+    "r0": 0,
+    "r1": 0,
+    "r2": 30,
+    "r3": 0,
+    "r4": 3221160448,
+    "r5": 0,
+    "r6": 0,
+    "r7": 0,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 3221160448,
+    "r14": 0,
+    "r15": 65560
+   },
+   "flags": {
+    "N": false,
+    "Z": false,
+    "C": false,
+    "V": false
+   },
+   "halted": false,
+   "memory": {}
+  }
+ ],
+ "halted": true,
+ "endedAtHlt": false,
+ "ended": true,
+ "stepCount": 2,
+ "hitStepCap": false,
+ "pcFetchBug": true,
+ "fetchSkew": 8,
+ "executedAddrs": [
+  65544,
+  65556
+ ],
+ "neverRan": [
+  65536,
+  65540,
+  65548,
+  65552,
+  65560
+ ],
+ "quiz": [
+  {
+   "question": "What value is in R3 after \"mov r3, r1\"?",
+   "answer": 20,
+   "format": "decimal",
+   "hint": "R1 was set to 20, and MOV copies R1 into R3.",
+   "emulator": null,
+   "where": "arm-63: never executed 1000c",
+   "typed": "",
+   "accepted": false
+  },
+  {
+   "question": "What value is in R4 after \"mov r4, sp\"?",
+   "answer": 8388608,
+   "format": "hex",
+   "hint": "SP (R13) was set to 0x00800000. SP and R13 are the same register, so R4 gets that value.",
+   "emulator": 3221160448,
+   "where": "r4 after 0x10014",
+   "typed": "0xbfff0200",
+   "accepted": false
+  },
+  {
+   "question": "What value is in R0 at the end?",
+   "answer": 10,
+   "format": "decimal",
+   "hint": "R0 was set to 10 and never changed after that.",
+   "emulator": 0,
+   "where": "r0 at halt",
+   "typed": "0",
+   "accepted": false
+  }
+ ],
+ "solved": false,
+ "winTitle": "ARM Registers Explored!",
+ "winMsg": "You learned the ARM register set. Unlike x86 with its specialized registers, ARM has a clean uniform design with 16 general-purpose registers."
+}
