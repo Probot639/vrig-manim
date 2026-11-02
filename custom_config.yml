@@ -1,0 +1,4 @@
+tex:
+  # default template wants dsfont, calligra, tipa etc. (texlive-fontsextra, ~1GB).
+  # we only ever write plain math, basic is amsmath + amssymb
+  template: "basic"

@@ -1,0 +1,1096 @@
+{
+ "exercise": "asm-09",
+ "unit": "unit0-asm",
+ "title": "Stack Frames",
+ "desc": "Goal: Understand the function prologue and epilogue — the setup and teardown of every function's stack frame. Prologue: push ebp; mov ebp,esp; sub esp,N. Epilogue: leave (= mov esp,ebp; pop ebp). Local variables live at negative offsets from EBP.",
+ "arch": "x86",
+ "word": 4,
+ "hexW": 8,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// Stack Frame Layout",
+   "cls": "comment"
+  },
+  {
+   "text": "//   [ebp+8]  → first argument",
+   "cls": "comment"
+  },
+  {
+   "text": "//   [ebp+4]  → return address",
+   "cls": "comment"
+  },
+  {
+   "text": "//   [ebp]    → saved EBP",
+   "cls": "comment"
+  },
+  {
+   "text": "//   [ebp-4]  → first local variable",
+   "cls": "comment"
+  },
+  {
+   "text": "//   [ebp-8]  → second local variable",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// C equivalent:",
+   "cls": "comment"
+  },
+  {
+   "text": "// void func() {",
+   "cls": "comment"
+  },
+  {
+   "text": "//   int x = 10, y = 20;",
+   "cls": "comment"
+  },
+  {
+   "text": "//   return x + y;",
+   "cls": "comment"
+  },
+  {
+   "text": "// }",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "; — Prologue —",
+   "cls": "label"
+  },
+  {
+   "text": "push ebp          ; save old frame",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ebp, esp      ; new frame pointer",
+   "cls": "asm"
+  },
+  {
+   "text": "sub esp, 16       ; space for locals",
+   "cls": "asm"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "mov [ebp-4], 10   ; x",
+   "cls": "asm"
+  },
+  {
+   "text": "mov [ebp-8], 20   ; y",
+   "cls": "asm"
+  },
+  {
+   "text": "mov eax, [ebp-4]",
+   "cls": "asm"
+  },
+  {
+   "text": "add eax, [ebp-8]",
+   "cls": "asm"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "; — Epilogue —",
+   "cls": "label"
+  },
+  {
+   "text": "leave             ; restore frame",
+   "cls": "asm"
+  },
+  {
+   "text": "hlt",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    85
+   ],
+   "mnemonic": "push",
+   "operands": "ebp",
+   "comment": "Prologue: save old frame pointer",
+   "text": "push ebp"
+  },
+  {
+   "addr": 134512641,
+   "bytes": [
+    137,
+    229
+   ],
+   "mnemonic": "mov",
+   "operands": "ebp, esp",
+   "comment": "Prologue: set new frame pointer",
+   "text": "mov ebp, esp"
+  },
+  {
+   "addr": 134512643,
+   "bytes": [
+    131,
+    236,
+    16
+   ],
+   "mnemonic": "sub",
+   "operands": "esp, 16",
+   "comment": "Prologue: allocate space for locals",
+   "text": "sub esp, 16"
+  },
+  {
+   "addr": 134512646,
+   "bytes": [
+    199,
+    69,
+    252,
+    10,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "[ebp-4], 10",
+   "comment": "Store local variable x",
+   "text": "mov [ebp-4], 10"
+  },
+  {
+   "addr": 134512653,
+   "bytes": [
+    199,
+    69,
+    248,
+    20,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "[ebp-8], 20",
+   "comment": "Store local variable y",
+   "text": "mov [ebp-8], 20"
+  },
+  {
+   "addr": 134512660,
+   "bytes": [
+    139,
+    69,
+    252
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, [ebp-4]",
+   "comment": "Load x into EAX",
+   "text": "mov eax, [ebp-4]"
+  },
+  {
+   "addr": 134512663,
+   "bytes": [
+    3,
+    69,
+    248
+   ],
+   "mnemonic": "add",
+   "operands": "eax, [ebp-8]",
+   "comment": "Add y to EAX",
+   "text": "add eax, [ebp-8]"
+  },
+  {
+   "addr": 134512666,
+   "bytes": [
+    201
+   ],
+   "mnemonic": "leave",
+   "operands": "",
+   "comment": "Epilogue: restore frame",
+   "text": "leave"
+  },
+  {
+   "addr": 134512667,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160428,
+  3221160432,
+  3221160436,
+  3221160440,
+  3221160444,
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "halted",
+  "steps": 9,
+  "error": null
+ },
+ "patched": false,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "eax": 0,
+   "ebx": 0,
+   "ecx": 0,
+   "edx": 0,
+   "esp": 3221160448,
+   "ebp": 3221160448,
+   "esi": 0,
+   "edi": 0,
+   "eip": 134512640
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160428": 0,
+   "3221160432": 0,
+   "3221160436": 0,
+   "3221160440": 0,
+   "3221160444": 0,
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 134512640,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160448,
+     "newValue": 3221160444
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512640,
+     "newValue": 134512641
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 3221160444,
+     "value": 3221160448,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x08048000: push ebp → ESP=0xbfff01fc",
+   "halted": false,
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160444,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512641
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160428": 0,
+    "3221160432": 0,
+    "3221160436": 0,
+    "3221160440": 0,
+    "3221160444": 3221160448,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160444,
+     0
+    ],
+    [
+     3221160445,
+     2
+    ],
+    [
+     3221160446,
+     255
+    ],
+    [
+     3221160447,
+     191
+    ]
+   ]
+  },
+  {
+   "idx": 1,
+   "addr": 134512641,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebp",
+     "oldValue": 3221160448,
+     "newValue": 3221160444
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512641,
+     "newValue": 134512643
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048001: mov ebp, esp → EBP=0xbfff01fc",
+   "halted": false,
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160444,
+    "ebp": 3221160444,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512643
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160428": 0,
+    "3221160432": 0,
+    "3221160436": 0,
+    "3221160440": 0,
+    "3221160444": 3221160448,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160444,
+     0
+    ],
+    [
+     3221160445,
+     2
+    ],
+    [
+     3221160446,
+     255
+    ],
+    [
+     3221160447,
+     191
+    ]
+   ]
+  },
+  {
+   "idx": 2,
+   "addr": 134512643,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160444,
+     "newValue": 3221160428
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512643,
+     "newValue": 134512646
+    }
+   ],
+   "flagChanges": {
+    "SF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x08048003: sub esp, 16 → ESP=0xbfff01ec [SF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160428,
+    "ebp": 3221160444,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512646
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160428": 0,
+    "3221160432": 0,
+    "3221160436": 0,
+    "3221160440": 0,
+    "3221160444": 3221160448,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160444,
+     0
+    ],
+    [
+     3221160445,
+     2
+    ],
+    [
+     3221160446,
+     255
+    ],
+    [
+     3221160447,
+     191
+    ]
+   ]
+  },
+  {
+   "idx": 3,
+   "addr": 134512646,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512646,
+     "newValue": 134512653
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 3221160440,
+     "value": 10,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x08048006: mov [ebp-4], 10",
+   "halted": false,
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160428,
+    "ebp": 3221160444,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512653
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160428": 0,
+    "3221160432": 0,
+    "3221160436": 0,
+    "3221160440": 10,
+    "3221160444": 3221160448,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     10
+    ],
+    [
+     3221160441,
+     0
+    ],
+    [
+     3221160442,
+     0
+    ],
+    [
+     3221160443,
+     0
+    ],
+    [
+     3221160444,
+     0
+    ],
+    [
+     3221160445,
+     2
+    ],
+    [
+     3221160446,
+     255
+    ],
+    [
+     3221160447,
+     191
+    ]
+   ]
+  },
+  {
+   "idx": 4,
+   "addr": 134512653,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512653,
+     "newValue": 134512660
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 3221160436,
+     "value": 20,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x0804800d: mov [ebp-8], 20",
+   "halted": false,
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160428,
+    "ebp": 3221160444,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512660
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160428": 0,
+    "3221160432": 0,
+    "3221160436": 20,
+    "3221160440": 10,
+    "3221160444": 3221160448,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160436,
+     20
+    ],
+    [
+     3221160437,
+     0
+    ],
+    [
+     3221160438,
+     0
+    ],
+    [
+     3221160439,
+     0
+    ],
+    [
+     3221160440,
+     10
+    ],
+    [
+     3221160441,
+     0
+    ],
+    [
+     3221160442,
+     0
+    ],
+    [
+     3221160443,
+     0
+    ],
+    [
+     3221160444,
+     0
+    ],
+    [
+     3221160445,
+     2
+    ],
+    [
+     3221160446,
+     255
+    ],
+    [
+     3221160447,
+     191
+    ]
+   ]
+  },
+  {
+   "idx": 5,
+   "addr": 134512660,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 0,
+     "newValue": 10
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512660,
+     "newValue": 134512663
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160440,
+     "value": 10,
+     "size": 4
+    }
+   ],
+   "log": "0x08048014: mov eax, [ebp-4] → EAX=0x0000000a",
+   "halted": false,
+   "regs": {
+    "eax": 10,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160428,
+    "ebp": 3221160444,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512663
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160428": 0,
+    "3221160432": 0,
+    "3221160436": 20,
+    "3221160440": 10,
+    "3221160444": 3221160448,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160436,
+     20
+    ],
+    [
+     3221160437,
+     0
+    ],
+    [
+     3221160438,
+     0
+    ],
+    [
+     3221160439,
+     0
+    ],
+    [
+     3221160440,
+     10
+    ],
+    [
+     3221160441,
+     0
+    ],
+    [
+     3221160442,
+     0
+    ],
+    [
+     3221160443,
+     0
+    ],
+    [
+     3221160444,
+     0
+    ],
+    [
+     3221160445,
+     2
+    ],
+    [
+     3221160446,
+     255
+    ],
+    [
+     3221160447,
+     191
+    ]
+   ]
+  },
+  {
+   "idx": 6,
+   "addr": 134512663,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 10,
+     "newValue": 30
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512663,
+     "newValue": 134512666
+    }
+   ],
+   "flagChanges": {
+    "SF": false
+   },
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160436,
+     "value": 20,
+     "size": 4
+    }
+   ],
+   "log": "0x08048017: add eax, [ebp-8] → EAX=0x0000001e [SF=0]",
+   "halted": false,
+   "regs": {
+    "eax": 30,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160428,
+    "ebp": 3221160444,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512666
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160428": 0,
+    "3221160432": 0,
+    "3221160436": 20,
+    "3221160440": 10,
+    "3221160444": 3221160448,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160436,
+     20
+    ],
+    [
+     3221160437,
+     0
+    ],
+    [
+     3221160438,
+     0
+    ],
+    [
+     3221160439,
+     0
+    ],
+    [
+     3221160440,
+     10
+    ],
+    [
+     3221160441,
+     0
+    ],
+    [
+     3221160442,
+     0
+    ],
+    [
+     3221160443,
+     0
+    ],
+    [
+     3221160444,
+     0
+    ],
+    [
+     3221160445,
+     2
+    ],
+    [
+     3221160446,
+     255
+    ],
+    [
+     3221160447,
+     191
+    ]
+   ]
+  },
+  {
+   "idx": 7,
+   "addr": 134512666,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160428,
+     "newValue": 3221160448
+    },
+    {
+     "reg": "ebp",
+     "oldValue": 3221160444,
+     "newValue": 3221160448
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512666,
+     "newValue": 134512667
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160444,
+     "value": 3221160448,
+     "size": 4
+    }
+   ],
+   "log": "0x0804801a: leave  → ESP=0xbfff0200, EBP=0xbfff0200",
+   "halted": false,
+   "regs": {
+    "eax": 30,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512667
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160428": 0,
+    "3221160432": 0,
+    "3221160436": 20,
+    "3221160440": 10,
+    "3221160444": 3221160448,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160436,
+     20
+    ],
+    [
+     3221160437,
+     0
+    ],
+    [
+     3221160438,
+     0
+    ],
+    [
+     3221160439,
+     0
+    ],
+    [
+     3221160440,
+     10
+    ],
+    [
+     3221160441,
+     0
+    ],
+    [
+     3221160442,
+     0
+    ],
+    [
+     3221160443,
+     0
+    ],
+    [
+     3221160444,
+     0
+    ],
+    [
+     3221160445,
+     2
+    ],
+    [
+     3221160446,
+     255
+    ],
+    [
+     3221160447,
+     191
+    ]
+   ]
+  },
+  {
+   "idx": 8,
+   "addr": 134512667,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804801b: hlt ",
+   "halted": true,
+   "regs": {
+    "eax": 30,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512667
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160428": 0,
+    "3221160432": 0,
+    "3221160436": 20,
+    "3221160440": 10,
+    "3221160444": 3221160448,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160436,
+     20
+    ],
+    [
+     3221160437,
+     0
+    ],
+    [
+     3221160438,
+     0
+    ],
+    [
+     3221160439,
+     0
+    ],
+    [
+     3221160440,
+     10
+    ],
+    [
+     3221160441,
+     0
+    ],
+    [
+     3221160442,
+     0
+    ],
+    [
+     3221160443,
+     0
+    ],
+    [
+     3221160444,
+     0
+    ],
+    [
+     3221160445,
+     2
+    ],
+    [
+     3221160446,
+     255
+    ],
+    [
+     3221160447,
+     191
+    ]
+   ]
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "What is EAX at the end (x + y)?",
+   "hint": "x = 10 at [ebp-4], y = 20 at [ebp-8]. 10 + 20 = 30.",
+   "answer": 30,
+   "format": "decimal",
+   "vrigShows": "30",
+   "probe": {
+    "step": 8,
+    "value": 30,
+    "kind": "emulator",
+    "reg": "eax",
+    "why": "eax at hlt"
+   },
+   "correct": true
+  },
+  {
+   "question": "How many bytes does \"sub esp, 16\" allocate for locals?",
+   "hint": "The prologue reserves stack space by subtracting from ESP.",
+   "answer": 16,
+   "format": "decimal",
+   "vrigShows": "16",
+   "probe": {
+    "step": 2,
+    "value": 16,
+    "kind": "derived",
+    "reg": "esp",
+    "why": "esp drop across sub esp, 16"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Stack Frames Mastered!",
+ "winMsg": "You understand prologue/epilogue — the structure that buffer overflows target."
+}

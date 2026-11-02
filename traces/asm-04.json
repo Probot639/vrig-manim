@@ -1,0 +1,691 @@
+{
+ "exercise": "asm-04",
+ "unit": "unit0-asm",
+ "title": "Arithmetic",
+ "desc": "Goal: Practice arithmetic instructions. ADD adds, SUB subtracts, INC/DEC add/subtract 1, MUL multiplies EAX by the operand (result in EDX:EAX). Trace through and predict EAX's final value before stepping!",
+ "arch": "x86",
+ "word": 4,
+ "hexW": 8,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// Arithmetic Instructions",
+   "cls": "comment"
+  },
+  {
+   "text": "// ADD dst, src  → dst = dst + src",
+   "cls": "comment"
+  },
+  {
+   "text": "// SUB dst, src  → dst = dst - src",
+   "cls": "comment"
+  },
+  {
+   "text": "// INC dst       → dst = dst + 1",
+   "cls": "comment"
+  },
+  {
+   "text": "// DEC dst       → dst = dst - 1",
+   "cls": "comment"
+  },
+  {
+   "text": "// MUL src       → EDX:EAX = EAX * src (EDX clobbered)",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "mov eax, 10",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ebx, 5",
+   "cls": "asm"
+  },
+  {
+   "text": "add eax, ebx",
+   "cls": "asm"
+  },
+  {
+   "text": "sub eax, 3",
+   "cls": "asm"
+  },
+  {
+   "text": "inc eax",
+   "cls": "asm"
+  },
+  {
+   "text": "inc eax",
+   "cls": "asm"
+  },
+  {
+   "text": "dec eax",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ecx, 4",
+   "cls": "asm"
+  },
+  {
+   "text": "mul ecx",
+   "cls": "asm"
+  },
+  {
+   "text": "hlt",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    10,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 10",
+   "comment": "",
+   "text": "mov eax, 10"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    187,
+    5,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 5",
+   "comment": "",
+   "text": "mov ebx, 5"
+  },
+  {
+   "addr": 134512650,
+   "bytes": [
+    1,
+    216
+   ],
+   "mnemonic": "add",
+   "operands": "eax, ebx",
+   "comment": "dst = dst + src",
+   "text": "add eax, ebx"
+  },
+  {
+   "addr": 134512652,
+   "bytes": [
+    131,
+    232,
+    3
+   ],
+   "mnemonic": "sub",
+   "operands": "eax, 3",
+   "comment": "dst = dst - src",
+   "text": "sub eax, 3"
+  },
+  {
+   "addr": 134512655,
+   "bytes": [
+    64
+   ],
+   "mnemonic": "inc",
+   "operands": "eax",
+   "comment": "dst = dst + 1",
+   "text": "inc eax"
+  },
+  {
+   "addr": 134512656,
+   "bytes": [
+    64
+   ],
+   "mnemonic": "inc",
+   "operands": "eax",
+   "comment": "",
+   "text": "inc eax"
+  },
+  {
+   "addr": 134512657,
+   "bytes": [
+    72
+   ],
+   "mnemonic": "dec",
+   "operands": "eax",
+   "comment": "dst = dst - 1",
+   "text": "dec eax"
+  },
+  {
+   "addr": 134512658,
+   "bytes": [
+    185,
+    4,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 4",
+   "comment": "",
+   "text": "mov ecx, 4"
+  },
+  {
+   "addr": 134512663,
+   "bytes": [
+    247,
+    225
+   ],
+   "mnemonic": "mul",
+   "operands": "ecx",
+   "comment": "EDX:EAX = EAX * operand (EDX is clobbered)",
+   "text": "mul ecx"
+  },
+  {
+   "addr": 134512665,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "halted",
+  "steps": 10,
+  "error": null
+ },
+ "patched": false,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "eax": 0,
+   "ebx": 0,
+   "ecx": 0,
+   "edx": 0,
+   "esp": 3221160448,
+   "ebp": 3221160448,
+   "esi": 0,
+   "edi": 0,
+   "eip": 134512640
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 134512640,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 0,
+     "newValue": 10
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512640,
+     "newValue": 134512645
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048000: mov eax, 10 → EAX=0x0000000a",
+   "halted": false,
+   "regs": {
+    "eax": 10,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512645
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 134512645,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 0,
+     "newValue": 5
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512645,
+     "newValue": 134512650
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048005: mov ebx, 5 → EBX=0x00000005",
+   "halted": false,
+   "regs": {
+    "eax": 10,
+    "ebx": 5,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512650
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 134512650,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 10,
+     "newValue": 15
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512650,
+     "newValue": 134512652
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800a: add eax, ebx → EAX=0x0000000f",
+   "halted": false,
+   "regs": {
+    "eax": 15,
+    "ebx": 5,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512652
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 134512652,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 15,
+     "newValue": 12
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512652,
+     "newValue": 134512655
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800c: sub eax, 3 → EAX=0x0000000c",
+   "halted": false,
+   "regs": {
+    "eax": 12,
+    "ebx": 5,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512655
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 134512655,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 12,
+     "newValue": 13
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512655,
+     "newValue": 134512656
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800f: inc eax → EAX=0x0000000d",
+   "halted": false,
+   "regs": {
+    "eax": 13,
+    "ebx": 5,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512656
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 134512656,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 13,
+     "newValue": 14
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512656,
+     "newValue": 134512657
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048010: inc eax → EAX=0x0000000e",
+   "halted": false,
+   "regs": {
+    "eax": 14,
+    "ebx": 5,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512657
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 6,
+   "addr": 134512657,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 14,
+     "newValue": 13
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512657,
+     "newValue": 134512658
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048011: dec eax → EAX=0x0000000d",
+   "halted": false,
+   "regs": {
+    "eax": 13,
+    "ebx": 5,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512658
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 7,
+   "addr": 134512658,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ecx",
+     "oldValue": 0,
+     "newValue": 4
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512658,
+     "newValue": 134512663
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048012: mov ecx, 4 → ECX=0x00000004",
+   "halted": false,
+   "regs": {
+    "eax": 13,
+    "ebx": 5,
+    "ecx": 4,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512663
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 8,
+   "addr": 134512663,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 13,
+     "newValue": 52
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512663,
+     "newValue": 134512665
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048017: mul ecx → EAX=0x00000034",
+   "halted": false,
+   "regs": {
+    "eax": 52,
+    "ebx": 5,
+    "ecx": 4,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512665
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 9,
+   "addr": 134512665,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048019: hlt ",
+   "halted": true,
+   "regs": {
+    "eax": 52,
+    "ebx": 5,
+    "ecx": 4,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512665
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "What is EAX after: 10 + 5 - 3 + 1 + 1 - 1 = ?",
+   "hint": "Trace: 10 → +5=15 → -3=12 → +1=13 → +1=14 → -1=13",
+   "answer": 13,
+   "format": "decimal",
+   "vrigShows": "13",
+   "probe": {
+    "step": 6,
+    "value": 13,
+    "kind": "emulator",
+    "reg": "eax",
+    "why": "eax after dec eax"
+   },
+   "correct": true
+  },
+  {
+   "question": "What is EAX after MUL ECX (where ECX=4)?",
+   "hint": "13 * 4 = 52",
+   "answer": 52,
+   "format": "decimal",
+   "vrigShows": "52",
+   "probe": {
+    "step": 8,
+    "value": 52,
+    "kind": "emulator",
+    "reg": "eax",
+    "why": "eax after mul ecx"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Arithmetic Master!",
+ "winMsg": "You can trace x86 arithmetic operations."
+}

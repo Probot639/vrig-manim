@@ -1,0 +1,823 @@
+{
+ "units": [
+  {
+   "id": "unit-intro-c",
+   "name": "Intro to C",
+   "track": "Foundations",
+   "lessons": [
+    {
+     "id": "c-01",
+     "title": "01: Variables & Memory",
+     "winTitle": "Variables & Memory!"
+    },
+    {
+     "id": "c-02",
+     "title": "02: Pointers",
+     "winTitle": "Pointers Demystified!"
+    },
+    {
+     "id": "c-03",
+     "title": "03: Arrays & Strings",
+     "winTitle": "Arrays & Strings!"
+    },
+    {
+     "id": "c-04",
+     "title": "04: Functions & the Call Stack",
+     "winTitle": "Call Stack Understood!"
+    },
+    {
+     "id": "c-05",
+     "title": "05: Structs & Memory Layout",
+     "winTitle": "Structs Explored!"
+    },
+    {
+     "id": "c-06",
+     "title": "06: Dynamic Memory",
+     "winTitle": "Dynamic Memory!"
+    },
+    {
+     "id": "c-07",
+     "title": "07: Common Pitfalls",
+     "winTitle": "Pitfalls Identified!"
+    },
+    {
+     "id": "c-08",
+     "title": "08: Spot the Bug",
+     "winTitle": "Bug Spotted!"
+    }
+   ]
+  },
+  {
+   "id": "unit0-asm",
+   "name": "ASM",
+   "track": "Foundations",
+   "lessons": [
+    {
+     "id": "asm-01",
+     "title": "Registers",
+     "winTitle": "Registers Explored!"
+    },
+    {
+     "id": "asm-02",
+     "title": "MOV",
+     "winTitle": "MOV Mastered!"
+    },
+    {
+     "id": "asm-03",
+     "title": "PUSH & POP",
+     "winTitle": "Stack Operations!"
+    },
+    {
+     "id": "asm-04",
+     "title": "Arithmetic",
+     "winTitle": "Arithmetic Master!"
+    },
+    {
+     "id": "asm-05",
+     "title": "CMP & Flags",
+     "winTitle": "Flags Understood!"
+    },
+    {
+     "id": "asm-06",
+     "title": "Jumps",
+     "winTitle": "Jump Master!"
+    },
+    {
+     "id": "asm-07",
+     "title": "CALL & RET",
+     "winTitle": "Functions Understood!"
+    },
+    {
+     "id": "asm-08",
+     "title": "Memory Addressing",
+     "winTitle": "Addressing Expert!"
+    },
+    {
+     "id": "asm-09",
+     "title": "Stack Frames",
+     "winTitle": "Stack Frames Mastered!"
+    },
+    {
+     "id": "asm-10",
+     "title": "Calling Conventions",
+     "winTitle": "Calling Convention Expert!"
+    }
+   ]
+  },
+  {
+   "id": "unit7-x64",
+   "name": "x86-64",
+   "track": "Foundations",
+   "lessons": [
+    {
+     "id": "x64-29",
+     "title": "x64 Stack Frame",
+     "winTitle": "x64 Stack!"
+    },
+    {
+     "id": "x64-30",
+     "title": "x64 Calling Convention",
+     "winTitle": "x64 Calling Convention!"
+    },
+    {
+     "id": "x64-31",
+     "title": "x64 ROP",
+     "winTitle": "x64 ROP Chain!"
+    },
+    {
+     "id": "x64-32",
+     "title": "ret2csu",
+     "winTitle": "ret2csu Expert!"
+    },
+    {
+     "id": "x64-33",
+     "title": "One-Gadget",
+     "winTitle": "One-Gadget!"
+    },
+    {
+     "id": "x64-34",
+     "title": "x64 Canary Leak",
+     "winTitle": "Canary Cracked!"
+    },
+    {
+     "id": "x64-35",
+     "title": "PIE Bypass",
+     "winTitle": "PIE Bypassed!"
+    },
+    {
+     "id": "x64-36",
+     "title": "x64 Full Chain",
+     "winTitle": "Full Chain Complete!"
+    }
+   ]
+  },
+  {
+   "id": "unit1-stack",
+   "name": "STACK",
+   "track": "Foundations",
+   "lessons": [
+    {
+     "id": "stack-01",
+     "title": "01: The Stack Frame",
+     "winTitle": "Stack Frame Complete"
+    },
+    {
+     "id": "stack-02",
+     "title": "02: The Overflow",
+     "winTitle": "Crash! Segmentation Fault"
+    },
+    {
+     "id": "stack-03",
+     "title": "03: Hijack Execution",
+     "winTitle": "FLAG{you_own_the_eip}"
+    },
+    {
+     "id": "stack-04",
+     "title": "04: Randomized Addresses",
+     "winTitle": "FLAG{aslr_defeated}"
+    },
+    {
+     "id": "stack-05",
+     "title": "05: The Tripwire",
+     "winTitle": "FLAG{canary_bypassed}"
+    }
+   ]
+  },
+  {
+   "id": "unit3-stack-ii",
+   "name": "STACK II",
+   "track": "Foundations",
+   "lessons": [
+    {
+     "id": "stack2-11",
+     "title": "11: Return to Libc",
+     "winTitle": "FLAG{ret2libc}"
+    },
+    {
+     "id": "stack2-12",
+     "title": "12: ROP Basics",
+     "winTitle": "FLAG{rop_chain}"
+    },
+    {
+     "id": "stack2-13",
+     "title": "13: Stack Pivot",
+     "winTitle": "FLAG{stack_pivot}"
+    },
+    {
+     "id": "stack2-14",
+     "title": "14: SROP",
+     "winTitle": "FLAG{srop}"
+    }
+   ]
+  },
+  {
+   "id": "unit2-logic",
+   "name": "Logic & Input Mismatches",
+   "track": "Logic & Input",
+   "lessons": [
+    {
+     "id": "logic-06",
+     "title": "06: Integer Overflow",
+     "winTitle": "FLAG{integer_wrap}"
+    },
+    {
+     "id": "logic-07",
+     "title": "07: Format String: Reading",
+     "winTitle": "Secret Leaked!"
+    },
+    {
+     "id": "logic-08",
+     "title": "08: Format String: Writing",
+     "winTitle": "FLAG{format_string_write}"
+    },
+    {
+     "id": "logic-09",
+     "title": "09: Off-by-One",
+     "winTitle": "FLAG{off_by_one}"
+    },
+    {
+     "id": "logic-10",
+     "title": "10: Signedness Bug",
+     "winTitle": "FLAG{signed_vs_unsigned}"
+    }
+   ]
+  },
+  {
+   "id": "unit11-heap-internals",
+   "name": "Heap Internals",
+   "track": "Linux Heap",
+   "lessons": [
+    {
+     "id": "hint-53",
+     "title": "53: ptmalloc2 Overview",
+     "winTitle": "ptmalloc2 Internals"
+    },
+    {
+     "id": "hint-54",
+     "title": "54: Chunk Lifecycle",
+     "winTitle": "Chunk Lifecycle Complete"
+    },
+    {
+     "id": "hint-55",
+     "title": "55: Bin Types",
+     "winTitle": "Bin Types Explored"
+    },
+    {
+     "id": "hint-56",
+     "title": "56: Tcache Deep Dive",
+     "winTitle": "Tcache Mastered"
+    },
+    {
+     "id": "hint-57",
+     "title": "57: Arena & Threads",
+     "winTitle": "Arenas Understood"
+    },
+    {
+     "id": "hint-58",
+     "title": "58: Coalescing & Unlink",
+     "winTitle": "Coalescing & Unlink Mastered"
+    }
+   ]
+  },
+  {
+   "id": "unit4-heap",
+   "name": "HEAP",
+   "track": "Linux Heap",
+   "lessons": [
+    {
+     "id": "heap-15",
+     "title": "15: The Heap",
+     "winTitle": "Heap Basics Complete"
+    },
+    {
+     "id": "heap-18",
+     "title": "18: Heap Overflow",
+     "winTitle": "FLAG{heap_overflow}"
+    },
+    {
+     "id": "heap-16",
+     "title": "16: Use-After-Free",
+     "winTitle": "FLAG{use_after_free}"
+    },
+    {
+     "id": "heap-17",
+     "title": "17: Double Free",
+     "winTitle": "FLAG{double_free}"
+    }
+   ]
+  },
+  {
+   "id": "unit5-heap-ii",
+   "name": "HEAP II",
+   "track": "Linux Heap",
+   "lessons": [
+    {
+     "id": "heap2-19",
+     "title": "19: Tcache Poisoning",
+     "winTitle": "FLAG{tcache_poison}"
+    },
+    {
+     "id": "heap2-20",
+     "title": "20: Fastbin Dup",
+     "winTitle": "FLAG{fastbin_dup}"
+    },
+    {
+     "id": "heap2-21",
+     "title": "21: Unsorted Bin Attack",
+     "winTitle": "FLAG{unsorted_bin}"
+    },
+    {
+     "id": "heap2-22",
+     "title": "22: House of Force",
+     "winTitle": "FLAG{house_of_force}"
+    },
+    {
+     "id": "heap2-23",
+     "title": "23: House of Spirit",
+     "winTitle": "FLAG{house_of_spirit}"
+    },
+    {
+     "id": "heap2-24",
+     "title": "24: House of Orange",
+     "winTitle": "FLAG{house_of_orange}"
+    },
+    {
+     "id": "heap2-25",
+     "title": "25: House of Einherjar",
+     "winTitle": "FLAG{house_of_einherjar}"
+    },
+    {
+     "id": "heap2-26",
+     "title": "26: House of Lore",
+     "winTitle": "FLAG{house_of_lore}"
+    }
+   ]
+  },
+  {
+   "id": "unit8-win-stack",
+   "name": "WIN STACK",
+   "track": "Windows",
+   "lessons": [
+    {
+     "id": "win-37",
+     "title": "37: stdcall Overflow",
+     "winTitle": "stdcall Smashed!"
+    },
+    {
+     "id": "win-38",
+     "title": "38: Windows Stack Overflow",
+     "winTitle": "Stack Overflow!"
+    },
+    {
+     "id": "win-40",
+     "title": "40: SEH Overwrite",
+     "winTitle": "SEH Exploited!"
+    },
+    {
+     "id": "win-39",
+     "title": "39: SEH on Stack",
+     "winTitle": "SEH Overwritten!"
+    },
+    {
+     "id": "win-41",
+     "title": "41: /GS Cookie Bypass",
+     "winTitle": "/GS Cookie Bypassed!"
+    },
+    {
+     "id": "win-42",
+     "title": "42: CFG Challenge",
+     "winTitle": "CFG Bypassed!"
+    }
+   ]
+  },
+  {
+   "id": "unit12-win-heap-internals",
+   "name": "Win Heap Internals",
+   "track": "Windows",
+   "lessons": [
+    {
+     "id": "whint-59",
+     "title": "59: NT Heap Overview",
+     "winTitle": "NT Heap Mapped!"
+    },
+    {
+     "id": "whint-60",
+     "title": "60: LFH Internals",
+     "winTitle": "LFH Internals Mastered!"
+    },
+    {
+     "id": "whint-61",
+     "title": "61: Segment Heap",
+     "winTitle": "Segment Heap Explored!"
+    },
+    {
+     "id": "whint-62",
+     "title": "62: Heap Metadata Encoding",
+     "winTitle": "Encoding Understood!"
+    }
+   ]
+  },
+  {
+   "id": "unit9-win-heap",
+   "name": "WIN HEAP",
+   "track": "Windows",
+   "lessons": [
+    {
+     "id": "win-43",
+     "title": "43: LFH Use-After-Free",
+     "winTitle": "LFH UAF!"
+    },
+    {
+     "id": "win-44",
+     "title": "44: LFH Overflow",
+     "winTitle": "LFH Overflow!"
+    },
+    {
+     "id": "win-45",
+     "title": "45: Double Free",
+     "winTitle": "Double Free!"
+    },
+    {
+     "id": "win-46",
+     "title": "46: WinAPI Heap UAF",
+     "winTitle": "WinAPI Heap Pwned!"
+    }
+   ]
+  },
+  {
+   "id": "unit13-arm",
+   "name": "ARM",
+   "track": "Architectures",
+   "lessons": [
+    {
+     "id": "arm-63",
+     "title": "ARM Registers",
+     "winTitle": "ARM Registers Explored!"
+    },
+    {
+     "id": "arm-64",
+     "title": "Data Processing",
+     "winTitle": "Data Processing Mastered!"
+    },
+    {
+     "id": "arm-65",
+     "title": "Memory Access",
+     "winTitle": "Memory Access Mastered!"
+    },
+    {
+     "id": "arm-66",
+     "title": "Conditional Execution",
+     "winTitle": "Conditional Execution Mastered!"
+    },
+    {
+     "id": "arm-67",
+     "title": "ARM Calling Convention",
+     "winTitle": "Calling Convention Mastered!"
+    },
+    {
+     "id": "arm-68",
+     "title": "ARM Stack Frame",
+     "winTitle": "ARM Stack Frames Mastered!"
+    },
+    {
+     "id": "arm-69",
+     "title": "ARM Stack Overflow",
+     "winTitle": "FLAG{arm_lr_hijack}"
+    },
+    {
+     "id": "arm-70",
+     "title": "ARM ROP",
+     "winTitle": "FLAG{arm_rop_chain}"
+    }
+   ]
+  },
+  {
+   "id": "unit14-mips",
+   "name": "MIPS",
+   "track": "Architectures",
+   "lessons": [
+    {
+     "id": "mips-71",
+     "title": "MIPS Registers",
+     "winTitle": "Registers Learned!"
+    },
+    {
+     "id": "mips-72",
+     "title": "MIPS Arithmetic",
+     "winTitle": "Arithmetic Mastered!"
+    },
+    {
+     "id": "mips-73",
+     "title": "MIPS Memory",
+     "winTitle": "Memory Access Learned!"
+    },
+    {
+     "id": "mips-74",
+     "title": "MIPS Branching",
+     "winTitle": "Delay Slots Understood!"
+    },
+    {
+     "id": "mips-75",
+     "title": "MIPS Calling Convention",
+     "winTitle": "Calling Convention Mastered!"
+    },
+    {
+     "id": "mips-76",
+     "title": "MIPS Stack Frame",
+     "winTitle": "Stack Frame Expert!"
+    },
+    {
+     "id": "mips-77",
+     "title": "MIPS Stack Overflow",
+     "winTitle": "FLAG{mips_ra_hijack}"
+    },
+    {
+     "id": "mips-78",
+     "title": "MIPS ROP",
+     "winTitle": "FLAG{mips_rop}"
+    }
+   ]
+  },
+  {
+   "id": "unit15-mitigations",
+   "name": "Mitigations",
+   "track": "Defense & Theory",
+   "lessons": [
+    {
+     "id": "mit-79",
+     "title": "79: ASLR Deep Dive",
+     "winTitle": "ASLR Understood!"
+    },
+    {
+     "id": "mit-83",
+     "title": "83: PIE",
+     "winTitle": "PIE Understood!"
+    },
+    {
+     "id": "mit-80",
+     "title": "80: DEP / NX (W^X)",
+     "winTitle": "DEP/NX Mastered!"
+    },
+    {
+     "id": "mit-81",
+     "title": "81: Stack Canaries Deep Dive",
+     "winTitle": "FLAG{canary_deep_dive}"
+    },
+    {
+     "id": "mit-82",
+     "title": "82: RELRO & GOT Overwrite",
+     "winTitle": "RELRO Mastered!"
+    },
+    {
+     "id": "mit-84",
+     "title": "84: CFI",
+     "winTitle": "CFI Explored!"
+    },
+    {
+     "id": "mit-85",
+     "title": "85: Intel CET & Shadow Stacks",
+     "winTitle": "CET Mastered!"
+    },
+    {
+     "id": "mit-86",
+     "title": "86: Combined Mitigations",
+     "winTitle": "Full Hardening Analyzed!"
+    }
+   ]
+  },
+  {
+   "id": "unit6-final",
+   "name": "Exploit Chains",
+   "track": "Advanced",
+   "lessons": [
+    {
+     "id": "final-27",
+     "title": "27: Full Chain",
+     "winTitle": "FLAG{full_chain_master}"
+    },
+    {
+     "id": "final-28",
+     "title": "28: Blind Chain",
+     "winTitle": "FLAG{you_are_ready}"
+    }
+   ]
+  },
+  {
+   "id": "unit16-advanced",
+   "name": "Advanced I",
+   "track": "Advanced",
+   "lessons": [
+    {
+     "id": "adv-87",
+     "title": "87: C++ Vtable Layout",
+     "winTitle": "Vtable Layout Understood!"
+    },
+    {
+     "id": "adv-88",
+     "title": "88: Vtable Hijacking",
+     "winTitle": "FLAG{vtable_hijack}"
+    },
+    {
+     "id": "adv-89",
+     "title": "89: Type Confusion",
+     "winTitle": "FLAG{type_confusion}"
+    },
+    {
+     "id": "adv-90",
+     "title": "90: UAF + Vtable",
+     "winTitle": "FLAG{uaf_vtable_hijack}"
+    },
+    {
+     "id": "adv-91",
+     "title": "91: Counterfeit OOP (COOP)",
+     "winTitle": "COOP Dispatch Understood!"
+    },
+    {
+     "id": "adv-92",
+     "title": "92: Ret2dlresolve",
+     "winTitle": "FLAG{ret2dlresolve}"
+    },
+    {
+     "id": "adv-93",
+     "title": "93: FILE Structure Attack",
+     "winTitle": "FLAG{file_vtable_hijack}"
+    },
+    {
+     "id": "adv-94",
+     "title": "94: FSOP (File Stream Oriented Programming)",
+     "winTitle": "FLAG{fsop_master}"
+    }
+   ]
+  },
+  {
+   "id": "unit17-advanced-ii",
+   "name": "Advanced II",
+   "track": "Advanced",
+   "lessons": [
+    {
+     "id": "adv2-95",
+     "title": "95: JIT Spraying",
+     "winTitle": "JIT Spray Understood!"
+    },
+    {
+     "id": "adv2-99",
+     "title": "99: Heap Feng Shui",
+     "winTitle": "FLAG{heap_feng_shui}"
+    },
+    {
+     "id": "adv2-98",
+     "title": "98: Blind ROP (BROP)",
+     "winTitle": "BROP Attack Mastered!"
+    },
+    {
+     "id": "adv2-96",
+     "title": "96: Kernel Pool Overflow",
+     "winTitle": "Kernel Pool Overflow!"
+    },
+    {
+     "id": "adv2-97",
+     "title": "97: Spectre v1 - Bounds Check Bypass",
+     "winTitle": "Spectre v1 Understood!"
+    },
+    {
+     "id": "adv2-100",
+     "title": "100: Sandboxing & Escape",
+     "winTitle": "Sandbox Escape Understood!"
+    },
+    {
+     "id": "adv2-101",
+     "title": "101: Data-Only Attacks",
+     "winTitle": "FLAG{data_only_attack}"
+    },
+    {
+     "id": "adv2-102",
+     "title": "102: Data-Oriented Programming (DOP)",
+     "winTitle": "DOP Attack Mastered!"
+    }
+   ]
+  },
+  {
+   "id": "unit18-kernel",
+   "name": "Kernel PWN",
+   "track": "Kernel",
+   "lessons": [
+    {
+     "id": "kern-103",
+     "title": "103: Kernel Memory Layout",
+     "winTitle": "Kernel Fundamentals Mastered!"
+    },
+    {
+     "id": "kern-104",
+     "title": "104: Kernel Stack Overflow",
+     "winTitle": "FLAG{kernel_stack_smash}"
+    },
+    {
+     "id": "kern-105",
+     "title": "105: Kernel UAF via Slab Spray",
+     "winTitle": "FLAG{kernel_slab_uaf}"
+    },
+    {
+     "id": "kern-106",
+     "title": "106: SMEP/SMAP Bypass",
+     "winTitle": "SMEP Bypass Complete!"
+    },
+    {
+     "id": "kern-107",
+     "title": "107: modprobe_path Overwrite",
+     "winTitle": "modprobe_path Pwned!"
+    }
+   ]
+  },
+  {
+   "id": "unit19-glibc-bypass",
+   "name": "glibc Version Bypasses",
+   "track": "glibc Bypasses",
+   "lessons": [
+    {
+     "id": "glibc-108",
+     "title": "108: Double-Free on glibc 2.31",
+     "winTitle": "Tcache Key Bypass!"
+    },
+    {
+     "id": "glibc-109",
+     "title": "109: Tcache Poison on glibc 2.32+",
+     "winTitle": "Safe-Linking Bypass!"
+    },
+    {
+     "id": "glibc-110",
+     "title": "110: Heap Consolidation Exploit",
+     "winTitle": "Overlapping Chunks!"
+    }
+   ]
+  },
+  {
+   "id": "unit20-teaching-gaps",
+   "name": "Exploitation Techniques",
+   "track": "Exploitation Techniques",
+   "lessons": [
+    {
+     "id": "gap-111",
+     "title": "111: Info Leak Chaining",
+     "winTitle": "Info Leak Chain!"
+    },
+    {
+     "id": "gap-112",
+     "title": "112: TOCTOU Race Condition",
+     "winTitle": "Race Won!"
+    },
+    {
+     "id": "gap-113",
+     "title": "113: Shellcode Crafting",
+     "winTitle": "Shellcode Written!"
+    },
+    {
+     "id": "gap-114",
+     "title": "114: Partial Overwrite & ASLR Brute Force",
+     "winTitle": "ASLR Brute Forced!"
+    },
+    {
+     "id": "gap-115",
+     "title": "115: Uninitialized Memory Leak",
+     "winTitle": "Memory Leaked!"
+    }
+   ]
+  },
+  {
+   "id": "unit10-challenges",
+   "name": "CTF Lab",
+   "track": "Challenges",
+   "lessons": [
+    {
+     "id": "ctf-47",
+     "title": "Stack Sandbox",
+     "winTitle": "Stack Sandbox Complete!"
+    },
+    {
+     "id": "ctf-48",
+     "title": "Heap Sandbox",
+     "winTitle": "Heap Sandbox Complete!"
+    },
+    {
+     "id": "ctf-49",
+     "title": "CTF: Easy",
+     "winTitle": "CTF Easy Solved!"
+    },
+    {
+     "id": "ctf-50",
+     "title": "CTF: Medium",
+     "winTitle": "CTF Medium Solved!"
+    },
+    {
+     "id": "ctf-51",
+     "title": "CTF: Hard",
+     "winTitle": "CTF Hard Solved!"
+    },
+    {
+     "id": "ctf-52",
+     "title": "CTF: Windows",
+     "winTitle": "CTF Windows Solved!"
+    }
+   ]
+  }
+ ]
+}

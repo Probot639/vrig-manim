@@ -1,0 +1,71 @@
+# Stock 3b1b look. Swatch values are manimlib's own defaults so Tex and
+# anything else pulled straight from manimlib still sits right next to ours.
+
+name = "3b1b"
+background = "#0E0E0E"
+
+[fonts]
+mono = "Noto Sans Mono"
+prose = "Noto Sans"
+
+[swatches]
+blue = "#58C4DD"
+blue_dark = "#1C758A"
+teal = "#5CD0B3"
+green = "#83C167"
+yellow = "#FFFF00"
+yellow_dull = "#E8C11C"
+gold = "#F0AC5F"
+red = "#FC6255"
+maroon = "#C55F73"
+purple = "#9A72AC"
+grey_brown = "#736357"
+white = "#FFFFFF"
+grey_light = "#BBBBBB"
+grey = "#888888"
+grey_dark = "#444444"
+grey_darker = "#222222"
+
+[roles]
+text = "white"
+text_dim = "grey"
+label = "grey_light"
+grid = "grey_dark"
+cell_fill = "grey_darker"
+highlight = "yellow"
+
+# stack frame
+saved_ret = "red"
+saved_fp = "maroon"
+canary = "yellow_dull"
+local_var = "blue"
+buffer = "blue_dark"
+arg = "purple"
+
+# what the attacker controls vs what was there
+attacker_bytes = "gold"
+leak = "green"
+pointer = "white"
+
+# code reuse
+gadget = "purple"
+text_section = "grey_brown"
+libc = "teal"
+
+# heap
+chunk_header = "grey_light"
+chunk_user = "blue"
+freed_chunk = "grey"
+tcache = "yellow"
+fastbin = "maroon"
+unsorted = "purple"
+top_chunk = "grey_brown"
+
+# privilege / address space
+kernel_space = "maroon"
+user_space = "blue_dark"
+
+# outcomes
+mitigation = "teal"
+win = "green"
+crash = "red"

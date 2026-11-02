@@ -1,0 +1,117 @@
+{
+ "exercise": "kern-103",
+ "unit": "unit18-kernel",
+ "title": "103: Kernel Memory Layout",
+ "desc": "The Linux kernel runs in the most privileged CPU mode (ring 0) with its own address space, stack, and memory protections. Understanding the layout is essential before attacking it. Answer the quiz questions about kernel fundamentals.",
+ "mode": "asm-quiz",
+ "arch": "x86",
+ "source": [
+  "#include <linux/module.h>",
+  "#include <linux/kernel.h>",
+  "#include <linux/init.h>",
+  "",
+  "MODULE_LICENSE(\"GPL\");",
+  "",
+  "static int __init hello_init(void) {",
+  "    printk(KERN_INFO \"Hello from ring 0!\\n\");",
+  "    // We are running in kernel space now",
+  "    // 64-bit: addresses start at 0xffff800000000000",
+  "    // Kernel stack: 4 pages (16KB) per task",
+  "    // KASLR adds 9 bits of entropy",
+  "    return 0;",
+  "}",
+  "",
+  "static void __exit hello_exit(void) {",
+  "    printk(KERN_INFO \"Goodbye from ring 0\\n\");",
+  "}",
+  "",
+  "module_init(hello_init);",
+  "module_exit(hello_exit);"
+ ],
+ "instructions": [],
+ "initialMemory": [],
+ "protections": [],
+ "auxViz": [],
+ "winTitle": "Kernel Fundamentals Mastered!",
+ "winMsg": "You understand the basics of kernel memory layout: ring 0 privilege, high-address kernel space, the per-task 16KB kernel stack (since 3.15), and the 9 bits of KASLR entropy. These fundamentals are required for all kernel exploitation techniques.",
+ "realWorld": null,
+ "quiz": [
+  {
+   "question": "What privilege ring does the kernel run in?",
+   "answer": 0,
+   "format": "decimal",
+   "hint": "The most privileged ring on x86. User programs run in ring 3.",
+   "typed": "0",
+   "correct": true
+  },
+  {
+   "question": "On x86-64 Linux, kernel virtual addresses start at 0xffff8000_________. How many trailing zero nibbles?",
+   "answer": 8,
+   "format": "decimal",
+   "hint": "The full prefix is 0xffff800000000000 — 8 zero hex digits after 0xffff8000.",
+   "typed": "8",
+   "correct": true
+  },
+  {
+   "question": "Default kernel stack size in pages on x86-64? (1 page = 4KB, since kernel 3.15)",
+   "answer": 4,
+   "format": "decimal",
+   "hint": "16KB total. Each page is 4KB. Increased from 8KB (2 pages) in kernel 3.15.",
+   "typed": "4",
+   "correct": true
+  },
+  {
+   "question": "How many bits of entropy does KASLR add on x86-64?",
+   "answer": 9,
+   "format": "decimal",
+   "hint": "KASLR randomizes the kernel base among 512 possible positions.",
+   "typed": "9",
+   "correct": true
+  }
+ ],
+ "quizSolved": true,
+ "kernelBase": "ffff800000000000",
+ "stackPages": 4,
+ "stackKB": 16,
+ "kaslrBits": 9,
+ "kaslrSlots": 512,
+ "checks": [
+  {
+   "what": "ring",
+   "got": 0,
+   "want": 0,
+   "ok": true
+  },
+  {
+   "what": "zero nibbles after ffff8000",
+   "got": 8,
+   "want": 8,
+   "ok": true
+  },
+  {
+   "what": "stack pages",
+   "got": 4,
+   "want": 4,
+   "ok": true
+  },
+  {
+   "what": "16KB / 4KB",
+   "got": 4,
+   "want": 4,
+   "ok": true
+  },
+  {
+   "what": "KASLR bits",
+   "got": 9,
+   "want": 9,
+   "ok": true
+  },
+  {
+   "what": "512 slots",
+   "got": 512,
+   "want": 512,
+   "ok": true
+  }
+ ],
+ "solved": true
+}

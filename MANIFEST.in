@@ -1,2 +1,3 @@
 graft manimlib
-recursive-exclude manimlib *.pyc *.DS_Store
+recursive-exclude manimlib *.pyc *.DS_Storegraft vrig
+recursive-exclude vrig *.pyc

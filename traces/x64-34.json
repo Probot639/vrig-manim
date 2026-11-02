@@ -1,0 +1,701 @@
+{
+ "exercise": "x64-34",
+ "unit": "unit7-x64",
+ "title": "x64 Canary Leak",
+ "desc": "Goal: x64 canaries are 8 bytes with byte 0 always \\x00. In a forking server, each fork has the same canary. You can brute-force it one byte at a time: overwrite byte N, if the server doesn't crash → correct guess. 7 bytes × 256 tries = 1792 max attempts.",
+ "arch": "x86-64",
+ "word": 8,
+ "hexW": 16,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// x64 Canary Byte-by-Byte Brute Force",
+   "cls": "comment"
+  },
+  {
+   "text": "// Canary: 0x00DEADBEEFCAFE00",
+   "cls": "comment"
+  },
+  {
+   "text": "//   byte 0: always 0x00 (known)",
+   "cls": "comment"
+  },
+  {
+   "text": "//   bytes 1-7: brute-force 256 each",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Requirements:",
+   "cls": "comment"
+  },
+  {
+   "text": "// 1. Server must fork() per connection",
+   "cls": "comment"
+  },
+  {
+   "text": "//    (same canary in child processes)",
+   "cls": "comment"
+  },
+  {
+   "text": "// 2. Distinguishable crash vs no-crash",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Algorithm:",
+   "cls": "comment"
+  },
+  {
+   "text": "// for byte_pos in 1..7:",
+   "cls": "comment"
+  },
+  {
+   "text": "//   for guess in 0..255:",
+   "cls": "comment"
+  },
+  {
+   "text": "//     overwrite buf + canary[0..pos] + guess",
+   "cls": "comment"
+  },
+  {
+   "text": "//     if no crash: canary[pos] = guess; break",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Max attempts: 7 * 256 = 1,792",
+   "cls": "comment"
+  },
+  {
+   "text": "// (vs brute-forcing 8 bytes: 2^56 ≈ impossible)",
+   "cls": "comment"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 4194304,
+   "bytes": [
+    72,
+    184
+   ],
+   "mnemonic": "mov",
+   "operands": "rax, 0x00deadbeefcafe00",
+   "comment": "The actual 8-byte canary (null byte at position 0!)",
+   "text": "mov rax, 0x00deadbeefcafe00"
+  },
+  {
+   "addr": 4194314,
+   "bytes": [
+    72,
+    137,
+    193
+   ],
+   "mnemonic": "mov",
+   "operands": "rcx, rax",
+   "comment": "Save canary for comparison",
+   "text": "mov rcx, rax"
+  },
+  {
+   "addr": 4194317,
+   "bytes": [
+    178,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "edx, 0",
+   "comment": "Guess byte 0: always 0x00 (known!)",
+   "text": "mov edx, 0"
+  },
+  {
+   "addr": 4194319,
+   "bytes": [
+    182,
+    254
+   ],
+   "mnemonic": "mov",
+   "operands": "esi, 0xfe",
+   "comment": "Guess byte 1: try 0xFE...",
+   "text": "mov esi, 0xfe"
+  },
+  {
+   "addr": 4194321,
+   "bytes": [
+    182,
+    202
+   ],
+   "mnemonic": "mov",
+   "operands": "esi, 0xca",
+   "comment": "...try 0xCA — match! (real: brute 256 tries)",
+   "text": "mov esi, 0xca"
+  },
+  {
+   "addr": 4194323,
+   "bytes": [
+    183,
+    254
+   ],
+   "mnemonic": "mov",
+   "operands": "edi, 0xfe",
+   "comment": "Guess byte 2: try 0xFE...",
+   "text": "mov edi, 0xfe"
+  },
+  {
+   "addr": 4194325,
+   "bytes": [
+    183,
+    190
+   ],
+   "mnemonic": "mov",
+   "operands": "edi, 0xbe",
+   "comment": "...try 0xBE — match!",
+   "text": "mov edi, 0xbe"
+  },
+  {
+   "addr": 4194327,
+   "bytes": [
+    72,
+    184
+   ],
+   "mnemonic": "mov",
+   "operands": "rax, 0x00deadbeefcafe00",
+   "comment": "Full canary recovered after 7 * 256 = 1792 attempts max",
+   "text": "mov rax, 0x00deadbeefcafe00"
+  },
+  {
+   "addr": 4194337,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "Canary leaked! Can now overflow safely.",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "fell-off",
+  "steps": 1,
+  "error": null
+ },
+ "patched": true,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "rax": 0,
+   "rbx": 0,
+   "rcx": 0,
+   "rdx": 0,
+   "rsp": 3221160448,
+   "rbp": 3221160448,
+   "rsi": 0,
+   "rdi": 0,
+   "rip": 4194304,
+   "r8": 0,
+   "r9": 0,
+   "r10": 0,
+   "r11": 0,
+   "r12": 0,
+   "r13": 0,
+   "r14": 0,
+   "r15": 0
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 4194304,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 0,
+     "newValue": 4023057920
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4194304,
+     "newValue": 4194306
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400000: mov rax, 0x00deadbeefcafe00 → RAX=0x00000000efcafe00",
+   "halted": false,
+   "regs": {
+    "rax": 4023057920,
+    "rbx": 0,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194306,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 4194314,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rcx",
+     "oldValue": 0,
+     "newValue": 4023057920
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4194314,
+     "newValue": 4194317
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000040000a: mov rcx, rax → RCX=0x00000000efcafe00",
+   "halted": false,
+   "regs": {
+    "rax": 4023057920,
+    "rbx": 0,
+    "rcx": 4023057920,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194317,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 4194317,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rip",
+     "oldValue": 4194317,
+     "newValue": 4194319
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000040000d: mov edx, 0",
+   "halted": false,
+   "regs": {
+    "rax": 4023057920,
+    "rbx": 0,
+    "rcx": 4023057920,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194319,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0,
+    "edx": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 4194319,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rip",
+     "oldValue": 4194319,
+     "newValue": 4194321
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000040000f: mov esi, 0xfe",
+   "halted": false,
+   "regs": {
+    "rax": 4023057920,
+    "rbx": 0,
+    "rcx": 4023057920,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194321,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0,
+    "edx": 0,
+    "esi": 254
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 4194321,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rip",
+     "oldValue": 4194321,
+     "newValue": 4194323
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400011: mov esi, 0xca",
+   "halted": false,
+   "regs": {
+    "rax": 4023057920,
+    "rbx": 0,
+    "rcx": 4023057920,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194323,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0,
+    "edx": 0,
+    "esi": 202
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 4194323,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rip",
+     "oldValue": 4194323,
+     "newValue": 4194325
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400013: mov edi, 0xfe",
+   "halted": false,
+   "regs": {
+    "rax": 4023057920,
+    "rbx": 0,
+    "rcx": 4023057920,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194325,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0,
+    "edx": 0,
+    "esi": 202,
+    "edi": 254
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 6,
+   "addr": 4194325,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rip",
+     "oldValue": 4194325,
+     "newValue": 4194327
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400015: mov edi, 0xbe",
+   "halted": false,
+   "regs": {
+    "rax": 4023057920,
+    "rbx": 0,
+    "rcx": 4023057920,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194327,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0,
+    "edx": 0,
+    "esi": 202,
+    "edi": 190
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 7,
+   "addr": 4194327,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rip",
+     "oldValue": 4194327,
+     "newValue": 4194329
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400017: mov rax, 0x00deadbeefcafe00",
+   "halted": false,
+   "regs": {
+    "rax": 4023057920,
+    "rbx": 0,
+    "rcx": 4023057920,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194329,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0,
+    "edx": 0,
+    "esi": 202,
+    "edi": 190
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 8,
+   "addr": 4194337,
+   "patched": true,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400021: hlt ",
+   "halted": true,
+   "regs": {
+    "rax": 4023057920,
+    "rbx": 0,
+    "rcx": 4023057920,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194337,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0,
+    "edx": 0,
+    "esi": 202,
+    "edi": 190
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "What is byte 0 of an x64 stack canary always set to?",
+   "hint": "The null byte prevents string functions from reading past the canary.",
+   "answer": 0,
+   "format": "hex",
+   "vrigShows": "0x0",
+   "probe": {
+    "step": 0,
+    "value": 0,
+    "kind": "emulator",
+    "reg": "rax",
+    "why": "low byte of the canary in rax"
+   },
+   "correct": true
+  },
+  {
+   "question": "Maximum brute-force attempts to leak a full 8-byte canary (byte-by-byte)?",
+   "hint": "7 unknown bytes × 256 guesses each = 1792.",
+   "answer": 1792,
+   "format": "decimal",
+   "vrigShows": "1792",
+   "probe": {
+    "step": 8,
+    "value": 1792,
+    "kind": "derived",
+    "why": "7 unknown bytes, 256 guesses each"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Canary Cracked!",
+ "winMsg": "You understand byte-by-byte canary brute force in forking servers."
+}

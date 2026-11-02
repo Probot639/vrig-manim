@@ -1,0 +1,840 @@
+{
+ "exercise": "x64-36",
+ "unit": "unit7-x64",
+ "title": "x64 Full Chain",
+ "desc": "Goal: Chain everything together! Step 1: Leak PIE address → compute binary base. Step 2: Read GOT entry → leak libc address → compute libc base. Step 3: Calculate one-gadget address → overwrite return → shell. This is a realistic modern x64 exploit chain.",
+ "arch": "x86-64",
+ "word": 8,
+ "hexW": 16,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// Full x64 Exploit Chain",
+   "cls": "comment"
+  },
+  {
+   "text": "// PIE + ASLR + NX enabled",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Step 1: Leak PIE address",
+   "cls": "comment"
+  },
+  {
+   "text": "//   Use format string (%p) or info leak",
+   "cls": "comment"
+  },
+  {
+   "text": "//   Subtract known offset → PIE base",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Step 2: Leak libc address",
+   "cls": "comment"
+  },
+  {
+   "text": "//   Read GOT entry (resolved by dynamic linker)",
+   "cls": "comment"
+  },
+  {
+   "text": "//   Subtract known symbol offset → libc base",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Step 3: One-gadget",
+   "cls": "comment"
+  },
+  {
+   "text": "//   libc_base + one_gadget_offset → shell!",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Real-world: typically requires 2 overflows",
+   "cls": "comment"
+  },
+  {
+   "text": "// (one for leak, one for exploit) or a",
+   "cls": "comment"
+  },
+  {
+   "text": "// vulnerability that allows both",
+   "cls": "comment"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 4096,
+   "bytes": [
+    72,
+    184
+   ],
+   "mnemonic": "mov",
+   "operands": "rax, 0x0000555555555830",
+   "comment": "Step 1: Leaked PIE addr (format string %p)",
+   "text": "mov rax, 0x0000555555555830"
+  },
+  {
+   "addr": 4106,
+   "bytes": [
+    72,
+    45
+   ],
+   "mnemonic": "sub",
+   "operands": "rax, 0x830",
+   "comment": "PIE base = leaked - offset",
+   "text": "sub rax, 0x830"
+  },
+  {
+   "addr": 4116,
+   "bytes": [
+    72,
+    137,
+    195
+   ],
+   "mnemonic": "mov",
+   "operands": "rbx, rax",
+   "comment": "RBX = PIE base",
+   "text": "mov rbx, rax"
+  },
+  {
+   "addr": 4119,
+   "bytes": [
+    72,
+    141,
+    131
+   ],
+   "mnemonic": "lea",
+   "operands": "rax, [rbx+0x3fc8]",
+   "comment": "Step 2: RAX = GOT entry for puts (PIE+0x3fc8)",
+   "text": "lea rax, [rbx+0x3fc8]"
+  },
+  {
+   "addr": 4132,
+   "bytes": [
+    72,
+    184
+   ],
+   "mnemonic": "mov",
+   "operands": "rax, 0x00007ffff7a64e80",
+   "comment": "Leaked libc puts address from GOT",
+   "text": "mov rax, 0x00007ffff7a64e80"
+  },
+  {
+   "addr": 4142,
+   "bytes": [
+    72,
+    187
+   ],
+   "mnemonic": "mov",
+   "operands": "rbx, 0x64e80",
+   "comment": "Known puts offset in libc",
+   "text": "mov rbx, 0x64e80"
+  },
+  {
+   "addr": 4152,
+   "bytes": [
+    72,
+    41,
+    216
+   ],
+   "mnemonic": "sub",
+   "operands": "rax, rbx",
+   "comment": "libc_base = puts_addr - puts_offset",
+   "text": "sub rax, rbx"
+  },
+  {
+   "addr": 4155,
+   "bytes": [
+    72,
+    137,
+    193
+   ],
+   "mnemonic": "mov",
+   "operands": "rcx, rax",
+   "comment": "RCX = libc_base",
+   "text": "mov rcx, rax"
+  },
+  {
+   "addr": 4158,
+   "bytes": [
+    72,
+    184
+   ],
+   "mnemonic": "mov",
+   "operands": "rax, 0x4526a",
+   "comment": "Step 3: one_gadget offset",
+   "text": "mov rax, 0x4526a"
+  },
+  {
+   "addr": 4168,
+   "bytes": [
+    72,
+    1,
+    200
+   ],
+   "mnemonic": "add",
+   "operands": "rax, rcx",
+   "comment": "RAX = libc_base + one_gadget → shell addr!",
+   "text": "add rax, rcx"
+  },
+  {
+   "addr": 4171,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "Full chain: PIE leak → libc leak → one_gadget!",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "fell-off",
+  "steps": 1,
+  "error": null
+ },
+ "patched": true,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "rax": 0,
+   "rbx": 0,
+   "rcx": 0,
+   "rdx": 0,
+   "rsp": 3221160448,
+   "rbp": 3221160448,
+   "rsi": 0,
+   "rdi": 0,
+   "rip": 4096,
+   "r8": 0,
+   "r9": 0,
+   "r10": 0,
+   "r11": 0,
+   "r12": 0,
+   "r13": 0,
+   "r14": 0,
+   "r15": 0
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 4096,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 0,
+     "newValue": 1431656496
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4096,
+     "newValue": 4098
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000001000: mov rax, 0x0000555555555830 → RAX=0x0000000055555830",
+   "halted": false,
+   "regs": {
+    "rax": 1431656496,
+    "rbx": 0,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4098,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 4106,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 1431656496,
+     "newValue": 1431654400
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4106,
+     "newValue": 4108
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000000100a: sub rax, 0x830 → RAX=0x0000000055555000",
+   "halted": false,
+   "regs": {
+    "rax": 1431654400,
+    "rbx": 0,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4108,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 4116,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rbx",
+     "oldValue": 0,
+     "newValue": 1431654400
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4116,
+     "newValue": 4119
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000001014: mov rbx, rax → RBX=0x0000000055555000",
+   "halted": false,
+   "regs": {
+    "rax": 1431654400,
+    "rbx": 1431654400,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4119,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 4119,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 1431654400,
+     "newValue": 1431670728
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4119,
+     "newValue": 4122
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000001017: lea rax, [rbx+0x3fc8] → RAX=0x0000000055558fc8",
+   "halted": false,
+   "regs": {
+    "rax": 1431670728,
+    "rbx": 1431654400,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4122,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 4132,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 1431670728,
+     "newValue": 4154871424
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4132,
+     "newValue": 4134
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000001024: mov rax, 0x00007ffff7a64e80 → RAX=0x00000000f7a64e80",
+   "halted": false,
+   "regs": {
+    "rax": 4154871424,
+    "rbx": 1431654400,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4134,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 4142,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rbx",
+     "oldValue": 1431654400,
+     "newValue": 413312
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4142,
+     "newValue": 4144
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000000102e: mov rbx, 0x64e80 → RBX=0x0000000000064e80",
+   "halted": false,
+   "regs": {
+    "rax": 4154871424,
+    "rbx": 413312,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4144,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 6,
+   "addr": 4152,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 4154871424,
+     "newValue": 4154458112
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4152,
+     "newValue": 4155
+    }
+   ],
+   "flagChanges": {
+    "SF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000001038: sub rax, rbx → RAX=0x00000000f7a00000 [SF=1]",
+   "halted": false,
+   "regs": {
+    "rax": 4154458112,
+    "rbx": 413312,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4155,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 7,
+   "addr": 4155,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rcx",
+     "oldValue": 0,
+     "newValue": 4154458112
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4155,
+     "newValue": 4158
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000000103b: mov rcx, rax → RCX=0x00000000f7a00000",
+   "halted": false,
+   "regs": {
+    "rax": 4154458112,
+    "rbx": 413312,
+    "rcx": 4154458112,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4158,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 8,
+   "addr": 4158,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 4154458112,
+     "newValue": 283242
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4158,
+     "newValue": 4160
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000000103e: mov rax, 0x4526a → RAX=0x000000000004526a",
+   "halted": false,
+   "regs": {
+    "rax": 283242,
+    "rbx": 413312,
+    "rcx": 4154458112,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4160,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 9,
+   "addr": 4168,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 283242,
+     "newValue": 4154741354
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4168,
+     "newValue": 4171
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000001048: add rax, rcx → RAX=0x00000000f7a4526a",
+   "halted": false,
+   "regs": {
+    "rax": 4154741354,
+    "rbx": 413312,
+    "rcx": 4154458112,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4171,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 10,
+   "addr": 4171,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000000104b: hlt ",
+   "halted": true,
+   "regs": {
+    "rax": 4154741354,
+    "rbx": 413312,
+    "rcx": 4154458112,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4171,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "How many leak stages are needed in this full chain?",
+   "hint": "Stage 1: leak PIE address. Stage 2: leak libc address via GOT.",
+   "answer": 2,
+   "format": "decimal",
+   "vrigShows": "2",
+   "probe": {
+    "step": 4,
+    "value": 2,
+    "kind": "derived",
+    "why": "lines that load a leaked address"
+   },
+   "correct": true
+  },
+  {
+   "question": "What structure contains resolved libc addresses that can be leaked?",
+   "hint": "1=GOT (Global Offset Table), 2=PLT, 3=BSS. The GOT holds resolved addresses.",
+   "answer": 1,
+   "format": "decimal",
+   "vrigShows": "1",
+   "probe": {
+    "step": 3,
+    "value": 1,
+    "kind": "concept",
+    "reg": "rax",
+    "why": "lea points rax at the GOT slot for puts"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Full Chain Complete!",
+ "winMsg": "You understand the full modern x64 exploit chain: PIE leak → libc leak → one-gadget."
+}

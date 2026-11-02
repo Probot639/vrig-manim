@@ -1,0 +1,1788 @@
+{
+ "exercise": "adv2-102",
+ "unit": "unit17-advanced-ii",
+ "title": "102: Data-Oriented Programming (DOP)",
+ "desc": "Goal: Understand Data-Oriented Programming — Turing-complete exploitation without modifying any code pointer. Unlike ROP (which hijacks the return address to chain gadgets), DOP corrupts non-control data to make the program's own legitimate loops perform attacker-chosen computation. A typical DOP target is a loop that processes records from a data structure (linked list, array of operations). The attacker overflows into that data structure, replacing the records with a chain of \"DOP gadgets\": \n- LOAD: read from an attacker-chosen address \n- STORE: write to an attacker-chosen address \n- ADD/SUB: arithmetic on loaded values \n- CMP/BRANCH: conditional execution based on corrupted data. \nThe original program code remains unmodified — the CPU follows legitimate control flow through the loop. CFI, stack canaries, and shadow stacks see nothing wrong. DOP was proven Turing-complete by Hu et al. (2016), meaning any computation (including full shellcode-equivalent behavior) can be expressed purely through data corruption.",
+ "mode": "asm-quiz",
+ "arch": "x86",
+ "source": [
+  "// Data-Oriented Programming (DOP)",
+  "// The program processes a linked list of operations",
+  "struct op { int type; void *src; void *dst; struct op *next; };",
+  "",
+  "void process(struct op *head) {",
+  "    struct op *cur = head;",
+  "    while (cur != NULL) {",
+  "        if (cur->type == LOAD)",
+  "            *(int*)cur->dst = *(int*)cur->src;",
+  "        else if (cur->type == ADD)",
+  "            *(int*)cur->dst += *(int*)cur->src;",
+  "        cur = cur->next;",
+  "    }",
+  "}",
+  "",
+  "// Attacker corrupts the linked list:",
+  "// Each \"op\" record = one DOP gadget",
+  "// LOAD, STORE, ADD, CMP are all available",
+  "// Result: arbitrary read/write without",
+  "//         touching any code pointer!"
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    187,
+    0,
+    160,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 0x0804a000",
+   "comment": "ebx = ptr to first operation record (corrupted)"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    139,
+    3
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, [ebx]",
+   "comment": "DOP LOAD: read op.type from corrupted record"
+  },
+  {
+   "addr": 134512647,
+   "bytes": [
+    139,
+    83,
+    4
+   ],
+   "mnemonic": "mov",
+   "operands": "edx, [ebx+4]",
+   "comment": "DOP LOAD: read op.src_addr (attacker-controlled)"
+  },
+  {
+   "addr": 134512650,
+   "bytes": [
+    139,
+    75,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, [ebx+8]",
+   "comment": "DOP LOAD: read op.dst_addr (attacker-controlled)"
+  },
+  {
+   "addr": 134512653,
+   "bytes": [
+    131,
+    248,
+    1
+   ],
+   "mnemonic": "cmp",
+   "operands": "eax, 1",
+   "comment": "Is op.type == LOAD (1)?"
+  },
+  {
+   "addr": 134512656,
+   "bytes": [
+    117,
+    4
+   ],
+   "mnemonic": "jne",
+   "operands": "0x08048016",
+   "comment": "If not LOAD, try next type"
+  },
+  {
+   "addr": 134512658,
+   "bytes": [
+    139,
+    2
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, [edx]",
+   "comment": "DOP LOAD gadget: read [src_addr] into eax"
+  },
+  {
+   "addr": 134512660,
+   "bytes": [
+    137,
+    1
+   ],
+   "mnemonic": "mov",
+   "operands": "[ecx], eax",
+   "comment": "DOP STORE gadget: write eax to [dst_addr]"
+  },
+  {
+   "addr": 134512662,
+   "bytes": [
+    139,
+    91,
+    12
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, [ebx+12]",
+   "comment": "ebx = op.next (follow corrupted linked list)"
+  },
+  {
+   "addr": 134512665,
+   "bytes": [
+    133,
+    219
+   ],
+   "mnemonic": "test",
+   "operands": "ebx, ebx",
+   "comment": "Is next == NULL?"
+  },
+  {
+   "addr": 134512667,
+   "bytes": [
+    117,
+    232
+   ],
+   "mnemonic": "jne",
+   "operands": "0x08048005",
+   "comment": "If not NULL, process next record (loop)"
+  },
+  {
+   "addr": 134512669,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "End of processing loop"
+  }
+ ],
+ "initialMemory": [],
+ "protections": [],
+ "auxViz": [],
+ "winTitle": "DOP Attack Mastered!",
+ "winMsg": "Data-Oriented Programming achieves arbitrary computation without corrupting a single code pointer. The program follows its intended control flow while operating on attacker-corrupted data. This defeats CFI, stack canaries, shadow stacks, and all control-flow-only defenses. Only Data-Flow Integrity (DFI) or memory safety can fully prevent DOP.",
+ "realWorld": null,
+ "quiz": [
+  {
+   "question": "Is DOP Turing-complete without modifying any code pointer? (1=yes, 0=no)",
+   "answer": 1,
+   "format": "decimal",
+   "hint": "Hu et al. (2016) proved DOP is Turing-complete. LOAD, STORE, ADD, and conditional branch gadgets — all using legitimate program instructions on corrupted data — are sufficient for arbitrary computation.",
+   "typed": "1",
+   "correct": true
+  },
+  {
+   "question": "In the DOP loop, the instruction at 0x08048012 reads from [edx] where edx is attacker-controlled. This implements which DOP operation? (1=LOAD, 2=STORE, 3=ADD)",
+   "answer": 1,
+   "format": "decimal",
+   "hint": "mov eax, [edx] reads a value from an attacker-chosen address into eax. This is a LOAD gadget — the attacker controls WHAT gets read and from WHERE.",
+   "typed": "1",
+   "correct": true
+  },
+  {
+   "question": "Does Control-Flow Integrity (CFI) detect a DOP attack? (1=yes, 0=no)",
+   "answer": 0,
+   "format": "decimal",
+   "hint": "CFI validates that indirect branches target legitimate code. DOP never modifies control flow — the CPU follows the normal loop. All branches go to intended targets. CFI sees nothing anomalous.",
+   "typed": "0",
+   "correct": true
+  }
+ ],
+ "quizSolved": true,
+ "run": {
+  "init": {
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512640
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 134512640,
+     "bytes": [
+      187,
+      0,
+      160,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, 0x0804a000",
+     "comment": "ebx = ptr to first operation record (corrupted)"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 0,
+      "newValue": 134520832
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512640,
+      "newValue": 134512645
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048000: mov ebx, 0x0804a000 → EBX=0x0804a000",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512645
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512645,
+     "bytes": [
+      139,
+      3
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, [ebx]",
+     "comment": "DOP LOAD: read op.type from corrupted record"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512645,
+      "newValue": 134512647
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520832,
+      "value": 0,
+      "size": 4
+     }
+    ],
+    "log": "0x08048005: mov eax, [ebx]",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512647
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512647,
+     "bytes": [
+      139,
+      83,
+      4
+     ],
+     "mnemonic": "mov",
+     "operands": "edx, [ebx+4]",
+     "comment": "DOP LOAD: read op.src_addr (attacker-controlled)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512647,
+      "newValue": 134512650
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520836,
+      "value": 0,
+      "size": 4
+     }
+    ],
+    "log": "0x08048007: mov edx, [ebx+4]",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512650
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512650,
+     "bytes": [
+      139,
+      75,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ecx, [ebx+8]",
+     "comment": "DOP LOAD: read op.dst_addr (attacker-controlled)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512650,
+      "newValue": 134512653
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520840,
+      "value": 0,
+      "size": 4
+     }
+    ],
+    "log": "0x0804800a: mov ecx, [ebx+8]",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512653
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512653,
+     "bytes": [
+      131,
+      248,
+      1
+     ],
+     "mnemonic": "cmp",
+     "operands": "eax, 1",
+     "comment": "Is op.type == LOAD (1)?"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512653,
+      "newValue": 134512656
+     }
+    ],
+    "flagChanges": {
+     "SF": true,
+     "CF": true
+    },
+    "flags": {
+     "ZF": false,
+     "SF": true,
+     "CF": true,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800d: cmp eax, 1 [SF=1 CF=1]",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512656
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512656,
+     "bytes": [
+      117,
+      4
+     ],
+     "mnemonic": "jne",
+     "operands": "0x08048016",
+     "comment": "If not LOAD, try next type"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512656,
+      "newValue": 134512662
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": true,
+     "CF": true,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048010: jne 0x08048016",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512662
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512662,
+     "bytes": [
+      139,
+      91,
+      12
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, [ebx+12]",
+     "comment": "ebx = op.next (follow corrupted linked list)"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 134520832,
+      "newValue": 0
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512662,
+      "newValue": 134512665
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": true,
+     "CF": true,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520844,
+      "value": 0,
+      "size": 4
+     }
+    ],
+    "log": "0x08048016: mov ebx, [ebx+12] → EBX=0x00000000",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512665
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512665,
+     "bytes": [
+      133,
+      219
+     ],
+     "mnemonic": "test",
+     "operands": "ebx, ebx",
+     "comment": "Is next == NULL?"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512665,
+      "newValue": 134512667
+     }
+    ],
+    "flagChanges": {
+     "ZF": true,
+     "SF": false,
+     "CF": false
+    },
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048019: test ebx, ebx [ZF=1 SF=0 CF=0]",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512667
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512667,
+     "bytes": [
+      117,
+      232
+     ],
+     "mnemonic": "jne",
+     "operands": "0x08048005",
+     "comment": "If not NULL, process next record (loop)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512667,
+      "newValue": 134512669
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804801b: jne 0x08048005",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512669
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512669,
+     "bytes": [
+      244
+     ],
+     "mnemonic": "hlt",
+     "operands": "",
+     "comment": "End of processing loop"
+    },
+    "diffs": [],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804801d: hlt ",
+    "halted": true,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512669
+    }
+   }
+  ],
+  "error": null
+ },
+ "attack": {
+  "init": {
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512640
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 134512640,
+     "bytes": [
+      187,
+      0,
+      160,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, 0x0804a000",
+     "comment": "ebx = ptr to first operation record (corrupted)"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 0,
+      "newValue": 134520832
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512640,
+      "newValue": 134512645
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048000: mov ebx, 0x0804a000 → EBX=0x0804a000",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512645
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512645,
+     "bytes": [
+      139,
+      3
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, [ebx]",
+     "comment": "DOP LOAD: read op.type from corrupted record"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 0,
+      "newValue": 1
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512645,
+      "newValue": 134512647
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520832,
+      "value": 1,
+      "size": 4
+     }
+    ],
+    "log": "0x08048005: mov eax, [ebx] → EAX=0x00000001",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512647
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512647,
+     "bytes": [
+      139,
+      83,
+      4
+     ],
+     "mnemonic": "mov",
+     "operands": "edx, [ebx+4]",
+     "comment": "DOP LOAD: read op.src_addr (attacker-controlled)"
+    },
+    "diffs": [
+     {
+      "reg": "edx",
+      "oldValue": 0,
+      "newValue": 134524928
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512647,
+      "newValue": 134512650
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520836,
+      "value": 134524928,
+      "size": 4
+     }
+    ],
+    "log": "0x08048007: mov edx, [ebx+4] → EDX=0x0804b000",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512650
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512650,
+     "bytes": [
+      139,
+      75,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ecx, [ebx+8]",
+     "comment": "DOP LOAD: read op.dst_addr (attacker-controlled)"
+    },
+    "diffs": [
+     {
+      "reg": "ecx",
+      "oldValue": 0,
+      "newValue": 134529024
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512650,
+      "newValue": 134512653
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520840,
+      "value": 134529024,
+      "size": 4
+     }
+    ],
+    "log": "0x0804800a: mov ecx, [ebx+8] → ECX=0x0804c000",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520832,
+     "ecx": 134529024,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512653
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512653,
+     "bytes": [
+      131,
+      248,
+      1
+     ],
+     "mnemonic": "cmp",
+     "operands": "eax, 1",
+     "comment": "Is op.type == LOAD (1)?"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512653,
+      "newValue": 134512656
+     }
+    ],
+    "flagChanges": {
+     "ZF": true
+    },
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800d: cmp eax, 1 [ZF=1]",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520832,
+     "ecx": 134529024,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512656
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512656,
+     "bytes": [
+      117,
+      4
+     ],
+     "mnemonic": "jne",
+     "operands": "0x08048016",
+     "comment": "If not LOAD, try next type"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512656,
+      "newValue": 134512658
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048010: jne 0x08048016",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520832,
+     "ecx": 134529024,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512658
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512658,
+     "bytes": [
+      139,
+      2
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, [edx]",
+     "comment": "DOP LOAD gadget: read [src_addr] into eax"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 1,
+      "newValue": 1936941424
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512658,
+      "newValue": 134512660
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134524928,
+      "value": 1936941424,
+      "size": 4
+     }
+    ],
+    "log": "0x08048012: mov eax, [edx] → EAX=0x73736170",
+    "halted": false,
+    "regs": {
+     "eax": 1936941424,
+     "ebx": 134520832,
+     "ecx": 134529024,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512660
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512660,
+     "bytes": [
+      137,
+      1
+     ],
+     "mnemonic": "mov",
+     "operands": "[ecx], eax",
+     "comment": "DOP STORE gadget: write eax to [dst_addr]"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512660,
+      "newValue": 134512662
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [
+     {
+      "addr": 134529024,
+      "value": 1936941424,
+      "size": 4
+     }
+    ],
+    "memReads": [],
+    "log": "0x08048014: mov [ecx], eax",
+    "halted": false,
+    "regs": {
+     "eax": 1936941424,
+     "ebx": 134520832,
+     "ecx": 134529024,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512662
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512662,
+     "bytes": [
+      139,
+      91,
+      12
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, [ebx+12]",
+     "comment": "ebx = op.next (follow corrupted linked list)"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 134520832,
+      "newValue": 134520848
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512662,
+      "newValue": 134512665
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520844,
+      "value": 134520848,
+      "size": 4
+     }
+    ],
+    "log": "0x08048016: mov ebx, [ebx+12] → EBX=0x0804a010",
+    "halted": false,
+    "regs": {
+     "eax": 1936941424,
+     "ebx": 134520848,
+     "ecx": 134529024,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512665
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512665,
+     "bytes": [
+      133,
+      219
+     ],
+     "mnemonic": "test",
+     "operands": "ebx, ebx",
+     "comment": "Is next == NULL?"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512665,
+      "newValue": 134512667
+     }
+    ],
+    "flagChanges": {
+     "ZF": false
+    },
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048019: test ebx, ebx [ZF=0]",
+    "halted": false,
+    "regs": {
+     "eax": 1936941424,
+     "ebx": 134520848,
+     "ecx": 134529024,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512667
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512667,
+     "bytes": [
+      117,
+      232
+     ],
+     "mnemonic": "jne",
+     "operands": "0x08048005",
+     "comment": "If not NULL, process next record (loop)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512667,
+      "newValue": 134512645
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804801b: jne 0x08048005",
+    "halted": false,
+    "regs": {
+     "eax": 1936941424,
+     "ebx": 134520848,
+     "ecx": 134529024,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512645
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512645,
+     "bytes": [
+      139,
+      3
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, [ebx]",
+     "comment": "DOP LOAD: read op.type from corrupted record"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 1936941424,
+      "newValue": 1
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512645,
+      "newValue": 134512647
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520848,
+      "value": 1,
+      "size": 4
+     }
+    ],
+    "log": "0x08048005: mov eax, [ebx] → EAX=0x00000001",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520848,
+     "ecx": 134529024,
+     "edx": 134524928,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512647
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512647,
+     "bytes": [
+      139,
+      83,
+      4
+     ],
+     "mnemonic": "mov",
+     "operands": "edx, [ebx+4]",
+     "comment": "DOP LOAD: read op.src_addr (attacker-controlled)"
+    },
+    "diffs": [
+     {
+      "reg": "edx",
+      "oldValue": 134524928,
+      "newValue": 134524932
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512647,
+      "newValue": 134512650
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520852,
+      "value": 134524932,
+      "size": 4
+     }
+    ],
+    "log": "0x08048007: mov edx, [ebx+4] → EDX=0x0804b004",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520848,
+     "ecx": 134529024,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512650
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512650,
+     "bytes": [
+      139,
+      75,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ecx, [ebx+8]",
+     "comment": "DOP LOAD: read op.dst_addr (attacker-controlled)"
+    },
+    "diffs": [
+     {
+      "reg": "ecx",
+      "oldValue": 134529024,
+      "newValue": 134529028
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512650,
+      "newValue": 134512653
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520856,
+      "value": 134529028,
+      "size": 4
+     }
+    ],
+    "log": "0x0804800a: mov ecx, [ebx+8] → ECX=0x0804c004",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520848,
+     "ecx": 134529028,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512653
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512653,
+     "bytes": [
+      131,
+      248,
+      1
+     ],
+     "mnemonic": "cmp",
+     "operands": "eax, 1",
+     "comment": "Is op.type == LOAD (1)?"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512653,
+      "newValue": 134512656
+     }
+    ],
+    "flagChanges": {
+     "ZF": true
+    },
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800d: cmp eax, 1 [ZF=1]",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520848,
+     "ecx": 134529028,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512656
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512656,
+     "bytes": [
+      117,
+      4
+     ],
+     "mnemonic": "jne",
+     "operands": "0x08048016",
+     "comment": "If not LOAD, try next type"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512656,
+      "newValue": 134512658
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048010: jne 0x08048016",
+    "halted": false,
+    "regs": {
+     "eax": 1,
+     "ebx": 134520848,
+     "ecx": 134529028,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512658
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512658,
+     "bytes": [
+      139,
+      2
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, [edx]",
+     "comment": "DOP LOAD gadget: read [src_addr] into eax"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 1,
+      "newValue": 1685221239
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512658,
+      "newValue": 134512660
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134524932,
+      "value": 1685221239,
+      "size": 4
+     }
+    ],
+    "log": "0x08048012: mov eax, [edx] → EAX=0x64726f77",
+    "halted": false,
+    "regs": {
+     "eax": 1685221239,
+     "ebx": 134520848,
+     "ecx": 134529028,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512660
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512660,
+     "bytes": [
+      137,
+      1
+     ],
+     "mnemonic": "mov",
+     "operands": "[ecx], eax",
+     "comment": "DOP STORE gadget: write eax to [dst_addr]"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512660,
+      "newValue": 134512662
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [
+     {
+      "addr": 134529028,
+      "value": 1685221239,
+      "size": 4
+     }
+    ],
+    "memReads": [],
+    "log": "0x08048014: mov [ecx], eax",
+    "halted": false,
+    "regs": {
+     "eax": 1685221239,
+     "ebx": 134520848,
+     "ecx": 134529028,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512662
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512662,
+     "bytes": [
+      139,
+      91,
+      12
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, [ebx+12]",
+     "comment": "ebx = op.next (follow corrupted linked list)"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 134520848,
+      "newValue": 0
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512662,
+      "newValue": 134512665
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520860,
+      "value": 0,
+      "size": 4
+     }
+    ],
+    "log": "0x08048016: mov ebx, [ebx+12] → EBX=0x00000000",
+    "halted": false,
+    "regs": {
+     "eax": 1685221239,
+     "ebx": 0,
+     "ecx": 134529028,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512665
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512665,
+     "bytes": [
+      133,
+      219
+     ],
+     "mnemonic": "test",
+     "operands": "ebx, ebx",
+     "comment": "Is next == NULL?"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512665,
+      "newValue": 134512667
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048019: test ebx, ebx",
+    "halted": false,
+    "regs": {
+     "eax": 1685221239,
+     "ebx": 0,
+     "ecx": 134529028,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512667
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512667,
+     "bytes": [
+      117,
+      232
+     ],
+     "mnemonic": "jne",
+     "operands": "0x08048005",
+     "comment": "If not NULL, process next record (loop)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512667,
+      "newValue": 134512669
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804801b: jne 0x08048005",
+    "halted": false,
+    "regs": {
+     "eax": 1685221239,
+     "ebx": 0,
+     "ecx": 134529028,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512669
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512669,
+     "bytes": [
+      244
+     ],
+     "mnemonic": "hlt",
+     "operands": "",
+     "comment": "End of processing loop"
+    },
+    "diffs": [],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804801d: hlt ",
+    "halted": true,
+    "regs": {
+     "eax": 1685221239,
+     "ebx": 0,
+     "ecx": 134529028,
+     "edx": 134524932,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512669
+    }
+   }
+  ],
+  "error": null
+ },
+ "records": [
+  {
+   "at": 134520832,
+   "type": 1,
+   "src": 134524928,
+   "dst": 134529024,
+   "next": 134520848
+  },
+  {
+   "at": 134520848,
+   "type": 1,
+   "src": 134524932,
+   "dst": 134529028,
+   "next": 0
+  }
+ ],
+ "secretAddr": 134524928,
+ "outAddr": 134529024,
+ "secret": [
+  1936941424,
+  1685221239
+ ],
+ "outAfter": [
+  1936941424,
+  1685221239
+ ],
+ "checks": [
+  {
+   "what": "0x08048012 reads [edx]",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  },
+  {
+   "what": "secret copied to out buffer",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  },
+  {
+   "what": "every pc is a listed instruction",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  },
+  {
+   "what": "Turing complete",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  },
+  {
+   "what": "CFI detects",
+   "got": 0,
+   "want": 0,
+   "ok": true
+  }
+ ],
+ "solved": true
+}

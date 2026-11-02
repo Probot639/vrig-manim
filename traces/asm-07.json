@@ -1,0 +1,847 @@
+{
+ "exercise": "asm-07",
+ "unit": "unit0-asm",
+ "title": "CALL & RET",
+ "desc": "Goal: Understand function calls. CALL pushes the return address (address of next instruction) onto the stack, then jumps to the function. RET pops that address and jumps back. This is the mechanism exploited in buffer overflows!",
+ "arch": "x86",
+ "word": 4,
+ "hexW": 8,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// CALL & RET",
+   "cls": "comment"
+  },
+  {
+   "text": "// CALL addr → push EIP+5; jmp addr",
+   "cls": "comment"
+  },
+  {
+   "text": "// RET      → pop EIP (jump to return addr)",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Equivalent C:",
+   "cls": "comment"
+  },
+  {
+   "text": "// int double(int x) { return x * 2; }",
+   "cls": "comment"
+  },
+  {
+   "text": "// int main() { return double(7); }",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "main:",
+   "cls": "label"
+  },
+  {
+   "text": "  mov eax, 7",
+   "cls": "asm"
+  },
+  {
+   "text": "  push eax",
+   "cls": "asm"
+  },
+  {
+   "text": "  call double",
+   "cls": "asm"
+  },
+  {
+   "text": "  add esp, 4",
+   "cls": "asm"
+  },
+  {
+   "text": "  hlt",
+   "cls": "asm"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "double:",
+   "cls": "label"
+  },
+  {
+   "text": "  mov eax, [esp+4]",
+   "cls": "asm"
+  },
+  {
+   "text": "  add eax, eax",
+   "cls": "asm"
+  },
+  {
+   "text": "  ret",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    7,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 7",
+   "comment": "Argument for our function",
+   "text": "mov eax, 7"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    80
+   ],
+   "mnemonic": "push",
+   "operands": "eax",
+   "comment": "Push argument onto stack",
+   "text": "push eax"
+  },
+  {
+   "addr": 134512646,
+   "bytes": [
+    232,
+    5,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "call",
+   "operands": "0x08048010",
+   "comment": "What does CALL push before jumping?",
+   "text": "call 0x08048010"
+  },
+  {
+   "addr": 134512651,
+   "bytes": [
+    131,
+    196,
+    4
+   ],
+   "mnemonic": "add",
+   "operands": "esp, 4",
+   "comment": "Clean up argument",
+   "text": "add esp, 4"
+  },
+  {
+   "addr": 134512654,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "",
+   "text": "hlt"
+  },
+  {
+   "addr": 134512656,
+   "bytes": [
+    139,
+    68,
+    36,
+    4
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, [esp+4]",
+   "comment": "Why +4? What is at [esp]?",
+   "text": "mov eax, [esp+4]"
+  },
+  {
+   "addr": 134512660,
+   "bytes": [
+    1,
+    192
+   ],
+   "mnemonic": "add",
+   "operands": "eax, eax",
+   "comment": "Add EAX to itself",
+   "text": "add eax, eax"
+  },
+  {
+   "addr": 134512662,
+   "bytes": [
+    195
+   ],
+   "mnemonic": "ret",
+   "operands": "",
+   "comment": "Pop return address and jump",
+   "text": "ret"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160440,
+  3221160444,
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "halted",
+  "steps": 8,
+  "error": null
+ },
+ "patched": false,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "eax": 0,
+   "ebx": 0,
+   "ecx": 0,
+   "edx": 0,
+   "esp": 3221160448,
+   "ebp": 3221160448,
+   "esi": 0,
+   "edi": 0,
+   "eip": 134512640
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160440": 0,
+   "3221160444": 0,
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 134512640,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 0,
+     "newValue": 7
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512640,
+     "newValue": 134512645
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048000: mov eax, 7 → EAX=0x00000007",
+   "halted": false,
+   "regs": {
+    "eax": 7,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512645
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 0,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 134512645,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160448,
+     "newValue": 3221160444
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512645,
+     "newValue": 134512646
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 3221160444,
+     "value": 7,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x08048005: push eax → ESP=0xbfff01fc",
+   "halted": false,
+   "regs": {
+    "eax": 7,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160444,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512646
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 0,
+    "3221160444": 7,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160444,
+     7
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 2,
+   "addr": 134512646,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160444,
+     "newValue": 3221160440
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512646,
+     "newValue": 134512656
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 3221160440,
+     "value": 134512651,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x08048006: call 0x08048010 → ESP=0xbfff01f8",
+   "halted": false,
+   "regs": {
+    "eax": 7,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160440,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512656
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 134512651,
+    "3221160444": 7,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     11
+    ],
+    [
+     3221160441,
+     128
+    ],
+    [
+     3221160442,
+     4
+    ],
+    [
+     3221160443,
+     8
+    ],
+    [
+     3221160444,
+     7
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 5,
+   "addr": 134512656,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512656,
+     "newValue": 134512660
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160444,
+     "value": 7,
+     "size": 4
+    }
+   ],
+   "log": "0x08048010: mov eax, [esp+4]",
+   "halted": false,
+   "regs": {
+    "eax": 7,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160440,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512660
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 134512651,
+    "3221160444": 7,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     11
+    ],
+    [
+     3221160441,
+     128
+    ],
+    [
+     3221160442,
+     4
+    ],
+    [
+     3221160443,
+     8
+    ],
+    [
+     3221160444,
+     7
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 6,
+   "addr": 134512660,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 7,
+     "newValue": 14
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512660,
+     "newValue": 134512662
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048014: add eax, eax → EAX=0x0000000e",
+   "halted": false,
+   "regs": {
+    "eax": 14,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160440,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512662
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 134512651,
+    "3221160444": 7,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     11
+    ],
+    [
+     3221160441,
+     128
+    ],
+    [
+     3221160442,
+     4
+    ],
+    [
+     3221160443,
+     8
+    ],
+    [
+     3221160444,
+     7
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 7,
+   "addr": 134512662,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160440,
+     "newValue": 3221160444
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512662,
+     "newValue": 134512651
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160440,
+     "value": 134512651,
+     "size": 4
+    }
+   ],
+   "log": "0x08048016: ret  → ESP=0xbfff01fc",
+   "halted": false,
+   "regs": {
+    "eax": 14,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160444,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512651
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 134512651,
+    "3221160444": 7,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     11
+    ],
+    [
+     3221160441,
+     128
+    ],
+    [
+     3221160442,
+     4
+    ],
+    [
+     3221160443,
+     8
+    ],
+    [
+     3221160444,
+     7
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 3,
+   "addr": 134512651,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160444,
+     "newValue": 3221160448
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512651,
+     "newValue": 134512654
+    }
+   ],
+   "flagChanges": {
+    "SF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800b: add esp, 4 → ESP=0xbfff0200 [SF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 14,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512654
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 134512651,
+    "3221160444": 7,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     11
+    ],
+    [
+     3221160441,
+     128
+    ],
+    [
+     3221160442,
+     4
+    ],
+    [
+     3221160443,
+     8
+    ],
+    [
+     3221160444,
+     7
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 4,
+   "addr": 134512654,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800e: hlt ",
+   "halted": true,
+   "regs": {
+    "eax": 14,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512654
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 134512651,
+    "3221160444": 7,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     11
+    ],
+    [
+     3221160441,
+     128
+    ],
+    [
+     3221160442,
+     4
+    ],
+    [
+     3221160443,
+     8
+    ],
+    [
+     3221160444,
+     7
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "What is EAX after calling double(7)?",
+   "hint": "The function doubles its argument: 7 * 2 = 14.",
+   "answer": 14,
+   "format": "decimal",
+   "vrigShows": "14",
+   "probe": {
+    "step": 7,
+    "value": 14,
+    "kind": "emulator",
+    "reg": "eax",
+    "why": "eax at hlt"
+   },
+   "correct": true
+  },
+  {
+   "question": "What address does CALL push onto the stack? (the return address)",
+   "hint": "CALL pushes the address of the instruction AFTER the call (add esp, 4).",
+   "answer": 134512651,
+   "format": "hex",
+   "vrigShows": "0x804800b",
+   "probe": {
+    "step": 2,
+    "value": 134512651,
+    "kind": "emulator",
+    "addr": 3221160440,
+    "why": "word call wrote to the stack"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Functions Understood!",
+ "winMsg": "You know how CALL and RET work — the foundation of stack-based exploitation."
+}

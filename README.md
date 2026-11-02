@@ -1,3 +1,8 @@
+> **vrig-manim:** this fork adds animated walkthroughs of the 0xVRIG
+> exploitation exercises on top of ManimGL. See [VRIG.md](VRIG.md) for setup
+> and rendering, and [CURRICULUM.md](CURRICULUM.md) for what's covered.
+> Everything below is upstream's README.
+
 <p align="center">
     <a href="https://github.com/3b1b/manim">
         <img src="https://raw.githubusercontent.com/3b1b/manim/master/logo/cropped.png">

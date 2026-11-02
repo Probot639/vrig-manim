@@ -1,0 +1,654 @@
+{
+ "exercise": "x64-33",
+ "unit": "unit7-x64",
+ "title": "One-Gadget",
+ "desc": "Goal: A \"one-gadget\" is a single address in libc that, when jumped to, executes execve(\"/bin/sh\") — no ROP chain needed! You find them with the one_gadget tool. Each has constraints (e.g., RAX==NULL, [RSP+0x30]==NULL) that must be satisfied.",
+ "arch": "x86-64",
+ "word": 8,
+ "hexW": 16,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// One-Gadget (Magic Gadget)",
+   "cls": "comment"
+  },
+  {
+   "text": "// A single libc address that spawns a shell",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// $ one_gadget /lib/x86_64-linux-gnu/libc.so.6",
+   "cls": "comment"
+  },
+  {
+   "text": "// 0x4526a execve(\"/bin/sh\", rsp+0x30, environ)",
+   "cls": "comment"
+  },
+  {
+   "text": "//   constraints: [rsp+0x30] == NULL",
+   "cls": "comment"
+  },
+  {
+   "text": "// 0xf02a4 execve(\"/bin/sh\", rsp+0x50, environ)",
+   "cls": "comment"
+  },
+  {
+   "text": "//   constraints: [rsp+0x50] == NULL",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Steps:",
+   "cls": "comment"
+  },
+  {
+   "text": "// 1. Leak a libc address",
+   "cls": "comment"
+  },
+  {
+   "text": "// 2. Calculate libc base",
+   "cls": "comment"
+  },
+  {
+   "text": "// 3. Add one_gadget offset",
+   "cls": "comment"
+  },
+  {
+   "text": "// 4. Overwrite return address",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "mov rax, leaked_addr",
+   "cls": "asm"
+  },
+  {
+   "text": "sub rax, known_offset  ; libc_base",
+   "cls": "asm"
+  },
+  {
+   "text": "add rax, 0x4526a       ; one_gadget",
+   "cls": "asm"
+  },
+  {
+   "text": "; overwrite ret with rax → shell!",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 4194304,
+   "bytes": [
+    72,
+    184
+   ],
+   "mnemonic": "mov",
+   "operands": "rax, 0x7ffff7a52340",
+   "comment": "Leaked libc address (e.g., __libc_start_main)",
+   "text": "mov rax, 0x7ffff7a52340"
+  },
+  {
+   "addr": 4194314,
+   "bytes": [
+    72,
+    187
+   ],
+   "mnemonic": "mov",
+   "operands": "rbx, 0x7ffff7a52340",
+   "comment": "Known offset of __libc_start_main",
+   "text": "mov rbx, 0x7ffff7a52340"
+  },
+  {
+   "addr": 4194324,
+   "bytes": [
+    72,
+    41,
+    216
+   ],
+   "mnemonic": "sub",
+   "operands": "rax, rbx",
+   "comment": "libc_base = leaked - known_offset",
+   "text": "sub rax, rbx"
+  },
+  {
+   "addr": 4194327,
+   "bytes": [
+    72,
+    137,
+    193
+   ],
+   "mnemonic": "mov",
+   "operands": "rcx, rax",
+   "comment": "RCX = libc_base (0 in this example)",
+   "text": "mov rcx, rax"
+  },
+  {
+   "addr": 4194330,
+   "bytes": [
+    72,
+    184
+   ],
+   "mnemonic": "mov",
+   "operands": "rax, 0x4526a",
+   "comment": "one_gadget offset in libc",
+   "text": "mov rax, 0x4526a"
+  },
+  {
+   "addr": 4194340,
+   "bytes": [
+    72,
+    1,
+    200
+   ],
+   "mnemonic": "add",
+   "operands": "rax, rcx",
+   "comment": "RAX = libc_base + one_gadget_offset",
+   "text": "add rax, rcx"
+  },
+  {
+   "addr": 4194343,
+   "bytes": [
+    72,
+    137,
+    194
+   ],
+   "mnemonic": "mov",
+   "operands": "rdx, rax",
+   "comment": "RDX = full one_gadget address",
+   "text": "mov rdx, rax"
+  },
+  {
+   "addr": 4194346,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "Overwrite ret addr with RDX → shell!",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "fell-off",
+  "steps": 1,
+  "error": null
+ },
+ "patched": true,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "rax": 0,
+   "rbx": 0,
+   "rcx": 0,
+   "rdx": 0,
+   "rsp": 3221160448,
+   "rbp": 3221160448,
+   "rsi": 0,
+   "rdi": 0,
+   "rip": 4194304,
+   "r8": 0,
+   "r9": 0,
+   "r10": 0,
+   "r11": 0,
+   "r12": 0,
+   "r13": 0,
+   "r14": 0,
+   "r15": 0
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 4194304,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 0,
+     "newValue": 4154794816
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4194304,
+     "newValue": 4194306
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400000: mov rax, 0x7ffff7a52340 → RAX=0x00000000f7a52340",
+   "halted": false,
+   "regs": {
+    "rax": 4154794816,
+    "rbx": 0,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194306,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 4194314,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rbx",
+     "oldValue": 0,
+     "newValue": 4154794816
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4194314,
+     "newValue": 4194316
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000040000a: mov rbx, 0x7ffff7a52340 → RBX=0x00000000f7a52340",
+   "halted": false,
+   "regs": {
+    "rax": 4154794816,
+    "rbx": 4154794816,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194316,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 4194324,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 4154794816,
+     "newValue": 0
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4194324,
+     "newValue": 4194327
+    }
+   ],
+   "flagChanges": {
+    "ZF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400014: sub rax, rbx → RAX=0x0000000000000000 [ZF=1]",
+   "halted": false,
+   "regs": {
+    "rax": 0,
+    "rbx": 4154794816,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194327,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 4194327,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rip",
+     "oldValue": 4194327,
+     "newValue": 4194330
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400017: mov rcx, rax",
+   "halted": false,
+   "regs": {
+    "rax": 0,
+    "rbx": 4154794816,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194330,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 4194330,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rax",
+     "oldValue": 0,
+     "newValue": 283242
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4194330,
+     "newValue": 4194332
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000040001a: mov rax, 0x4526a → RAX=0x000000000004526a",
+   "halted": false,
+   "regs": {
+    "rax": 283242,
+    "rbx": 4154794816,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194332,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 4194340,
+   "patched": true,
+   "diffs": [
+    {
+     "reg": "rip",
+     "oldValue": 4194340,
+     "newValue": 4194343
+    }
+   ],
+   "flagChanges": {
+    "ZF": false
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400024: add rax, rcx [ZF=0]",
+   "halted": false,
+   "regs": {
+    "rax": 283242,
+    "rbx": 4154794816,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194343,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 6,
+   "addr": 4194343,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "rdx",
+     "oldValue": 0,
+     "newValue": 283242
+    },
+    {
+     "reg": "rip",
+     "oldValue": 4194343,
+     "newValue": 4194346
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0000000000400027: mov rdx, rax → RDX=0x000000000004526a",
+   "halted": false,
+   "regs": {
+    "rax": 283242,
+    "rbx": 4154794816,
+    "rcx": 0,
+    "rdx": 283242,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194346,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 7,
+   "addr": 4194346,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x000000000040002a: hlt ",
+   "halted": true,
+   "regs": {
+    "rax": 283242,
+    "rbx": 4154794816,
+    "rcx": 0,
+    "rdx": 283242,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 4194346,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "What is the one_gadget offset used in this exercise?",
+   "hint": "Look at the offset loaded before adding to libc base.",
+   "answer": 283242,
+   "format": "hex",
+   "vrigShows": "0x4526a",
+   "probe": {
+    "step": 4,
+    "value": 283242,
+    "kind": "emulator",
+    "reg": "rax",
+    "why": "rax after the offset load"
+   },
+   "correct": true
+  },
+  {
+   "question": "If libc_base is 0x7ffff7a00000, what is the full one_gadget address?",
+   "hint": "libc_base + 0x4526a.",
+   "answer": 140737348129386,
+   "format": "hex",
+   "vrigShows": "0xf7a4526a",
+   "probe": {
+    "step": 7,
+    "value": 140737348129386,
+    "kind": "derived",
+    "reg": "rax",
+    "why": "the question's libc base plus that offset"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "One-Gadget!",
+ "winMsg": "You understand one-gadget shortcuts for instant shell in libc."
+}

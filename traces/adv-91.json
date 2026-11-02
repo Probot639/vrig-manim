@@ -1,0 +1,620 @@
+{
+ "exercise": "adv-91",
+ "unit": "unit16-advanced",
+ "title": "91: Counterfeit OOP (COOP)",
+ "desc": "Goal: Understand Counterfeit Object-Oriented Programming (COOP), an advanced code-reuse attack that chains existing virtual method calls from legitimate vtables to bypass Control-Flow Integrity (CFI). Unlike ROP which chains gadgets ending in ret, COOP chains virtual function calls (vfgadgets) that are already present in the program's vtables. Because each call goes through a legitimate vtable entry, coarse-grained CFI cannot distinguish malicious calls from normal virtual dispatch.\n\nThe assembly below simulates loading two C++ objects and resolving their virtual methods through vtable indirection. Study how the vptr is dereferenced and vtable entries are indexed.",
+ "mode": "asm-quiz",
+ "arch": "x86",
+ "source": [
+  "// COOP: Counterfeit Object-Oriented Programming",
+  "// Instead of ROP gadgets, reuse virtual methods",
+  "",
+  "// Object layout:",
+  "// obj1 @ 0x0804c000: vptr -> 0x08049000",
+  "// vtable1 @ 0x08049000: [speak=0x08048100, act=0x08048200]",
+  "",
+  "// obj2 @ 0x0804c010: vptr -> 0x08049010",
+  "// vtable2 @ 0x08049010: [gadget1=0x08048300, gadget2=0x08048400]",
+  "",
+  "mov ecx, 0x0804c000   ; this = obj1",
+  "mov eax, [ecx]        ; load vptr",
+  "mov edx, [eax]        ; vtable[0] = speak",
+  "mov ebx, [eax+4]      ; vtable[1] = act",
+  "mov ecx, 0x0804c010   ; this = obj2",
+  "mov eax, [ecx]        ; load vptr",
+  "mov esi, [eax+4]      ; vtable2[1] = gadget2",
+  "hlt"
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    185,
+    0,
+    192,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 0x0804c000",
+   "comment": "ecx = obj1 (this pointer)"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    139,
+    1
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, [ecx]",
+   "comment": "eax = obj1->vptr (load vtable pointer)"
+  },
+  {
+   "addr": 134512647,
+   "bytes": [
+    139,
+    16
+   ],
+   "mnemonic": "mov",
+   "operands": "edx, [eax]",
+   "comment": "edx = vtable[0] (first virtual method)"
+  },
+  {
+   "addr": 134512649,
+   "bytes": [
+    139,
+    88,
+    4
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, [eax+4]",
+   "comment": "ebx = vtable[1] (second virtual method)"
+  },
+  {
+   "addr": 134512652,
+   "bytes": [
+    185,
+    16,
+    192,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 0x0804c010",
+   "comment": "ecx = obj2 (second object)"
+  },
+  {
+   "addr": 134512657,
+   "bytes": [
+    139,
+    1
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, [ecx]",
+   "comment": "eax = obj2->vptr"
+  },
+  {
+   "addr": 134512659,
+   "bytes": [
+    139,
+    112,
+    4
+   ],
+   "mnemonic": "mov",
+   "operands": "esi, [eax+4]",
+   "comment": "esi = obj2_vtable[1] (COOP: chain another virtual call)"
+  },
+  {
+   "addr": 134512662,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "End of dispatch sequence"
+  }
+ ],
+ "initialMemory": [
+  {
+   "addr": 134529024,
+   "value": 134516736,
+   "size": 4
+  },
+  {
+   "addr": 134516736,
+   "value": 134512896,
+   "size": 4
+  },
+  {
+   "addr": 134516740,
+   "value": 134513152,
+   "size": 4
+  },
+  {
+   "addr": 134529040,
+   "value": 134516752,
+   "size": 4
+  },
+  {
+   "addr": 134516752,
+   "value": 134513408,
+   "size": 4
+  },
+  {
+   "addr": 134516756,
+   "value": 134513664,
+   "size": 4
+  }
+ ],
+ "protections": [],
+ "auxViz": [],
+ "winTitle": "COOP Dispatch Understood!",
+ "winMsg": "You traced virtual dispatch through two objects and their vtables. COOP chains these existing virtual calls as \"vfgadgets\" — each legitimate on its own, but together they form an exploit payload. Because every call goes through a real vtable, coarse-grained CFI sees nothing wrong. This was published by Schuster et al. in 2015 and demonstrated practical attacks against C++ programs even with CFI enabled.",
+ "realWorld": null,
+ "quiz": [
+  {
+   "question": "After loading obj1's vptr, what address is in EAX (the vtable address)?",
+   "answer": 134516736,
+   "format": "hex",
+   "hint": "obj1 is at 0x0804c000 and its first 4 bytes (the vptr) contain the vtable address 0x08049000.",
+   "typed": "0x8049000",
+   "correct": true
+  },
+  {
+   "question": "What address does EDX hold after \"mov edx, [eax]\"? This is vtable1[0] — the first virtual method.",
+   "answer": 134512896,
+   "format": "hex",
+   "hint": "EAX = 0x08049000 (vtable1). The first entry at [0x08049000] is the speak function at 0x08048100.",
+   "typed": "0x8048100",
+   "correct": true
+  },
+  {
+   "question": "What address ends up in ESI? This is the second virtual method from obj2's vtable — the \"vfgadget\" COOP would chain.",
+   "answer": 134513664,
+   "format": "hex",
+   "hint": "obj2's vptr points to vtable2 at 0x08049010. Entry [1] is at offset +4 = 0x08049014, which contains 0x08048400.",
+   "typed": "0x8048400",
+   "correct": true
+  }
+ ],
+ "quizSolved": true,
+ "run": {
+  "init": {
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512640
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 134512640,
+     "bytes": [
+      185,
+      0,
+      192,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ecx, 0x0804c000",
+     "comment": "ecx = obj1 (this pointer)"
+    },
+    "diffs": [
+     {
+      "reg": "ecx",
+      "oldValue": 0,
+      "newValue": 134529024
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512640,
+      "newValue": 134512645
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048000: mov ecx, 0x0804c000 → ECX=0x0804c000",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 134529024,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512645
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512645,
+     "bytes": [
+      139,
+      1
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, [ecx]",
+     "comment": "eax = obj1->vptr (load vtable pointer)"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 0,
+      "newValue": 134516736
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512645,
+      "newValue": 134512647
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134529024,
+      "value": 134516736,
+      "size": 4
+     }
+    ],
+    "log": "0x08048005: mov eax, [ecx] → EAX=0x08049000",
+    "halted": false,
+    "regs": {
+     "eax": 134516736,
+     "ebx": 0,
+     "ecx": 134529024,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512647
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512647,
+     "bytes": [
+      139,
+      16
+     ],
+     "mnemonic": "mov",
+     "operands": "edx, [eax]",
+     "comment": "edx = vtable[0] (first virtual method)"
+    },
+    "diffs": [
+     {
+      "reg": "edx",
+      "oldValue": 0,
+      "newValue": 134512896
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512647,
+      "newValue": 134512649
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134516736,
+      "value": 134512896,
+      "size": 4
+     }
+    ],
+    "log": "0x08048007: mov edx, [eax] → EDX=0x08048100",
+    "halted": false,
+    "regs": {
+     "eax": 134516736,
+     "ebx": 0,
+     "ecx": 134529024,
+     "edx": 134512896,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512649
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512649,
+     "bytes": [
+      139,
+      88,
+      4
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, [eax+4]",
+     "comment": "ebx = vtable[1] (second virtual method)"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 0,
+      "newValue": 134513152
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512649,
+      "newValue": 134512652
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134516740,
+      "value": 134513152,
+      "size": 4
+     }
+    ],
+    "log": "0x08048009: mov ebx, [eax+4] → EBX=0x08048200",
+    "halted": false,
+    "regs": {
+     "eax": 134516736,
+     "ebx": 134513152,
+     "ecx": 134529024,
+     "edx": 134512896,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512652
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512652,
+     "bytes": [
+      185,
+      16,
+      192,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ecx, 0x0804c010",
+     "comment": "ecx = obj2 (second object)"
+    },
+    "diffs": [
+     {
+      "reg": "ecx",
+      "oldValue": 134529024,
+      "newValue": 134529040
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512652,
+      "newValue": 134512657
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800c: mov ecx, 0x0804c010 → ECX=0x0804c010",
+    "halted": false,
+    "regs": {
+     "eax": 134516736,
+     "ebx": 134513152,
+     "ecx": 134529040,
+     "edx": 134512896,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512657
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512657,
+     "bytes": [
+      139,
+      1
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, [ecx]",
+     "comment": "eax = obj2->vptr"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 134516736,
+      "newValue": 134516752
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512657,
+      "newValue": 134512659
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134529040,
+      "value": 134516752,
+      "size": 4
+     }
+    ],
+    "log": "0x08048011: mov eax, [ecx] → EAX=0x08049010",
+    "halted": false,
+    "regs": {
+     "eax": 134516752,
+     "ebx": 134513152,
+     "ecx": 134529040,
+     "edx": 134512896,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512659
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512659,
+     "bytes": [
+      139,
+      112,
+      4
+     ],
+     "mnemonic": "mov",
+     "operands": "esi, [eax+4]",
+     "comment": "esi = obj2_vtable[1] (COOP: chain another virtual call)"
+    },
+    "diffs": [
+     {
+      "reg": "esi",
+      "oldValue": 0,
+      "newValue": 134513664
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512659,
+      "newValue": 134512662
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134516756,
+      "value": 134513664,
+      "size": 4
+     }
+    ],
+    "log": "0x08048013: mov esi, [eax+4] → ESI=0x08048400",
+    "halted": false,
+    "regs": {
+     "eax": 134516752,
+     "ebx": 134513152,
+     "ecx": 134529040,
+     "edx": 134512896,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 134513664,
+     "edi": 0,
+     "eip": 134512662
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512662,
+     "bytes": [
+      244
+     ],
+     "mnemonic": "hlt",
+     "operands": "",
+     "comment": "End of dispatch sequence"
+    },
+    "diffs": [],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048016: hlt ",
+    "halted": true,
+    "regs": {
+     "eax": 134516752,
+     "ebx": 134513152,
+     "ecx": 134529040,
+     "edx": 134512896,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 134513664,
+     "edi": 0,
+     "eip": 134512662
+    }
+   }
+  ],
+  "error": null
+ },
+ "checks": [
+  {
+   "what": "eax after loading obj1 vptr",
+   "got": 134516736,
+   "want": 134516736,
+   "ok": true
+  },
+  {
+   "what": "edx = vtable1[0]",
+   "got": 134512896,
+   "want": 134512896,
+   "ok": true
+  },
+  {
+   "what": "esi = vtable2[1]",
+   "got": 134513664,
+   "want": 134513664,
+   "ok": true
+  }
+ ],
+ "solved": true
+}

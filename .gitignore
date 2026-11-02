@@ -150,7 +150,7 @@ dmypy.json
 
 # For manim
 /videos
-/custom_config.yml
+# custom_config.yml is committed here, it picks the basic Tex template
 test.py
 CLAUDE.md
 

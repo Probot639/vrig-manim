@@ -1,0 +1,581 @@
+{
+ "exercise": "mit-83",
+ "unit": "unit15-mitigations",
+ "title": "83: PIE",
+ "desc": "Goal: Understand Position-Independent Executables. A PIE binary uses RIP-relative addressing instead of absolute addresses. Combined with ASLR, the entire executable is loaded at a random base address each run. The key instruction is lea reg, [rip + offset] -- it computes addresses relative to the current instruction pointer, so the code works at any base address.",
+ "mode": "asm-quiz",
+ "arch": "x86-64",
+ "source": [
+  "// Position-Independent Executable (PIE)",
+  "// Compiled with: gcc -pie -fpie",
+  "",
+  "// RIP-relative addressing: works at any base",
+  "// lea rax, [rip + 0xff5]",
+  "//   = current_rip + 0xff5",
+  "//   -> always points to the right data",
+  "",
+  "// Absolute addressing: breaks if base moves",
+  "// mov rcx, 0x55555000",
+  "//   -> hardcoded! Wrong if ASLR moves us",
+  "",
+  "push rbp",
+  "mov rbp, rsp",
+  "lea rax, [rip + 0xff5]",
+  "lea rbx, [rip + 0x1fee]",
+  "mov rcx, 0x55555000  ; bad!",
+  "hlt"
+ ],
+ "instructions": [
+  {
+   "addr": 93824992231424,
+   "bytes": [
+    85
+   ],
+   "mnemonic": "push",
+   "operands": "rbp",
+   "comment": "PIE: base address randomized each run"
+  },
+  {
+   "addr": 93824992231425,
+   "bytes": [
+    72,
+    137,
+    229
+   ],
+   "mnemonic": "mov",
+   "operands": "rbp, rsp",
+   "comment": "Frame pointer setup"
+  },
+  {
+   "addr": 93824992231428,
+   "bytes": [
+    72,
+    141,
+    5,
+    245,
+    15,
+    0,
+    0
+   ],
+   "mnemonic": "lea",
+   "operands": "rax, [rip + 0xff5]",
+   "comment": "RIP-relative: rax = 0x555555555000"
+  },
+  {
+   "addr": 93824992231435,
+   "bytes": [
+    72,
+    141,
+    29,
+    238,
+    31,
+    0,
+    0
+   ],
+   "mnemonic": "lea",
+   "operands": "rbx, [rip + 0x1fee]",
+   "comment": "RIP-relative: rbx = 0x555555556000"
+  },
+  {
+   "addr": 93824992231442,
+   "bytes": [
+    72,
+    199,
+    193,
+    0,
+    80,
+    85,
+    85
+   ],
+   "mnemonic": "mov",
+   "operands": "rcx, 0x55555000",
+   "comment": "Absolute address -- breaks under ASLR!"
+  },
+  {
+   "addr": 93824992231449,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialMemory": [],
+ "protections": [
+  {
+   "name": "PIE",
+   "status": "active"
+  },
+  {
+   "name": "ASLR",
+   "status": "active"
+  }
+ ],
+ "auxViz": [],
+ "winTitle": "PIE Understood!",
+ "winMsg": "PIE binaries use RIP-relative addressing so every code and data reference is an offset from the current instruction, not a hardcoded address. Combined with ASLR, the entire binary loads at a random base each run.",
+ "realWorld": null,
+ "quiz": [
+  {
+   "question": "What value does \"lea rax, [rip + 0xff5]\" compute? RIP after this instruction is 0x55555555400b. Give rax in hex.",
+   "answer": 93824992235520,
+   "format": "hex",
+   "hint": "lea with [rip + offset] computes rip_after_instruction + offset. 0x55555555400b + 0xff5 = 0x555555555000.",
+   "typed": "0x555555555000",
+   "correct": true
+  },
+  {
+   "question": "If the PIE binary is reloaded at base 0x7fff00000000 instead of 0x555555554000, does \"lea rax, [rip + 0xff5]\" still compute the correct address? (1=yes, 0=no)",
+   "answer": 1,
+   "format": "decimal",
+   "hint": "RIP-relative addressing automatically adjusts -- the offset from the instruction to the target is the same regardless of where the binary is loaded.",
+   "typed": "1",
+   "correct": true
+  },
+  {
+   "question": "Does \"mov rcx, 0x55555000\" (absolute address) still work if the binary is loaded at a different base? (1=yes, 0=no)",
+   "answer": 0,
+   "format": "decimal",
+   "hint": "Absolute addresses are hardcoded at compile time. If ASLR moves the binary, the hardcoded address points to the wrong location.",
+   "typed": "0",
+   "correct": true
+  }
+ ],
+ "quizSolved": true,
+ "run": {
+  "init": {
+   "regs": {
+    "rax": 0,
+    "rbx": 0,
+    "rcx": 0,
+    "rdx": 0,
+    "rsp": 3221160448,
+    "rbp": 3221160448,
+    "rsi": 0,
+    "rdi": 0,
+    "rip": 93824992231424,
+    "r8": 0,
+    "r9": 0,
+    "r10": 0,
+    "r11": 0,
+    "r12": 0,
+    "r13": 0,
+    "r14": 0,
+    "r15": 0
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 93824992231424,
+     "bytes": [
+      85
+     ],
+     "mnemonic": "push",
+     "operands": "rbp",
+     "comment": "PIE: base address randomized each run"
+    },
+    "diffs": [
+     {
+      "reg": "rsp",
+      "oldValue": 3221160448,
+      "newValue": 3221160440
+     },
+     {
+      "reg": "rip",
+      "oldValue": 93824992231424,
+      "newValue": 93824992231425
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [
+     {
+      "addr": 3221160440,
+      "value": 3221160448,
+      "size": 8
+     }
+    ],
+    "memReads": [],
+    "log": "0x0000000055554000: push rbp → RSP=0x00000000bfff01f8",
+    "halted": false,
+    "regs": {
+     "rax": 0,
+     "rbx": 0,
+     "rcx": 0,
+     "rdx": 0,
+     "rsp": 3221160440,
+     "rbp": 3221160448,
+     "rsi": 0,
+     "rdi": 0,
+     "rip": 93824992231425,
+     "r8": 0,
+     "r9": 0,
+     "r10": 0,
+     "r11": 0,
+     "r12": 0,
+     "r13": 0,
+     "r14": 0,
+     "r15": 0
+    }
+   },
+   {
+    "instr": {
+     "addr": 93824992231425,
+     "bytes": [
+      72,
+      137,
+      229
+     ],
+     "mnemonic": "mov",
+     "operands": "rbp, rsp",
+     "comment": "Frame pointer setup"
+    },
+    "diffs": [
+     {
+      "reg": "rbp",
+      "oldValue": 3221160448,
+      "newValue": 3221160440
+     },
+     {
+      "reg": "rip",
+      "oldValue": 93824992231425,
+      "newValue": 93824992231428
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0000000055554001: mov rbp, rsp → RBP=0x00000000bfff01f8",
+    "halted": false,
+    "regs": {
+     "rax": 0,
+     "rbx": 0,
+     "rcx": 0,
+     "rdx": 0,
+     "rsp": 3221160440,
+     "rbp": 3221160440,
+     "rsi": 0,
+     "rdi": 0,
+     "rip": 93824992231428,
+     "r8": 0,
+     "r9": 0,
+     "r10": 0,
+     "r11": 0,
+     "r12": 0,
+     "r13": 0,
+     "r14": 0,
+     "r15": 0
+    }
+   },
+   {
+    "instr": {
+     "addr": 93824992231428,
+     "bytes": [
+      72,
+      141,
+      5,
+      245,
+      15,
+      0,
+      0
+     ],
+     "mnemonic": "lea",
+     "operands": "rax, [rip + 0xff5]",
+     "comment": "RIP-relative: rax = 0x555555555000"
+    },
+    "diffs": [
+     {
+      "reg": "rax",
+      "oldValue": 0,
+      "newValue": 1431654393
+     },
+     {
+      "reg": "rip",
+      "oldValue": 93824992231428,
+      "newValue": 93824992231435
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0000000055554004: lea rax, [rip + 0xff5] → RAX=0x0000000055554ff9",
+    "halted": false,
+    "regs": {
+     "rax": 1431654393,
+     "rbx": 0,
+     "rcx": 0,
+     "rdx": 0,
+     "rsp": 3221160440,
+     "rbp": 3221160440,
+     "rsi": 0,
+     "rdi": 0,
+     "rip": 93824992231435,
+     "r8": 0,
+     "r9": 0,
+     "r10": 0,
+     "r11": 0,
+     "r12": 0,
+     "r13": 0,
+     "r14": 0,
+     "r15": 0
+    }
+   },
+   {
+    "instr": {
+     "addr": 93824992231435,
+     "bytes": [
+      72,
+      141,
+      29,
+      238,
+      31,
+      0,
+      0
+     ],
+     "mnemonic": "lea",
+     "operands": "rbx, [rip + 0x1fee]",
+     "comment": "RIP-relative: rbx = 0x555555556000"
+    },
+    "diffs": [
+     {
+      "reg": "rbx",
+      "oldValue": 0,
+      "newValue": 1431658489
+     },
+     {
+      "reg": "rip",
+      "oldValue": 93824992231435,
+      "newValue": 93824992231442
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x000000005555400b: lea rbx, [rip + 0x1fee] → RBX=0x0000000055555ff9",
+    "halted": false,
+    "regs": {
+     "rax": 1431654393,
+     "rbx": 1431658489,
+     "rcx": 0,
+     "rdx": 0,
+     "rsp": 3221160440,
+     "rbp": 3221160440,
+     "rsi": 0,
+     "rdi": 0,
+     "rip": 93824992231442,
+     "r8": 0,
+     "r9": 0,
+     "r10": 0,
+     "r11": 0,
+     "r12": 0,
+     "r13": 0,
+     "r14": 0,
+     "r15": 0
+    }
+   },
+   {
+    "instr": {
+     "addr": 93824992231442,
+     "bytes": [
+      72,
+      199,
+      193,
+      0,
+      80,
+      85,
+      85
+     ],
+     "mnemonic": "mov",
+     "operands": "rcx, 0x55555000",
+     "comment": "Absolute address -- breaks under ASLR!"
+    },
+    "diffs": [
+     {
+      "reg": "rcx",
+      "oldValue": 0,
+      "newValue": 1431654400
+     },
+     {
+      "reg": "rip",
+      "oldValue": 93824992231442,
+      "newValue": 93824992231449
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0000000055554012: mov rcx, 0x55555000 → RCX=0x0000000055555000",
+    "halted": false,
+    "regs": {
+     "rax": 1431654393,
+     "rbx": 1431658489,
+     "rcx": 1431654400,
+     "rdx": 0,
+     "rsp": 3221160440,
+     "rbp": 3221160440,
+     "rsi": 0,
+     "rdi": 0,
+     "rip": 93824992231449,
+     "r8": 0,
+     "r9": 0,
+     "r10": 0,
+     "r11": 0,
+     "r12": 0,
+     "r13": 0,
+     "r14": 0,
+     "r15": 0
+    }
+   },
+   {
+    "instr": {
+     "addr": 93824992231449,
+     "bytes": [
+      244
+     ],
+     "mnemonic": "hlt",
+     "operands": "",
+     "comment": ""
+    },
+    "diffs": [],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0000000055554019: hlt ",
+    "halted": true,
+    "regs": {
+     "rax": 1431654393,
+     "rbx": 1431658489,
+     "rcx": 1431654400,
+     "rdx": 0,
+     "rsp": 3221160440,
+     "rbp": 3221160440,
+     "rsi": 0,
+     "rdi": 0,
+     "rip": 93824992231449,
+     "r8": 0,
+     "r9": 0,
+     "r10": 0,
+     "r11": 0,
+     "r12": 0,
+     "r13": 0,
+     "r14": 0,
+     "r15": 0
+    }
+   }
+  ],
+  "error": null
+ },
+ "bases": [
+  93824992231424,
+  140733193388032
+ ],
+ "lea": {
+  "run1": [
+   {
+    "addr": 93824992231428,
+    "reg": "rax",
+    "disp": 4085,
+    "next": 93824992231435,
+    "value": 93824992235520
+   },
+   {
+    "addr": 93824992231435,
+    "reg": "rbx",
+    "disp": 8174,
+    "next": 93824992231442,
+    "value": 93824992239616
+   }
+  ],
+  "run2": [
+   {
+    "addr": 140733193388036,
+    "reg": "rax",
+    "disp": 4085,
+    "next": 140733193388043,
+    "value": 140733193392128
+   },
+   {
+    "addr": 140733193388043,
+    "reg": "rbx",
+    "disp": 8174,
+    "next": 140733193388050,
+    "value": 140733193396224
+   }
+  ]
+ },
+ "emuLea": [
+  {
+   "reg": "rax",
+   "emu": 1431654393
+  },
+  {
+   "reg": "rbx",
+   "emu": 1431658489
+  }
+ ],
+ "absolute": 1431654400,
+ "checks": [
+  {
+   "what": "lea rax (real semantics)",
+   "got": 93824992235520,
+   "want": 93824992235520,
+   "ok": true
+  },
+  {
+   "what": "rax - base same in both runs",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  },
+  {
+   "what": "absolute rcx still inside moved image",
+   "got": 0,
+   "want": 0,
+   "ok": true
+  }
+ ],
+ "solved": true
+}

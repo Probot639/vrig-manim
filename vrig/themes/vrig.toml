@@ -1,0 +1,61 @@
+# VRIG workbench palette from the decks. Warm family only, no cyan/green/pink.
+# With only three hues a lot of roles end up sharing one, so the split is
+# mostly done on lightness. Run `python -m vrig.theme vrig` to see what collides.
+
+name = "vrig"
+background = "#0D0D0D"
+
+[fonts]
+mono = "DejaVu Sans Mono"
+prose = "Noto Sans"
+
+[swatches]
+orange = "#F5A623"
+amber = "#C47E0A"
+gold = "#D4A017"
+orange_pale = "#FFD08A"
+amber_deep = "#7A4E06"
+rust = "#B5541B"
+white = "#F0F0F0"
+body = "#CCCCCC"
+grey = "#888888"
+dim = "#555555"
+bar = "#1A1A1A"
+
+[roles]
+text = "white"
+text_dim = "grey"
+label = "body"
+grid = "dim"
+cell_fill = "bar"
+highlight = "orange_pale"
+
+saved_ret = "rust"
+saved_fp = "amber_deep"
+canary = "orange_pale"
+local_var = "body"
+buffer = "grey"
+arg = "dim"
+
+attacker_bytes = "orange"
+leak = "orange_pale"
+pointer = "white"
+
+gadget = "orange_pale"
+text_section = "amber_deep"
+libc = "amber"
+
+chunk_header = "grey"
+chunk_user = "body"
+freed_chunk = "dim"
+tcache = "orange_pale"
+fastbin = "amber"
+unsorted = "rust"
+top_chunk = "amber_deep"
+
+kernel_space = "rust"
+user_space = "amber_deep"
+
+mitigation = "gold"
+win = "orange_pale"
+crash = "rust"

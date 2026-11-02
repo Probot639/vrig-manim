@@ -1,0 +1,674 @@
+{
+ "exercise": "asm-02",
+ "unit": "unit0-asm",
+ "title": "MOV",
+ "desc": "Goal: Understand the MOV instruction — the workhorse of x86. MOV copies data between registers, memory, and immediates. Watch how data flows: immediate → register → memory → register.",
+ "arch": "x86",
+ "word": 4,
+ "hexW": 8,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// MOV — Move (Copy) Data",
+   "cls": "comment"
+  },
+  {
+   "text": "// Syntax: MOV dst, src",
+   "cls": "comment"
+  },
+  {
+   "text": "// Forms:",
+   "cls": "comment"
+  },
+  {
+   "text": "//   MOV reg, imm     ; immediate to register",
+   "cls": "comment"
+  },
+  {
+   "text": "//   MOV reg, reg     ; register to register",
+   "cls": "comment"
+  },
+  {
+   "text": "//   MOV [mem], reg   ; register to memory",
+   "cls": "comment"
+  },
+  {
+   "text": "//   MOV reg, [mem]   ; memory to register",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "mov eax, 0x41",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ebx, eax",
+   "cls": "asm"
+  },
+  {
+   "text": "mov [0x08049000], eax",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ecx, [0x08049000]",
+   "cls": "asm"
+  },
+  {
+   "text": "mov edx, 0xff",
+   "cls": "asm"
+  },
+  {
+   "text": "mov [0x08049004], edx",
+   "cls": "asm"
+  },
+  {
+   "text": "hlt",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    65,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 0x41",
+   "comment": "Immediate to register",
+   "text": "mov eax, 0x41"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    137,
+    195
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, eax",
+   "comment": "Register to register",
+   "text": "mov ebx, eax"
+  },
+  {
+   "addr": 134512647,
+   "bytes": [
+    163,
+    0,
+    144,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "[0x08049000], eax",
+   "comment": "Register to memory",
+   "text": "mov [0x08049000], eax"
+  },
+  {
+   "addr": 134512652,
+   "bytes": [
+    139,
+    13,
+    0,
+    144,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, [0x08049000]",
+   "comment": "Memory to register",
+   "text": "mov ecx, [0x08049000]"
+  },
+  {
+   "addr": 134512658,
+   "bytes": [
+    186,
+    255,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "edx, 0xff",
+   "comment": "Another immediate load",
+   "text": "mov edx, 0xff"
+  },
+  {
+   "addr": 134512663,
+   "bytes": [
+    137,
+    21,
+    4,
+    144,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "[0x08049004], edx",
+   "comment": "Store to adjacent address",
+   "text": "mov [0x08049004], edx"
+  },
+  {
+   "addr": 134512669,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  134516736,
+  134516740,
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "halted",
+  "steps": 7,
+  "error": null
+ },
+ "patched": false,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "eax": 0,
+   "ebx": 0,
+   "ecx": 0,
+   "edx": 0,
+   "esp": 3221160448,
+   "ebp": 3221160448,
+   "esi": 0,
+   "edi": 0,
+   "eip": 134512640
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "134516736": 0,
+   "134516740": 0,
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 134512640,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 0,
+     "newValue": 65
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512640,
+     "newValue": 134512645
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048000: mov eax, 0x41 → EAX=0x00000041",
+   "halted": false,
+   "regs": {
+    "eax": 65,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512645
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 0,
+    "134516740": 0,
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 134512645,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 0,
+     "newValue": 65
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512645,
+     "newValue": 134512647
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048005: mov ebx, eax → EBX=0x00000041",
+   "halted": false,
+   "regs": {
+    "eax": 65,
+    "ebx": 65,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512647
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 0,
+    "134516740": 0,
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 134512647,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512647,
+     "newValue": 134512652
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 134516736,
+     "value": 65,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x08048007: mov [0x08049000], eax",
+   "halted": false,
+   "regs": {
+    "eax": 65,
+    "ebx": 65,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512652
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 65,
+    "134516740": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     65
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 3,
+   "addr": 134512652,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ecx",
+     "oldValue": 0,
+     "newValue": 65
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512652,
+     "newValue": 134512658
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 134516736,
+     "value": 65,
+     "size": 4
+    }
+   ],
+   "log": "0x0804800c: mov ecx, [0x08049000] → ECX=0x00000041",
+   "halted": false,
+   "regs": {
+    "eax": 65,
+    "ebx": 65,
+    "ecx": 65,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512658
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 65,
+    "134516740": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     65
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 4,
+   "addr": 134512658,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "edx",
+     "oldValue": 0,
+     "newValue": 255
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512658,
+     "newValue": 134512663
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048012: mov edx, 0xff → EDX=0x000000ff",
+   "halted": false,
+   "regs": {
+    "eax": 65,
+    "ebx": 65,
+    "ecx": 65,
+    "edx": 255,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512663
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 65,
+    "134516740": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     65
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 5,
+   "addr": 134512663,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512663,
+     "newValue": 134512669
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 134516740,
+     "value": 255,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x08048017: mov [0x08049004], edx",
+   "halted": false,
+   "regs": {
+    "eax": 65,
+    "ebx": 65,
+    "ecx": 65,
+    "edx": 255,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512669
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 65,
+    "134516740": 255,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     65
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ],
+    [
+     134516740,
+     255
+    ],
+    [
+     134516741,
+     0
+    ],
+    [
+     134516742,
+     0
+    ],
+    [
+     134516743,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 6,
+   "addr": 134512669,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804801d: hlt ",
+   "halted": true,
+   "regs": {
+    "eax": 65,
+    "ebx": 65,
+    "ecx": 65,
+    "edx": 255,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512669
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 65,
+    "134516740": 255,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     65
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ],
+    [
+     134516740,
+     255
+    ],
+    [
+     134516741,
+     0
+    ],
+    [
+     134516742,
+     0
+    ],
+    [
+     134516743,
+     0
+    ]
+   ]
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "After \"mov [0x08049000], eax\" and \"mov ecx, [0x08049000]\", what is ECX?",
+   "hint": "EAX held 0x41 (65), which was stored to memory then loaded into ECX.",
+   "answer": 65,
+   "format": "hex",
+   "vrigShows": "0x41",
+   "probe": {
+    "step": 3,
+    "value": 65,
+    "kind": "emulator",
+    "reg": "ecx",
+    "why": "ecx after the load"
+   },
+   "correct": true
+  },
+  {
+   "question": "What is EDX at the end?",
+   "hint": "EDX was loaded with immediate 0xFF.",
+   "answer": 255,
+   "format": "hex",
+   "vrigShows": "0xff",
+   "probe": {
+    "step": 6,
+    "value": 255,
+    "kind": "emulator",
+    "reg": "edx",
+    "why": "edx at hlt"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "MOV Mastered!",
+ "winMsg": "You understand data movement between registers, memory, and immediates."
+}

@@ -1,0 +1,576 @@
+{
+ "exercise": "adv2-98",
+ "unit": "unit17-advanced-ii",
+ "title": "98: Blind ROP (BROP)",
+ "desc": "Goal: Understand Blind Return-Oriented Programming — exploiting a remote service without having the binary. BROP requires only a stack overflow and a crash oracle (the server forks per-connection, so ASLR and canaries stay constant across crashes). The attack proceeds in phases: \n(1) Canary leak: overwrite the canary byte-by-byte, trying all 256 values for each byte. If the server does not crash, the guess is correct. The first byte is always 0x00 (null terminator). \n(2) Stop gadget discovery: scan the text segment for addresses that cause the server to hang (infinite loop, blocking syscall) rather than crash. These are used as safe return targets. \n(3) PLT scanning: identify PLT entries by their unique call+jmp signature. \n(4) Exploitation: chain write@PLT(socket_fd, binary_base, length) to dump the binary over the socket, then build a full ROP chain from the leaked binary.",
+ "mode": "asm-quiz",
+ "arch": "x86",
+ "source": [
+  "// Blind ROP (BROP) Attack Phases",
+  "",
+  "// Phase 1: Canary byte-by-byte leak",
+  "// Server forks → canary is constant",
+  "for (byte = 0; byte < 4; byte++)",
+  "  for (guess = 0; guess < 256; guess++)",
+  "    if (send_and_check(guess)) break;",
+  "",
+  "// Phase 2: Find stop gadgets",
+  "// Scan .text for addrs that hang vs crash",
+  "for (addr = text_base; ; addr++)",
+  "  if (probe(addr) == HANG) save(addr);",
+  "",
+  "// Phase 3: PLT scanning",
+  "// PLT entries: [call resolver][jmp GOT]",
+  "// Unique signature: call+jmp pattern",
+  "",
+  "// Phase 4: Dump binary via write@PLT",
+  "write(sock, binary_base, 0x1000);",
+  "// Now build full ROP from leaked binary"
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    0,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 0",
+   "comment": "canary_byte_0 guess = 0x00 (null terminator)"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    187,
+    65,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 0x41",
+   "comment": "canary_byte_1 guess (try 0x00-0xFF)"
+  },
+  {
+   "addr": 134512650,
+   "bytes": [
+    185,
+    114,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 0x72",
+   "comment": "canary_byte_2 guess (try 0x00-0xFF)"
+  },
+  {
+   "addr": 134512655,
+   "bytes": [
+    186,
+    243,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "edx, 0xf3",
+   "comment": "canary_byte_3 guess (try 0x00-0xFF)"
+  },
+  {
+   "addr": 134512660,
+   "bytes": [
+    144
+   ],
+   "mnemonic": "nop",
+   "operands": "",
+   "comment": "Probe addr: crash = not useful"
+  },
+  {
+   "addr": 134512661,
+   "bytes": [
+    144
+   ],
+   "mnemonic": "nop",
+   "operands": "",
+   "comment": "Probe addr: hang = stop gadget found!"
+  },
+  {
+   "addr": 134512662,
+   "bytes": [
+    232,
+    16,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "call",
+   "operands": "0x0804802b",
+   "comment": "PLT stub: call to resolver"
+  },
+  {
+   "addr": 134512667,
+   "bytes": [
+    233,
+    32,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "jmp",
+   "operands": "0x08048040",
+   "comment": "PLT stub: jmp to GOT entry"
+  },
+  {
+   "addr": 134512672,
+   "bytes": [
+    95
+   ],
+   "mnemonic": "pop",
+   "operands": "edi",
+   "comment": "BROP gadget: pop edi"
+  },
+  {
+   "addr": 134512673,
+   "bytes": [
+    195
+   ],
+   "mnemonic": "ret",
+   "operands": "",
+   "comment": "BROP gadget: ret — useful for write(sock, addr, len)"
+  },
+  {
+   "addr": 134512674,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialMemory": [],
+ "protections": [],
+ "auxViz": [],
+ "winTitle": "BROP Attack Mastered!",
+ "winMsg": "Blind ROP turns a simple crash oracle into full binary disclosure and exploitation — no binary needed upfront. The key insight is that forking servers preserve ASLR layout and canaries across connections, enabling byte-by-byte brute force.",
+ "realWorld": null,
+ "quiz": [
+  {
+   "question": "A 4-byte stack canary is leaked byte-by-byte, trying up to 256 guesses per byte. What is the worst-case total number of connection attempts? (decimal)",
+   "answer": 1024,
+   "format": "decimal",
+   "hint": "4 bytes * 256 guesses per byte = 1024 total attempts in the worst case. In practice, the first byte (0x00) is known, so only 768 for the remaining 3.",
+   "typed": "1024",
+   "correct": true
+  },
+  {
+   "question": "What does a \"stop gadget\" do when returned to? (1=crash, 2=hang/block, 3=exit cleanly)",
+   "answer": 2,
+   "format": "decimal",
+   "hint": "A stop gadget causes the program to hang (infinite loop or blocking I/O) without crashing. This lets the attacker distinguish it from a crash, making it useful as a safe return target during probing.",
+   "typed": "2",
+   "correct": true
+  },
+  {
+   "question": "The first byte of a standard glibc stack canary is always what value? (hex)",
+   "answer": 0,
+   "format": "hex",
+   "hint": "Glibc sets the first byte to 0x00 (null terminator) to prevent canary leaks via string functions like printf/puts, which stop at null bytes.",
+   "typed": "0x0",
+   "correct": true
+  }
+ ],
+ "quizSolved": true,
+ "run": {
+  "init": {
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512640
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 134512640,
+     "bytes": [
+      184,
+      0,
+      0,
+      0,
+      0
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, 0",
+     "comment": "canary_byte_0 guess = 0x00 (null terminator)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512640,
+      "newValue": 134512645
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048000: mov eax, 0",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512645
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512645,
+     "bytes": [
+      187,
+      65,
+      0,
+      0,
+      0
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, 0x41",
+     "comment": "canary_byte_1 guess (try 0x00-0xFF)"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 0,
+      "newValue": 65
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512645,
+      "newValue": 134512650
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048005: mov ebx, 0x41 → EBX=0x00000041",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 65,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512650
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512650,
+     "bytes": [
+      185,
+      114,
+      0,
+      0,
+      0
+     ],
+     "mnemonic": "mov",
+     "operands": "ecx, 0x72",
+     "comment": "canary_byte_2 guess (try 0x00-0xFF)"
+    },
+    "diffs": [
+     {
+      "reg": "ecx",
+      "oldValue": 0,
+      "newValue": 114
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512650,
+      "newValue": 134512655
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800a: mov ecx, 0x72 → ECX=0x00000072",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 65,
+     "ecx": 114,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512655
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512655,
+     "bytes": [
+      186,
+      243,
+      0,
+      0,
+      0
+     ],
+     "mnemonic": "mov",
+     "operands": "edx, 0xf3",
+     "comment": "canary_byte_3 guess (try 0x00-0xFF)"
+    },
+    "diffs": [
+     {
+      "reg": "edx",
+      "oldValue": 0,
+      "newValue": 243
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512655,
+      "newValue": 134512660
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800f: mov edx, 0xf3 → EDX=0x000000f3",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 65,
+     "ecx": 114,
+     "edx": 243,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512660
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512660,
+     "bytes": [
+      144
+     ],
+     "mnemonic": "nop",
+     "operands": "",
+     "comment": "Probe addr: crash = not useful"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512660,
+      "newValue": 134512661
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048014: nop ",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 65,
+     "ecx": 114,
+     "edx": 243,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512661
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512661,
+     "bytes": [
+      144
+     ],
+     "mnemonic": "nop",
+     "operands": "",
+     "comment": "Probe addr: hang = stop gadget found!"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512661,
+      "newValue": 134512662
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048015: nop ",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 65,
+     "ecx": 114,
+     "edx": 243,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512662
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512662,
+     "bytes": [
+      232,
+      16,
+      0,
+      0,
+      0
+     ],
+     "mnemonic": "call",
+     "operands": "0x0804802b",
+     "comment": "PLT stub: call to resolver"
+    },
+    "diffs": [
+     {
+      "reg": "esp",
+      "oldValue": 3221160448,
+      "newValue": 3221160444
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512662,
+      "newValue": 134512683
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [
+     {
+      "addr": 3221160444,
+      "value": 134512667,
+      "size": 4
+     }
+    ],
+    "memReads": [],
+    "log": "0x08048016: call 0x0804802b → ESP=0xbfff01fc",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 65,
+     "ecx": 114,
+     "edx": 243,
+     "esp": 3221160444,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512683
+    }
+   },
+   {
+    "instr": null,
+    "fetchFault": true,
+    "eip": 134512683
+   }
+  ],
+  "error": null
+ },
+ "canary": [
+  0,
+  65,
+  114,
+  243
+ ],
+ "tries": [
+  1,
+  66,
+  115,
+  244
+ ],
+ "checks": [
+  {
+   "what": "4 bytes x 256 guesses",
+   "got": 1024,
+   "want": 1024,
+   "ok": true
+  },
+  {
+   "what": "stop gadget = hang",
+   "got": 2,
+   "want": 2,
+   "ok": true
+  },
+  {
+   "what": "canary byte 0",
+   "got": 0,
+   "want": 0,
+   "ok": true
+  }
+ ],
+ "solved": true
+}

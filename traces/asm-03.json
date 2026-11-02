@@ -1,0 +1,924 @@
+{
+ "exercise": "asm-03",
+ "unit": "unit0-asm",
+ "title": "PUSH & POP",
+ "desc": "Goal: See how the stack works. PUSH decreases ESP by 4 and writes a value. POP reads the value at ESP and increases ESP by 4. The stack is LIFO — Last In, First Out. Watch ESP change with each operation!",
+ "arch": "x86",
+ "word": 4,
+ "hexW": 8,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// PUSH & POP — Stack Operations",
+   "cls": "comment"
+  },
+  {
+   "text": "// PUSH: ESP -= 4; [ESP] = value",
+   "cls": "comment"
+  },
+  {
+   "text": "// POP:  value = [ESP]; ESP += 4",
+   "cls": "comment"
+  },
+  {
+   "text": "// Stack grows DOWN (toward lower addresses)",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "mov eax, 0xDDCCBBAA",
+   "cls": "asm"
+  },
+  {
+   "text": "push eax",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ebx, 0x44332211",
+   "cls": "asm"
+  },
+  {
+   "text": "push ebx",
+   "cls": "asm"
+  },
+  {
+   "text": "pop ecx            ; what value?",
+   "cls": "asm"
+  },
+  {
+   "text": "pop edx",
+   "cls": "asm"
+  },
+  {
+   "text": "push 0x42",
+   "cls": "asm"
+  },
+  {
+   "text": "pop eax",
+   "cls": "asm"
+  },
+  {
+   "text": "hlt",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    170,
+    187,
+    204,
+    221
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 0xddccbbaa",
+   "comment": "Load a value to push",
+   "text": "mov eax, 0xddccbbaa"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    80
+   ],
+   "mnemonic": "push",
+   "operands": "eax",
+   "comment": "Push EAX — watch ESP change",
+   "text": "push eax"
+  },
+  {
+   "addr": 134512646,
+   "bytes": [
+    187,
+    17,
+    34,
+    51,
+    68
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 0x44332211",
+   "comment": "Load another value",
+   "text": "mov ebx, 0x44332211"
+  },
+  {
+   "addr": 134512651,
+   "bytes": [
+    83
+   ],
+   "mnemonic": "push",
+   "operands": "ebx",
+   "comment": "Push EBX",
+   "text": "push ebx"
+  },
+  {
+   "addr": 134512652,
+   "bytes": [
+    89
+   ],
+   "mnemonic": "pop",
+   "operands": "ecx",
+   "comment": "Pop into ECX — which value comes out?",
+   "text": "pop ecx"
+  },
+  {
+   "addr": 134512653,
+   "bytes": [
+    90
+   ],
+   "mnemonic": "pop",
+   "operands": "edx",
+   "comment": "Pop into EDX",
+   "text": "pop edx"
+  },
+  {
+   "addr": 134512654,
+   "bytes": [
+    106,
+    66
+   ],
+   "mnemonic": "push",
+   "operands": "0x42",
+   "comment": "Push immediate",
+   "text": "push 0x42"
+  },
+  {
+   "addr": 134512656,
+   "bytes": [
+    88
+   ],
+   "mnemonic": "pop",
+   "operands": "eax",
+   "comment": "Pop into EAX",
+   "text": "pop eax"
+  },
+  {
+   "addr": 134512657,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160440,
+  3221160444,
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "halted",
+  "steps": 9,
+  "error": null
+ },
+ "patched": false,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "eax": 0,
+   "ebx": 0,
+   "ecx": 0,
+   "edx": 0,
+   "esp": 3221160448,
+   "ebp": 3221160448,
+   "esi": 0,
+   "edi": 0,
+   "eip": 134512640
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160440": 0,
+   "3221160444": 0,
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 134512640,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 0,
+     "newValue": 3721182122
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512640,
+     "newValue": 134512645
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048000: mov eax, 0xddccbbaa → EAX=0xddccbbaa",
+   "halted": false,
+   "regs": {
+    "eax": 3721182122,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512645
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 0,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 134512645,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160448,
+     "newValue": 3221160444
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512645,
+     "newValue": 134512646
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 3221160444,
+     "value": 3721182122,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x08048005: push eax → ESP=0xbfff01fc",
+   "halted": false,
+   "regs": {
+    "eax": 3721182122,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160444,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512646
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 0,
+    "3221160444": 3721182122,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160444,
+     170
+    ],
+    [
+     3221160445,
+     187
+    ],
+    [
+     3221160446,
+     204
+    ],
+    [
+     3221160447,
+     221
+    ]
+   ]
+  },
+  {
+   "idx": 2,
+   "addr": 134512646,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 0,
+     "newValue": 1144201745
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512646,
+     "newValue": 134512651
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048006: mov ebx, 0x44332211 → EBX=0x44332211",
+   "halted": false,
+   "regs": {
+    "eax": 3721182122,
+    "ebx": 1144201745,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160444,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512651
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 0,
+    "3221160444": 3721182122,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160444,
+     170
+    ],
+    [
+     3221160445,
+     187
+    ],
+    [
+     3221160446,
+     204
+    ],
+    [
+     3221160447,
+     221
+    ]
+   ]
+  },
+  {
+   "idx": 3,
+   "addr": 134512651,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160444,
+     "newValue": 3221160440
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512651,
+     "newValue": 134512652
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 3221160440,
+     "value": 1144201745,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x0804800b: push ebx → ESP=0xbfff01f8",
+   "halted": false,
+   "regs": {
+    "eax": 3721182122,
+    "ebx": 1144201745,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160440,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512652
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 1144201745,
+    "3221160444": 3721182122,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     17
+    ],
+    [
+     3221160441,
+     34
+    ],
+    [
+     3221160442,
+     51
+    ],
+    [
+     3221160443,
+     68
+    ],
+    [
+     3221160444,
+     170
+    ],
+    [
+     3221160445,
+     187
+    ],
+    [
+     3221160446,
+     204
+    ],
+    [
+     3221160447,
+     221
+    ]
+   ]
+  },
+  {
+   "idx": 4,
+   "addr": 134512652,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ecx",
+     "oldValue": 0,
+     "newValue": 1144201745
+    },
+    {
+     "reg": "esp",
+     "oldValue": 3221160440,
+     "newValue": 3221160444
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512652,
+     "newValue": 134512653
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160440,
+     "value": 1144201745,
+     "size": 4
+    }
+   ],
+   "log": "0x0804800c: pop ecx → ECX=0x44332211, ESP=0xbfff01fc",
+   "halted": false,
+   "regs": {
+    "eax": 3721182122,
+    "ebx": 1144201745,
+    "ecx": 1144201745,
+    "edx": 0,
+    "esp": 3221160444,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512653
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 1144201745,
+    "3221160444": 3721182122,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     17
+    ],
+    [
+     3221160441,
+     34
+    ],
+    [
+     3221160442,
+     51
+    ],
+    [
+     3221160443,
+     68
+    ],
+    [
+     3221160444,
+     170
+    ],
+    [
+     3221160445,
+     187
+    ],
+    [
+     3221160446,
+     204
+    ],
+    [
+     3221160447,
+     221
+    ]
+   ]
+  },
+  {
+   "idx": 5,
+   "addr": 134512653,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "edx",
+     "oldValue": 0,
+     "newValue": 3721182122
+    },
+    {
+     "reg": "esp",
+     "oldValue": 3221160444,
+     "newValue": 3221160448
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512653,
+     "newValue": 134512654
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160444,
+     "value": 3721182122,
+     "size": 4
+    }
+   ],
+   "log": "0x0804800d: pop edx → EDX=0xddccbbaa, ESP=0xbfff0200",
+   "halted": false,
+   "regs": {
+    "eax": 3721182122,
+    "ebx": 1144201745,
+    "ecx": 1144201745,
+    "edx": 3721182122,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512654
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 1144201745,
+    "3221160444": 3721182122,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     17
+    ],
+    [
+     3221160441,
+     34
+    ],
+    [
+     3221160442,
+     51
+    ],
+    [
+     3221160443,
+     68
+    ],
+    [
+     3221160444,
+     170
+    ],
+    [
+     3221160445,
+     187
+    ],
+    [
+     3221160446,
+     204
+    ],
+    [
+     3221160447,
+     221
+    ]
+   ]
+  },
+  {
+   "idx": 6,
+   "addr": 134512654,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "esp",
+     "oldValue": 3221160448,
+     "newValue": 3221160444
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512654,
+     "newValue": 134512656
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 3221160444,
+     "value": 66,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x0804800e: push 0x42 → ESP=0xbfff01fc",
+   "halted": false,
+   "regs": {
+    "eax": 3721182122,
+    "ebx": 1144201745,
+    "ecx": 1144201745,
+    "edx": 3721182122,
+    "esp": 3221160444,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512656
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 1144201745,
+    "3221160444": 66,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     17
+    ],
+    [
+     3221160441,
+     34
+    ],
+    [
+     3221160442,
+     51
+    ],
+    [
+     3221160443,
+     68
+    ],
+    [
+     3221160444,
+     66
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 7,
+   "addr": 134512656,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 3721182122,
+     "newValue": 66
+    },
+    {
+     "reg": "esp",
+     "oldValue": 3221160444,
+     "newValue": 3221160448
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512656,
+     "newValue": 134512657
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160444,
+     "value": 66,
+     "size": 4
+    }
+   ],
+   "log": "0x08048010: pop eax → EAX=0x00000042, ESP=0xbfff0200",
+   "halted": false,
+   "regs": {
+    "eax": 66,
+    "ebx": 1144201745,
+    "ecx": 1144201745,
+    "edx": 3721182122,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512657
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 1144201745,
+    "3221160444": 66,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     17
+    ],
+    [
+     3221160441,
+     34
+    ],
+    [
+     3221160442,
+     51
+    ],
+    [
+     3221160443,
+     68
+    ],
+    [
+     3221160444,
+     66
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 8,
+   "addr": 134512657,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048011: hlt ",
+   "halted": true,
+   "regs": {
+    "eax": 66,
+    "ebx": 1144201745,
+    "ecx": 1144201745,
+    "edx": 3721182122,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512657
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160440": 1144201745,
+    "3221160444": 66,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     3221160440,
+     17
+    ],
+    [
+     3221160441,
+     34
+    ],
+    [
+     3221160442,
+     51
+    ],
+    [
+     3221160443,
+     68
+    ],
+    [
+     3221160444,
+     66
+    ],
+    [
+     3221160445,
+     0
+    ],
+    [
+     3221160446,
+     0
+    ],
+    [
+     3221160447,
+     0
+    ]
+   ]
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "After pushing EAX (0xDDCCBBAA) then EBX (0x44332211), what does POP ECX give?",
+   "hint": "LIFO: the last value pushed (EBX) is the first popped.",
+   "answer": 1144201745,
+   "format": "hex",
+   "vrigShows": "0x44332211",
+   "probe": {
+    "step": 4,
+    "value": 1144201745,
+    "kind": "emulator",
+    "reg": "ecx",
+    "why": "ecx after pop ecx"
+   },
+   "correct": true
+  },
+  {
+   "question": "What is EAX at the very end (after final pop)?",
+   "hint": "The last push was 0x42, and it gets popped into EAX.",
+   "answer": 66,
+   "format": "hex",
+   "vrigShows": "0x42",
+   "probe": {
+    "step": 8,
+    "value": 66,
+    "kind": "emulator",
+    "reg": "eax",
+    "why": "eax at hlt"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Stack Operations!",
+ "winMsg": "You understand PUSH, POP, and LIFO stack ordering."
+}

@@ -1,0 +1,617 @@
+{
+ "exercise": "adv2-97",
+ "unit": "unit17-advanced-ii",
+ "title": "97: Spectre v1 - Bounds Check Bypass",
+ "desc": "Goal: Understand speculative execution attacks. Modern CPUs predict branch outcomes and execute instructions ahead of time. In Spectre v1, the attacker mistrains the branch predictor so the CPU speculatively executes a load past a bounds check. The loaded value is used to index into a second array, bringing a specific cache line into L1 cache. After the CPU detects the misprediction, it rolls back register/memory changes — but the cache state persists. By timing subsequent accesses to array2, the attacker determines which cache line was loaded and deduces the secret byte. The bounds check is architecturally correct, but speculation leaks data through the microarchitectural side channel.",
+ "mode": "asm-quiz",
+ "arch": "x86",
+ "source": [
+  "// Spectre v1: Bounds Check Bypass",
+  "// Gadget pattern (victim code):",
+  "uint8_t array1[16];",
+  "uint8_t array2[256 * 256];",
+  "unsigned int array1_size = 16;",
+  "",
+  "void victim(size_t x) {",
+  "    if (x < array1_size) {",
+  "        // Branch predictor mistrains:",
+  "        // CPU speculatively executes this",
+  "        uint8_t secret = array1[x];",
+  "        uint8_t tmp = array2[secret * 256];",
+  "        // secret leaks via cache timing!",
+  "    }",
+  "}",
+  "// Attacker calls victim(64) — out of bounds",
+  "// CPU speculates past the if-check",
+  "// Then times array2 accesses to find",
+  "// which cache line was loaded"
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    64,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 64",
+   "comment": "x = 64 (attacker-controlled, out of bounds)"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    59,
+    5,
+    0,
+    160,
+    4,
+    8
+   ],
+   "mnemonic": "cmp",
+   "operands": "eax, [0x0804a000]",
+   "comment": "Compare x with array1_size (= 16)"
+  },
+  {
+   "addr": 134512651,
+   "bytes": [
+    125,
+    14
+   ],
+   "mnemonic": "jge",
+   "operands": "0x0804801b",
+   "comment": "If x >= size, jump to out_of_bounds"
+  },
+  {
+   "addr": 134512653,
+   "bytes": [
+    139,
+    152,
+    0,
+    176,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, [0x0804b000 + eax]",
+   "comment": "SPECULATIVE: load array1[x] — leaks secret byte"
+  },
+  {
+   "addr": 134512659,
+   "bytes": [
+    193,
+    227,
+    8
+   ],
+   "mnemonic": "shl",
+   "operands": "ebx, 8",
+   "comment": "Multiply by 256 (shift left 8) for cache line"
+  },
+  {
+   "addr": 134512662,
+   "bytes": [
+    139,
+    147,
+    0,
+    192,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "edx, [0x0804c000 + ebx]",
+   "comment": "SPECULATIVE: access array2[secret * 256] — cache side channel"
+  },
+  {
+   "addr": 134512667,
+   "bytes": [
+    144
+   ],
+   "mnemonic": "nop",
+   "operands": "",
+   "comment": "out_of_bounds: branch target (architectural path)"
+  },
+  {
+   "addr": 134512668,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialMemory": [
+  {
+   "addr": 134520832,
+   "value": 16,
+   "size": 4
+  }
+ ],
+ "protections": [],
+ "auxViz": [],
+ "winTitle": "Spectre v1 Understood!",
+ "winMsg": "Speculative execution bypasses bounds checks. The CPU rolls back architectural state but cache state persists, creating a covert timing channel. Mitigations include lfence after bounds checks, array index masking, and retpoline for indirect branches.",
+ "realWorld": "CVE-2017-5753 (Spectre v1): Affected virtually all modern CPUs from Intel, AMD, and ARM.",
+ "quiz": [
+  {
+   "question": "If x = 64 and array1 starts at 0x0804b000, what address does the speculative load access? (hex)",
+   "answer": 134524992,
+   "format": "hex",
+   "hint": "array1[64] = array1 base + 64 = 0x0804b000 + 0x40 = 0x0804b040. This is past the 16-byte array.",
+   "typed": "0x804b040",
+   "correct": true
+  },
+  {
+   "question": "After the CPU detects the misprediction, is the speculatively loaded value still in a register? (1=yes, 0=no)",
+   "answer": 0,
+   "format": "decimal",
+   "hint": "The CPU rolls back all architectural state (registers, memory). But the cache is NOT rolled back — that is the side channel.",
+   "typed": "0",
+   "correct": true
+  },
+  {
+   "question": "If the leaked secret byte is 0x41, which byte offset into array2 gets cached? (multiply secret by 256, answer in hex)",
+   "answer": 16640,
+   "format": "hex",
+   "hint": "0x41 * 256 = 0x41 * 0x100 = 0x4100. The attacker times access to array2[0x4100] and finds it fast (cache hit).",
+   "typed": "0x4100",
+   "correct": true
+  }
+ ],
+ "quizSolved": true,
+ "run": {
+  "init": {
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512640
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 134512640,
+     "bytes": [
+      184,
+      64,
+      0,
+      0,
+      0
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, 64",
+     "comment": "x = 64 (attacker-controlled, out of bounds)"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 0,
+      "newValue": 64
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512640,
+      "newValue": 134512645
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048000: mov eax, 64 → EAX=0x00000040",
+    "halted": false,
+    "regs": {
+     "eax": 64,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512645
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512645,
+     "bytes": [
+      59,
+      5,
+      0,
+      160,
+      4,
+      8
+     ],
+     "mnemonic": "cmp",
+     "operands": "eax, [0x0804a000]",
+     "comment": "Compare x with array1_size (= 16)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512645,
+      "newValue": 134512651
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134520832,
+      "value": 16,
+      "size": 4
+     }
+    ],
+    "log": "0x08048005: cmp eax, [0x0804a000]",
+    "halted": false,
+    "regs": {
+     "eax": 64,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512651
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512651,
+     "bytes": [
+      125,
+      14
+     ],
+     "mnemonic": "jge",
+     "operands": "0x0804801b",
+     "comment": "If x >= size, jump to out_of_bounds"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512651,
+      "newValue": 134512667
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800b: jge 0x0804801b",
+    "halted": false,
+    "regs": {
+     "eax": 64,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512667
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512667,
+     "bytes": [
+      144
+     ],
+     "mnemonic": "nop",
+     "operands": "",
+     "comment": "out_of_bounds: branch target (architectural path)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512667,
+      "newValue": 134512668
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804801b: nop ",
+    "halted": false,
+    "regs": {
+     "eax": 64,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512668
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512668,
+     "bytes": [
+      244
+     ],
+     "mnemonic": "hlt",
+     "operands": "",
+     "comment": ""
+    },
+    "diffs": [],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804801c: hlt ",
+    "halted": true,
+    "regs": {
+     "eax": 64,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512668
+    }
+   }
+  ],
+  "error": null
+ },
+ "secret": 65,
+ "spec": {
+  "init": {
+   "regs": {
+    "eax": 64,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512653
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 134512653,
+     "bytes": [
+      139,
+      152,
+      0,
+      176,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, [0x0804b000 + eax]",
+     "comment": "SPECULATIVE: load array1[x] — leaks secret byte"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 0,
+      "newValue": 65
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512653,
+      "newValue": 134512659
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134524992,
+      "value": 65,
+      "size": 4
+     }
+    ],
+    "log": "0x0804800d: mov ebx, [0x0804b000 + eax] → EBX=0x00000041",
+    "halted": false,
+    "regs": {
+     "eax": 64,
+     "ebx": 65,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512659
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512659,
+     "bytes": [
+      193,
+      227,
+      8
+     ],
+     "mnemonic": "shl",
+     "operands": "ebx, 8",
+     "comment": "Multiply by 256 (shift left 8) for cache line"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 65,
+      "newValue": 16640
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512659,
+      "newValue": 134512662
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048013: shl ebx, 8 → EBX=0x00004100",
+    "halted": false,
+    "regs": {
+     "eax": 64,
+     "ebx": 16640,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512662
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512662,
+     "bytes": [
+      139,
+      147,
+      0,
+      192,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "edx, [0x0804c000 + ebx]",
+     "comment": "SPECULATIVE: access array2[secret * 256] — cache side channel"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512662,
+      "newValue": 134512668
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [
+     {
+      "addr": 134545664,
+      "value": 0,
+      "size": 4
+     }
+    ],
+    "log": "0x08048016: mov edx, [0x0804c000 + ebx]",
+    "halted": false,
+    "regs": {
+     "eax": 64,
+     "ebx": 16640,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512668
+    }
+   },
+   {
+    "instr": null,
+    "fetchFault": true,
+    "eip": 134512668
+   }
+  ],
+  "error": null
+ },
+ "branchTaken": true,
+ "array2": 134529024,
+ "probeAddr": 134545664,
+ "checks": [
+  {
+   "what": "speculative load address",
+   "got": 134524992,
+   "want": 134524992,
+   "ok": true
+  },
+  {
+   "what": "ebx survives rollback",
+   "got": 0,
+   "want": 0,
+   "ok": true
+  },
+  {
+   "what": "array2 offset cached",
+   "got": 16640,
+   "want": 16640,
+   "ok": true
+  },
+  {
+   "what": "architectural ebx",
+   "got": 0,
+   "want": 0,
+   "ok": true
+  }
+ ],
+ "solved": true
+}

@@ -1,0 +1,644 @@
+{
+ "exercise": "asm-05",
+ "unit": "unit0-asm",
+ "title": "CMP & Flags",
+ "desc": "Goal: Understand CPU flags. CMP subtracts without storing the result — it only sets flags. ZF (Zero Flag) = result was 0. SF (Sign Flag) = result's sign bit is set. CF (Carry Flag) = unsigned borrow. TEST does AND and sets flags. Note: signed less-than is SF != OF, not just SF alone.",
+ "arch": "x86",
+ "word": 4,
+ "hexW": 8,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// CMP & Flags",
+   "cls": "comment"
+  },
+  {
+   "text": "// CMP a, b → computes a - b, sets flags",
+   "cls": "comment"
+  },
+  {
+   "text": "// ZF = 1 if a == b (result is zero)",
+   "cls": "comment"
+  },
+  {
+   "text": "// SF = 1 if result's sign bit is set (signed a < b is SF != OF)",
+   "cls": "comment"
+  },
+  {
+   "text": "// CF = 1 if a < b  (unsigned borrow)",
+   "cls": "comment"
+  },
+  {
+   "text": "// TEST a, b → computes a AND b, sets flags",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "mov eax, 5",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ebx, 5",
+   "cls": "asm"
+  },
+  {
+   "text": "cmp eax, ebx",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ecx, 10",
+   "cls": "asm"
+  },
+  {
+   "text": "cmp eax, ecx",
+   "cls": "asm"
+  },
+  {
+   "text": "cmp ecx, ebx",
+   "cls": "asm"
+  },
+  {
+   "text": "mov eax, 0",
+   "cls": "asm"
+  },
+  {
+   "text": "test eax, eax",
+   "cls": "asm"
+  },
+  {
+   "text": "hlt",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    5,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 5",
+   "comment": "",
+   "text": "mov eax, 5"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    187,
+    5,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 5",
+   "comment": "",
+   "text": "mov ebx, 5"
+  },
+  {
+   "addr": 134512650,
+   "bytes": [
+    57,
+    216
+   ],
+   "mnemonic": "cmp",
+   "operands": "eax, ebx",
+   "comment": "Computes EAX - EBX, sets flags",
+   "text": "cmp eax, ebx"
+  },
+  {
+   "addr": 134512652,
+   "bytes": [
+    185,
+    10,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 10",
+   "comment": "",
+   "text": "mov ecx, 10"
+  },
+  {
+   "addr": 134512657,
+   "bytes": [
+    57,
+    200
+   ],
+   "mnemonic": "cmp",
+   "operands": "eax, ecx",
+   "comment": "Computes EAX - ECX, sets flags",
+   "text": "cmp eax, ecx"
+  },
+  {
+   "addr": 134512659,
+   "bytes": [
+    57,
+    217
+   ],
+   "mnemonic": "cmp",
+   "operands": "ecx, ebx",
+   "comment": "Computes ECX - EBX, sets flags",
+   "text": "cmp ecx, ebx"
+  },
+  {
+   "addr": 134512661,
+   "bytes": [
+    184,
+    0,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 0",
+   "comment": "",
+   "text": "mov eax, 0"
+  },
+  {
+   "addr": 134512666,
+   "bytes": [
+    133,
+    192
+   ],
+   "mnemonic": "test",
+   "operands": "eax, eax",
+   "comment": "Computes EAX AND EAX, sets flags",
+   "text": "test eax, eax"
+  },
+  {
+   "addr": 134512668,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "halted",
+  "steps": 9,
+  "error": null
+ },
+ "patched": false,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "eax": 0,
+   "ebx": 0,
+   "ecx": 0,
+   "edx": 0,
+   "esp": 3221160448,
+   "ebp": 3221160448,
+   "esi": 0,
+   "edi": 0,
+   "eip": 134512640
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 134512640,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 0,
+     "newValue": 5
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512640,
+     "newValue": 134512645
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048000: mov eax, 5 → EAX=0x00000005",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512645
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 134512645,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 0,
+     "newValue": 5
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512645,
+     "newValue": 134512650
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048005: mov ebx, 5 → EBX=0x00000005",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 5,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512650
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 134512650,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512650,
+     "newValue": 134512652
+    }
+   ],
+   "flagChanges": {
+    "ZF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800a: cmp eax, ebx [ZF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 5,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512652
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 134512652,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ecx",
+     "oldValue": 0,
+     "newValue": 10
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512652,
+     "newValue": 134512657
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800c: mov ecx, 10 → ECX=0x0000000a",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 5,
+    "ecx": 10,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512657
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 134512657,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512657,
+     "newValue": 134512659
+    }
+   ],
+   "flagChanges": {
+    "ZF": false,
+    "SF": true,
+    "CF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x08048011: cmp eax, ecx [ZF=0 SF=1 CF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 5,
+    "ecx": 10,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512659
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": true,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 134512659,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512659,
+     "newValue": 134512661
+    }
+   ],
+   "flagChanges": {
+    "SF": false,
+    "CF": false
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x08048013: cmp ecx, ebx [SF=0 CF=0]",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 5,
+    "ecx": 10,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512661
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 6,
+   "addr": 134512661,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 5,
+     "newValue": 0
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512661,
+     "newValue": 134512666
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048015: mov eax, 0 → EAX=0x00000000",
+   "halted": false,
+   "regs": {
+    "eax": 0,
+    "ebx": 5,
+    "ecx": 10,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512666
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 7,
+   "addr": 134512666,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512666,
+     "newValue": 134512668
+    }
+   ],
+   "flagChanges": {
+    "ZF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804801a: test eax, eax [ZF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 0,
+    "ebx": 5,
+    "ecx": 10,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512668
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 8,
+   "addr": 134512668,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804801c: hlt ",
+   "halted": true,
+   "regs": {
+    "eax": 0,
+    "ebx": 5,
+    "ecx": 10,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512668
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "After \"cmp eax, ebx\" where both are 5, is ZF set? (1=yes, 0=no)",
+   "hint": "5 - 5 = 0, so the Zero Flag is set.",
+   "answer": 1,
+   "format": "decimal",
+   "vrigShows": "1",
+   "probe": {
+    "step": 2,
+    "value": 1,
+    "kind": "emulator",
+    "flag": "ZF",
+    "why": "ZF after cmp eax, ebx"
+   },
+   "correct": true
+  },
+  {
+   "question": "After \"cmp eax, ecx\" (5 vs 10), is CF set? (1=yes, 0=no)",
+   "hint": "5 < 10 means unsigned borrow, so Carry Flag is set.",
+   "answer": 1,
+   "format": "decimal",
+   "vrigShows": "1",
+   "probe": {
+    "step": 4,
+    "value": 1,
+    "kind": "emulator",
+    "flag": "CF",
+    "why": "CF after cmp eax, ecx"
+   },
+   "correct": true
+  },
+  {
+   "question": "After \"test eax, eax\" where EAX=0, is ZF set? (1=yes, 0=no)",
+   "hint": "0 AND 0 = 0, so Zero Flag is set.",
+   "answer": 1,
+   "format": "decimal",
+   "vrigShows": "1",
+   "probe": {
+    "step": 7,
+    "value": 1,
+    "kind": "emulator",
+    "flag": "ZF",
+    "why": "ZF after test eax, eax"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Flags Understood!",
+ "winMsg": "You know how CMP sets CPU flags for conditional logic."
+}

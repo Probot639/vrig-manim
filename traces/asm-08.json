@@ -1,0 +1,1051 @@
+{
+ "exercise": "asm-08",
+ "unit": "unit0-asm",
+ "title": "Memory Addressing",
+ "desc": "Goal: Master x86 addressing modes. [reg] = direct, [reg+N] = displacement, [reg+reg*scale] = indexed (for arrays). LEA loads the address itself, not the value at that address.",
+ "arch": "x86",
+ "word": 4,
+ "hexW": 8,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// Memory Addressing Modes",
+   "cls": "comment"
+  },
+  {
+   "text": "// [reg]           — direct",
+   "cls": "comment"
+  },
+  {
+   "text": "// [reg+disp]      — base + displacement",
+   "cls": "comment"
+  },
+  {
+   "text": "// [reg+reg*scale] — base + scaled index",
+   "cls": "comment"
+  },
+  {
+   "text": "// LEA — Load Effective Address (addr, not value)",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "// Like C: int array[3];",
+   "cls": "comment"
+  },
+  {
+   "text": "mov eax, 0x08049000",
+   "cls": "asm"
+  },
+  {
+   "text": "mov [eax], 10",
+   "cls": "asm"
+  },
+  {
+   "text": "mov [eax+4], 20",
+   "cls": "asm"
+  },
+  {
+   "text": "mov [eax+8], 30",
+   "cls": "asm"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "mov ebx, 1",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ecx, [eax+ebx*4]",
+   "cls": "asm"
+  },
+  {
+   "text": "lea edx, [eax+8]",
+   "cls": "asm"
+  },
+  {
+   "text": "mov esi, [ebp-4]",
+   "cls": "asm"
+  },
+  {
+   "text": "hlt",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    0,
+    144,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 0x08049000",
+   "comment": "Base address of array",
+   "text": "mov eax, 0x08049000"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    199,
+    0,
+    10,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "[eax], 10",
+   "comment": "Direct addressing",
+   "text": "mov [eax], 10"
+  },
+  {
+   "addr": 134512651,
+   "bytes": [
+    199,
+    64,
+    4,
+    20,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "[eax+4], 20",
+   "comment": "Base + displacement",
+   "text": "mov [eax+4], 20"
+  },
+  {
+   "addr": 134512658,
+   "bytes": [
+    199,
+    64,
+    8,
+    30,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "[eax+8], 30",
+   "comment": "",
+   "text": "mov [eax+8], 30"
+  },
+  {
+   "addr": 134512665,
+   "bytes": [
+    187,
+    1,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 1",
+   "comment": "Index value",
+   "text": "mov ebx, 1"
+  },
+  {
+   "addr": 134512670,
+   "bytes": [
+    139,
+    12,
+    152
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, [eax+ebx*4]",
+   "comment": "Scaled index — which element?",
+   "text": "mov ecx, [eax+ebx*4]"
+  },
+  {
+   "addr": 134512673,
+   "bytes": [
+    141,
+    80,
+    8
+   ],
+   "mnemonic": "lea",
+   "operands": "edx, [eax+8]",
+   "comment": "LEA loads ADDRESS, not value",
+   "text": "lea edx, [eax+8]"
+  },
+  {
+   "addr": 134512676,
+   "bytes": [
+    139,
+    117,
+    252
+   ],
+   "mnemonic": "mov",
+   "operands": "esi, [ebp-4]",
+   "comment": "Stack frame local variable",
+   "text": "mov esi, [ebp-4]"
+  },
+  {
+   "addr": 134512679,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  134516736,
+  134516740,
+  134516744,
+  3221160444,
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "halted",
+  "steps": 9,
+  "error": null
+ },
+ "patched": false,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "eax": 0,
+   "ebx": 0,
+   "ecx": 0,
+   "edx": 0,
+   "esp": 3221160448,
+   "ebp": 3221160448,
+   "esi": 0,
+   "edi": 0,
+   "eip": 134512640
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "134516736": 0,
+   "134516740": 0,
+   "134516744": 0,
+   "3221160444": 0,
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 134512640,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 0,
+     "newValue": 134516736
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512640,
+     "newValue": 134512645
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048000: mov eax, 0x08049000 → EAX=0x08049000",
+   "halted": false,
+   "regs": {
+    "eax": 134516736,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512645
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 0,
+    "134516740": 0,
+    "134516744": 0,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 134512645,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512645,
+     "newValue": 134512651
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 134516736,
+     "value": 10,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x08048005: mov [eax], 10",
+   "halted": false,
+   "regs": {
+    "eax": 134516736,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512651
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 10,
+    "134516740": 0,
+    "134516744": 0,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     10
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 2,
+   "addr": 134512651,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512651,
+     "newValue": 134512658
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 134516740,
+     "value": 20,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x0804800b: mov [eax+4], 20",
+   "halted": false,
+   "regs": {
+    "eax": 134516736,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512658
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 10,
+    "134516740": 20,
+    "134516744": 0,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     10
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ],
+    [
+     134516740,
+     20
+    ],
+    [
+     134516741,
+     0
+    ],
+    [
+     134516742,
+     0
+    ],
+    [
+     134516743,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 3,
+   "addr": 134512658,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512658,
+     "newValue": 134512665
+    }
+   ],
+   "flagChanges": {},
+   "writes": [
+    {
+     "addr": 134516744,
+     "value": 30,
+     "size": 4
+    }
+   ],
+   "reads": [],
+   "log": "0x08048012: mov [eax+8], 30",
+   "halted": false,
+   "regs": {
+    "eax": 134516736,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512665
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 10,
+    "134516740": 20,
+    "134516744": 30,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     10
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ],
+    [
+     134516740,
+     20
+    ],
+    [
+     134516741,
+     0
+    ],
+    [
+     134516742,
+     0
+    ],
+    [
+     134516743,
+     0
+    ],
+    [
+     134516744,
+     30
+    ],
+    [
+     134516745,
+     0
+    ],
+    [
+     134516746,
+     0
+    ],
+    [
+     134516747,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 4,
+   "addr": 134512665,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 0,
+     "newValue": 1
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512665,
+     "newValue": 134512670
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048019: mov ebx, 1 → EBX=0x00000001",
+   "halted": false,
+   "regs": {
+    "eax": 134516736,
+    "ebx": 1,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512670
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 10,
+    "134516740": 20,
+    "134516744": 30,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     10
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ],
+    [
+     134516740,
+     20
+    ],
+    [
+     134516741,
+     0
+    ],
+    [
+     134516742,
+     0
+    ],
+    [
+     134516743,
+     0
+    ],
+    [
+     134516744,
+     30
+    ],
+    [
+     134516745,
+     0
+    ],
+    [
+     134516746,
+     0
+    ],
+    [
+     134516747,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 5,
+   "addr": 134512670,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ecx",
+     "oldValue": 0,
+     "newValue": 20
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512670,
+     "newValue": 134512673
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 134516740,
+     "value": 20,
+     "size": 4
+    }
+   ],
+   "log": "0x0804801e: mov ecx, [eax+ebx*4] → ECX=0x00000014",
+   "halted": false,
+   "regs": {
+    "eax": 134516736,
+    "ebx": 1,
+    "ecx": 20,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512673
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 10,
+    "134516740": 20,
+    "134516744": 30,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     10
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ],
+    [
+     134516740,
+     20
+    ],
+    [
+     134516741,
+     0
+    ],
+    [
+     134516742,
+     0
+    ],
+    [
+     134516743,
+     0
+    ],
+    [
+     134516744,
+     30
+    ],
+    [
+     134516745,
+     0
+    ],
+    [
+     134516746,
+     0
+    ],
+    [
+     134516747,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 6,
+   "addr": 134512673,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "edx",
+     "oldValue": 0,
+     "newValue": 134516744
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512673,
+     "newValue": 134512676
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048021: lea edx, [eax+8] → EDX=0x08049008",
+   "halted": false,
+   "regs": {
+    "eax": 134516736,
+    "ebx": 1,
+    "ecx": 20,
+    "edx": 134516744,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512676
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 10,
+    "134516740": 20,
+    "134516744": 30,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     10
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ],
+    [
+     134516740,
+     20
+    ],
+    [
+     134516741,
+     0
+    ],
+    [
+     134516742,
+     0
+    ],
+    [
+     134516743,
+     0
+    ],
+    [
+     134516744,
+     30
+    ],
+    [
+     134516745,
+     0
+    ],
+    [
+     134516746,
+     0
+    ],
+    [
+     134516747,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 7,
+   "addr": 134512676,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512676,
+     "newValue": 134512679
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [
+    {
+     "addr": 3221160444,
+     "value": 0,
+     "size": 4
+    }
+   ],
+   "log": "0x08048024: mov esi, [ebp-4]",
+   "halted": false,
+   "regs": {
+    "eax": 134516736,
+    "ebx": 1,
+    "ecx": 20,
+    "edx": 134516744,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512679
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 10,
+    "134516740": 20,
+    "134516744": 30,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     10
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ],
+    [
+     134516740,
+     20
+    ],
+    [
+     134516741,
+     0
+    ],
+    [
+     134516742,
+     0
+    ],
+    [
+     134516743,
+     0
+    ],
+    [
+     134516744,
+     30
+    ],
+    [
+     134516745,
+     0
+    ],
+    [
+     134516746,
+     0
+    ],
+    [
+     134516747,
+     0
+    ]
+   ]
+  },
+  {
+   "idx": 8,
+   "addr": 134512679,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048027: hlt ",
+   "halted": true,
+   "regs": {
+    "eax": 134516736,
+    "ebx": 1,
+    "ecx": 20,
+    "edx": 134516744,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512679
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "134516736": 10,
+    "134516740": 20,
+    "134516744": 30,
+    "3221160444": 0,
+    "3221160448": 0
+   },
+   "bytes": [
+    [
+     134516736,
+     10
+    ],
+    [
+     134516737,
+     0
+    ],
+    [
+     134516738,
+     0
+    ],
+    [
+     134516739,
+     0
+    ],
+    [
+     134516740,
+     20
+    ],
+    [
+     134516741,
+     0
+    ],
+    [
+     134516742,
+     0
+    ],
+    [
+     134516743,
+     0
+    ],
+    [
+     134516744,
+     30
+    ],
+    [
+     134516745,
+     0
+    ],
+    [
+     134516746,
+     0
+    ],
+    [
+     134516747,
+     0
+    ]
+   ]
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "What is ECX after \"mov ecx, [eax+ebx*4]\" (array[1])?",
+   "hint": "EBX=1, so [eax + 1*4] = array[1] = 20.",
+   "answer": 20,
+   "format": "decimal",
+   "vrigShows": "20",
+   "probe": {
+    "step": 5,
+    "value": 20,
+    "kind": "emulator",
+    "reg": "ecx",
+    "why": "ecx after the indexed load"
+   },
+   "correct": true
+  },
+  {
+   "question": "What address does LEA edx, [eax+8] put in EDX?",
+   "hint": "EAX = 0x08049000, so 0x08049000 + 8 = 0x08049008. LEA computes the address, not the value.",
+   "answer": 134516744,
+   "format": "hex",
+   "vrigShows": "0x8049008",
+   "probe": {
+    "step": 6,
+    "value": 134516744,
+    "kind": "emulator",
+    "reg": "edx",
+    "why": "edx after lea"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Addressing Expert!",
+ "winMsg": "You understand x86 memory addressing modes and LEA."
+}

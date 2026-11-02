@@ -1,0 +1,540 @@
+{
+ "exercise": "asm-01",
+ "unit": "unit0-asm",
+ "title": "Registers",
+ "desc": "Goal: Step through each instruction and observe how registers change. x86 has 8 general-purpose 32-bit registers. EAX is the \"accumulator,\" EBX the \"base,\" ECX the \"counter,\" and EDX the \"data\" register.",
+ "arch": "x86",
+ "word": 4,
+ "hexW": 8,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// x86 Registers",
+   "cls": "comment"
+  },
+  {
+   "text": "// EAX — accumulator (return values)",
+   "cls": "comment"
+  },
+  {
+   "text": "// EBX — base (general purpose)",
+   "cls": "comment"
+  },
+  {
+   "text": "// ECX — counter (loop counts)",
+   "cls": "comment"
+  },
+  {
+   "text": "// EDX — data (I/O, multiply)",
+   "cls": "comment"
+  },
+  {
+   "text": "// ESI — source index",
+   "cls": "comment"
+  },
+  {
+   "text": "// EDI — destination index",
+   "cls": "comment"
+  },
+  {
+   "text": "// ESP — stack pointer",
+   "cls": "comment"
+  },
+  {
+   "text": "// EBP — base pointer (frame)",
+   "cls": "comment"
+  },
+  {
+   "text": "// EIP — instruction pointer",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "mov eax, 10",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ebx, 20",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ecx, 30",
+   "cls": "asm"
+  },
+  {
+   "text": "mov edx, 40",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ebx, eax",
+   "cls": "asm"
+  },
+  {
+   "text": "xor eax, eax",
+   "cls": "asm"
+  },
+  {
+   "text": "hlt",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    10,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 10",
+   "comment": "Load immediate into EAX",
+   "text": "mov eax, 10"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    187,
+    20,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 20",
+   "comment": "Load immediate into EBX",
+   "text": "mov ebx, 20"
+  },
+  {
+   "addr": 134512650,
+   "bytes": [
+    185,
+    30,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 30",
+   "comment": "Load immediate into ECX",
+   "text": "mov ecx, 30"
+  },
+  {
+   "addr": 134512655,
+   "bytes": [
+    186,
+    40,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "edx, 40",
+   "comment": "Load immediate into EDX",
+   "text": "mov edx, 40"
+  },
+  {
+   "addr": 134512660,
+   "bytes": [
+    137,
+    195
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, eax",
+   "comment": "Register-to-register copy",
+   "text": "mov ebx, eax"
+  },
+  {
+   "addr": 134512662,
+   "bytes": [
+    49,
+    192
+   ],
+   "mnemonic": "xor",
+   "operands": "eax, eax",
+   "comment": "What does XOR with itself do?",
+   "text": "xor eax, eax"
+  },
+  {
+   "addr": 134512664,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "Halt execution",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "halted",
+  "steps": 7,
+  "error": null
+ },
+ "patched": false,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "eax": 0,
+   "ebx": 0,
+   "ecx": 0,
+   "edx": 0,
+   "esp": 3221160448,
+   "ebp": 3221160448,
+   "esi": 0,
+   "edi": 0,
+   "eip": 134512640
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 134512640,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 0,
+     "newValue": 10
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512640,
+     "newValue": 134512645
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048000: mov eax, 10 → EAX=0x0000000a",
+   "halted": false,
+   "regs": {
+    "eax": 10,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512645
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 134512645,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 0,
+     "newValue": 20
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512645,
+     "newValue": 134512650
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048005: mov ebx, 20 → EBX=0x00000014",
+   "halted": false,
+   "regs": {
+    "eax": 10,
+    "ebx": 20,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512650
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 134512650,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ecx",
+     "oldValue": 0,
+     "newValue": 30
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512650,
+     "newValue": 134512655
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800a: mov ecx, 30 → ECX=0x0000001e",
+   "halted": false,
+   "regs": {
+    "eax": 10,
+    "ebx": 20,
+    "ecx": 30,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512655
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 134512655,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "edx",
+     "oldValue": 0,
+     "newValue": 40
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512655,
+     "newValue": 134512660
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800f: mov edx, 40 → EDX=0x00000028",
+   "halted": false,
+   "regs": {
+    "eax": 10,
+    "ebx": 20,
+    "ecx": 30,
+    "edx": 40,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512660
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 134512660,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 20,
+     "newValue": 10
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512660,
+     "newValue": 134512662
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048014: mov ebx, eax → EBX=0x0000000a",
+   "halted": false,
+   "regs": {
+    "eax": 10,
+    "ebx": 10,
+    "ecx": 30,
+    "edx": 40,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512662
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 134512662,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 10,
+     "newValue": 0
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512662,
+     "newValue": 134512664
+    }
+   ],
+   "flagChanges": {
+    "ZF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x08048016: xor eax, eax → EAX=0x00000000 [ZF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 0,
+    "ebx": 10,
+    "ecx": 30,
+    "edx": 40,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512664
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 6,
+   "addr": 134512664,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048018: hlt ",
+   "halted": true,
+   "regs": {
+    "eax": 0,
+    "ebx": 10,
+    "ecx": 30,
+    "edx": 40,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512664
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "What value is in EBX after \"mov ebx, eax\"?",
+   "hint": "EAX was set to 10 before the copy.",
+   "answer": 10,
+   "format": "decimal",
+   "vrigShows": "10",
+   "probe": {
+    "step": 4,
+    "value": 10,
+    "kind": "emulator",
+    "reg": "ebx",
+    "why": "ebx after mov ebx, eax"
+   },
+   "correct": true
+  },
+  {
+   "question": "What value is in EAX at the end (after xor eax, eax)?",
+   "hint": "XOR a register with itself always produces 0.",
+   "answer": 0,
+   "format": "hex",
+   "vrigShows": "0x0",
+   "probe": {
+    "step": 6,
+    "value": 0,
+    "kind": "emulator",
+    "reg": "eax",
+    "why": "eax at hlt"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Registers Explored!",
+ "winMsg": "You learned about the x86 general-purpose registers."
+}

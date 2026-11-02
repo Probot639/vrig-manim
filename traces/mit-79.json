@@ -1,0 +1,440 @@
+{
+ "exercise": "mit-79",
+ "unit": "unit15-mitigations",
+ "title": "79: ASLR Deep Dive",
+ "desc": "Goal: Understand Address Space Layout Randomization. ASLR randomizes the base addresses of the stack, heap, shared libraries, and (with PIE) the executable itself on each run. Typical Linux ASLR provides 28 bits of entropy for libraries and ~22 bits on 64-bit, ~19 bits on 32-bit for the stack. Without an info leak, an attacker must brute-force the randomized addresses.",
+ "mode": "asm-quiz",
+ "arch": "x86",
+ "source": [
+  "// ASLR: randomized addresses each run",
+  "// Run 1:                   Run 2:",
+  "// .text  0x08048000       0x08048000 (no PIE)",
+  "// .data  0x0804a000       0x0804a000 (no PIE)",
+  "// stack  0xbfffd000       0xbf83e000 (random!)",
+  "// heap   0x0804c000       0x09a42000 (random!)",
+  "// libc   0xf7d00000       0xf7a51000 (random!)",
+  "",
+  "// Key: without PIE, .text/.data are fixed.",
+  "// With PIE + ASLR, everything moves.",
+  "",
+  "mov eax, 0x08048000  ; .text base",
+  "mov ebx, 0x0804a000  ; .data",
+  "mov ecx, 0xbfffd000  ; stack",
+  "mov edx, 0x0804c000  ; heap",
+  "hlt"
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    0,
+    128,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 0x08048000",
+   "comment": "Load .text base address (Run 1)"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    187,
+    0,
+    160,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 0x0804a000",
+   "comment": "Load .data address (Run 1)"
+  },
+  {
+   "addr": 134512650,
+   "bytes": [
+    185,
+    0,
+    208,
+    255,
+    191
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 0xbfffd000",
+   "comment": "Stack address (Run 1)"
+  },
+  {
+   "addr": 134512655,
+   "bytes": [
+    186,
+    0,
+    192,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "edx, 0x0804c000",
+   "comment": "Heap address (Run 1)"
+  },
+  {
+   "addr": 134512660,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialMemory": [],
+ "protections": [
+  {
+   "name": "ASLR",
+   "status": "active"
+  }
+ ],
+ "auxViz": [],
+ "winTitle": "ASLR Understood!",
+ "winMsg": "ASLR randomizes stack, heap, and library addresses each run. Without an information leak, brute-forcing even 12-bit entropy requires 4096 attempts. PIE randomizes the executable itself.",
+ "realWorld": null,
+ "quiz": [
+  {
+   "question": "How many attempts to brute-force 12-bit ASLR entropy? (2^12)",
+   "answer": 4096,
+   "format": "decimal",
+   "hint": "12 bits of entropy means 2^12 = 4096 possible base addresses.",
+   "typed": "4096",
+   "correct": true
+  },
+  {
+   "question": "With 28-bit entropy, what is the number of possible base addresses? Give the value of 2^28.",
+   "answer": 268435456,
+   "format": "decimal",
+   "hint": "2^28 = 256 * 1024 * 1024 = 268,435,456.",
+   "typed": "268435456",
+   "correct": true
+  },
+  {
+   "question": "Without PIE, what is the .text base address in BOTH runs? (hex)",
+   "answer": 134512640,
+   "format": "hex",
+   "hint": "Without Position-Independent Executable, .text is at a fixed address across runs.",
+   "typed": "0x8048000",
+   "correct": true
+  }
+ ],
+ "quizSolved": true,
+ "run": {
+  "init": {
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512640
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 134512640,
+     "bytes": [
+      184,
+      0,
+      128,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, 0x08048000",
+     "comment": "Load .text base address (Run 1)"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 0,
+      "newValue": 134512640
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512640,
+      "newValue": 134512645
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048000: mov eax, 0x08048000 → EAX=0x08048000",
+    "halted": false,
+    "regs": {
+     "eax": 134512640,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512645
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512645,
+     "bytes": [
+      187,
+      0,
+      160,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, 0x0804a000",
+     "comment": "Load .data address (Run 1)"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 0,
+      "newValue": 134520832
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512645,
+      "newValue": 134512650
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048005: mov ebx, 0x0804a000 → EBX=0x0804a000",
+    "halted": false,
+    "regs": {
+     "eax": 134512640,
+     "ebx": 134520832,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512650
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512650,
+     "bytes": [
+      185,
+      0,
+      208,
+      255,
+      191
+     ],
+     "mnemonic": "mov",
+     "operands": "ecx, 0xbfffd000",
+     "comment": "Stack address (Run 1)"
+    },
+    "diffs": [
+     {
+      "reg": "ecx",
+      "oldValue": 0,
+      "newValue": 3221213184
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512650,
+      "newValue": 134512655
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800a: mov ecx, 0xbfffd000 → ECX=0xbfffd000",
+    "halted": false,
+    "regs": {
+     "eax": 134512640,
+     "ebx": 134520832,
+     "ecx": 3221213184,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512655
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512655,
+     "bytes": [
+      186,
+      0,
+      192,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "edx, 0x0804c000",
+     "comment": "Heap address (Run 1)"
+    },
+    "diffs": [
+     {
+      "reg": "edx",
+      "oldValue": 0,
+      "newValue": 134529024
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512655,
+      "newValue": 134512660
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800f: mov edx, 0x0804c000 → EDX=0x0804c000",
+    "halted": false,
+    "regs": {
+     "eax": 134512640,
+     "ebx": 134520832,
+     "ecx": 3221213184,
+     "edx": 134529024,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512660
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512660,
+     "bytes": [
+      244
+     ],
+     "mnemonic": "hlt",
+     "operands": "",
+     "comment": ""
+    },
+    "diffs": [],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048014: hlt ",
+    "halted": true,
+    "regs": {
+     "eax": 134512640,
+     "ebx": 134520832,
+     "ecx": 3221213184,
+     "edx": 134529024,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512660
+    }
+   }
+  ],
+  "error": null
+ },
+ "runs": [
+  {
+   "name": ".text",
+   "run1": 134512640,
+   "run2": 134512640,
+   "note": "(no PIE)"
+  },
+  {
+   "name": ".data",
+   "run1": 134520832,
+   "run2": 134520832,
+   "note": "(no PIE)"
+  },
+  {
+   "name": "stack",
+   "run1": 3221213184,
+   "run2": 3213090816,
+   "note": "(random!)"
+  },
+  {
+   "name": "heap",
+   "run1": 134529024,
+   "run2": 161751040,
+   "note": "(random!)"
+  },
+  {
+   "name": "libc",
+   "run1": 4157603840,
+   "run2": 4154789888,
+   "note": "(random!)"
+  }
+ ],
+ "checks": [
+  {
+   "what": "2^12",
+   "got": 4096,
+   "want": 4096,
+   "ok": true
+  },
+  {
+   "what": "2^28",
+   "got": 268435456,
+   "want": 268435456,
+   "ok": true
+  },
+  {
+   "what": "eax (.text base, run 1)",
+   "got": 134512640,
+   "want": 134512640,
+   "ok": true
+  },
+  {
+   "what": ".text base, run 2",
+   "got": 134512640,
+   "want": 134512640,
+   "ok": true
+  }
+ ],
+ "solved": true
+}

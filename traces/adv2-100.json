@@ -1,0 +1,769 @@
+{
+ "exercise": "adv2-100",
+ "unit": "unit17-advanced-ii",
+ "title": "100: Sandboxing & Escape",
+ "desc": "Goal: Understand seccomp-BPF syscall filtering and sandbox escape techniques. Linux seccomp-BPF attaches a BPF (Berkeley Packet Filter) program that inspects every syscall before execution. The filter examines the syscall number and arguments, returning an action: SECCOMP_RET_ALLOW, SECCOMP_RET_KILL, SECCOMP_RET_ERRNO, or SECCOMP_RET_TRACE. A typical sandbox blocks dangerous syscalls like execve, fork, and ptrace while allowing read, write, mmap, and exit. Escape strategies include: using allowed syscalls creatively (e.g., mprotect to make pages executable, then jump to shellcode), exploiting architecture confusion between x86 int 0x80 and x86-64 syscall (different syscall number tables), and TOCTOU races on syscall arguments in shared memory.",
+ "mode": "asm-quiz",
+ "arch": "x86",
+ "source": [
+  "// seccomp-BPF sandbox setup",
+  "#include <seccomp.h>",
+  "",
+  "void setup_sandbox() {",
+  "    scmp_filter_ctx ctx;",
+  "    ctx = seccomp_init(SCMP_ACT_KILL);",
+  "    // Default: KILL any syscall not allowed",
+  "    seccomp_rule_add(ctx, SCMP_ACT_ALLOW,",
+  "        SCMP_SYS(read), 0);",
+  "    seccomp_rule_add(ctx, SCMP_ACT_ALLOW,",
+  "        SCMP_SYS(write), 0);",
+  "    seccomp_rule_add(ctx, SCMP_ACT_ALLOW,",
+  "        SCMP_SYS(exit), 0);",
+  "    // execve, fork, ptrace = BLOCKED",
+  "    seccomp_load(ctx);",
+  "}",
+  "",
+  "// Bypass: use allowed write() to exfil data",
+  "// Or: mprotect (if allowed) + shellcode",
+  "// Or: x32 ABI confusion (bit 30 trick)"
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    11,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 11",
+   "comment": "syscall number 11 = execve"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    187,
+    0,
+    147,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 0x08049300",
+   "comment": "ebx = pointer to \"/bin/sh\""
+  },
+  {
+   "addr": 134512650,
+   "bytes": [
+    49,
+    201
+   ],
+   "mnemonic": "xor",
+   "operands": "ecx, ecx",
+   "comment": "ecx = NULL (argv)"
+  },
+  {
+   "addr": 134512652,
+   "bytes": [
+    49,
+    210
+   ],
+   "mnemonic": "xor",
+   "operands": "edx, edx",
+   "comment": "edx = NULL (envp)"
+  },
+  {
+   "addr": 134512654,
+   "bytes": [
+    205,
+    128
+   ],
+   "mnemonic": "int",
+   "operands": "0x80",
+   "comment": "int 0x80 — BLOCKED by seccomp! Process killed with SIGSYS."
+  },
+  {
+   "addr": 134512656,
+   "bytes": [
+    184,
+    4,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 4",
+   "comment": "syscall number 4 = write (ALLOWED)"
+  },
+  {
+   "addr": 134512661,
+   "bytes": [
+    187,
+    1,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 1",
+   "comment": "fd = 1 (stdout)"
+  },
+  {
+   "addr": 134512666,
+   "bytes": [
+    185,
+    0,
+    147,
+    4,
+    8
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 0x08049300",
+   "comment": "buf = address of data to leak"
+  },
+  {
+   "addr": 134512671,
+   "bytes": [
+    186,
+    0,
+    16,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "edx, 4096",
+   "comment": "len = 4096 bytes to exfiltrate"
+  },
+  {
+   "addr": 134512676,
+   "bytes": [
+    144
+   ],
+   "mnemonic": "nop",
+   "operands": "",
+   "comment": "write(1, data, 4096) — succeeds, leaks memory contents"
+  },
+  {
+   "addr": 134512677,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": ""
+  }
+ ],
+ "initialMemory": [],
+ "protections": [],
+ "auxViz": [],
+ "winTitle": "Sandbox Escape Understood!",
+ "winMsg": "Seccomp-BPF is a powerful defense but has attack surface: allowed syscalls can be chained creatively, architecture confusion between 32/64-bit syscall tables can bypass filters, and TOCTOU races on shared memory arguments can defeat argument-level filtering. Defense in depth (namespaces + seccomp + capability dropping) is essential.",
+ "realWorld": null,
+ "quiz": [
+  {
+   "question": "The seccomp filter default action is SCMP_ACT_KILL. Syscall 11 (execve) is not in the allow list. What signal is sent to the process? (signal number for SIGSYS)",
+   "answer": 31,
+   "format": "decimal",
+   "hint": "SIGSYS (Bad system call) is signal number 31. seccomp sends SIGSYS when a blocked syscall is attempted.",
+   "typed": "31",
+   "correct": true
+  },
+  {
+   "question": "On x86-64, the \"int 0x80\" instruction uses the 32-bit syscall table where write=4. The 64-bit \"syscall\" instruction uses a different table where write=1. What is the 64-bit syscall number for write?",
+   "answer": 1,
+   "format": "decimal",
+   "hint": "The x86-64 syscall table has write at number 1. If a seccomp filter only checks the 64-bit table, using int 0x80 with 32-bit numbers may bypass it.",
+   "typed": "1",
+   "correct": true
+  },
+  {
+   "question": "A seccomp filter allows mprotect (syscall 125 on x86). An attacker can use it to change page permissions to RWX (7 = read+write+exec). What is the decimal value of PROT_READ|PROT_WRITE|PROT_EXEC?",
+   "answer": 7,
+   "format": "decimal",
+   "hint": "PROT_READ=1, PROT_WRITE=2, PROT_EXEC=4. Combined: 1+2+4=7. If mprotect is allowed, the attacker can make any page executable.",
+   "typed": "7",
+   "correct": true
+  }
+ ],
+ "quizSolved": true,
+ "run": {
+  "init": {
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512640
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 134512640,
+     "bytes": [
+      184,
+      11,
+      0,
+      0,
+      0
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, 11",
+     "comment": "syscall number 11 = execve"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 0,
+      "newValue": 11
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512640,
+      "newValue": 134512645
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048000: mov eax, 11 → EAX=0x0000000b",
+    "halted": false,
+    "regs": {
+     "eax": 11,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512645
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512645,
+     "bytes": [
+      187,
+      0,
+      147,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, 0x08049300",
+     "comment": "ebx = pointer to \"/bin/sh\""
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 0,
+      "newValue": 134517504
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512645,
+      "newValue": 134512650
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048005: mov ebx, 0x08049300 → EBX=0x08049300",
+    "halted": false,
+    "regs": {
+     "eax": 11,
+     "ebx": 134517504,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512650
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512650,
+     "bytes": [
+      49,
+      201
+     ],
+     "mnemonic": "xor",
+     "operands": "ecx, ecx",
+     "comment": "ecx = NULL (argv)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512650,
+      "newValue": 134512652
+     }
+    ],
+    "flagChanges": {
+     "ZF": true
+    },
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800a: xor ecx, ecx [ZF=1]",
+    "halted": false,
+    "regs": {
+     "eax": 11,
+     "ebx": 134517504,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512652
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512652,
+     "bytes": [
+      49,
+      210
+     ],
+     "mnemonic": "xor",
+     "operands": "edx, edx",
+     "comment": "edx = NULL (envp)"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512652,
+      "newValue": 134512654
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800c: xor edx, edx",
+    "halted": false,
+    "regs": {
+     "eax": 11,
+     "ebx": 134517504,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512654
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512654,
+     "bytes": [
+      205,
+      128
+     ],
+     "mnemonic": "int",
+     "operands": "0x80",
+     "comment": "int 0x80 — BLOCKED by seccomp! Process killed with SIGSYS."
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512654,
+      "newValue": 134512656
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": true,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804800e: int 0x80",
+    "halted": true,
+    "regs": {
+     "eax": 11,
+     "ebx": 134517504,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512656
+    }
+   }
+  ],
+  "error": null
+ },
+ "allowed": {
+  "init": {
+   "regs": {
+    "eax": 0,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512656
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   }
+  },
+  "steps": [
+   {
+    "instr": {
+     "addr": 134512656,
+     "bytes": [
+      184,
+      4,
+      0,
+      0,
+      0
+     ],
+     "mnemonic": "mov",
+     "operands": "eax, 4",
+     "comment": "syscall number 4 = write (ALLOWED)"
+    },
+    "diffs": [
+     {
+      "reg": "eax",
+      "oldValue": 0,
+      "newValue": 4
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512656,
+      "newValue": 134512661
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048010: mov eax, 4 → EAX=0x00000004",
+    "halted": false,
+    "regs": {
+     "eax": 4,
+     "ebx": 0,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512661
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512661,
+     "bytes": [
+      187,
+      1,
+      0,
+      0,
+      0
+     ],
+     "mnemonic": "mov",
+     "operands": "ebx, 1",
+     "comment": "fd = 1 (stdout)"
+    },
+    "diffs": [
+     {
+      "reg": "ebx",
+      "oldValue": 0,
+      "newValue": 1
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512661,
+      "newValue": 134512666
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048015: mov ebx, 1 → EBX=0x00000001",
+    "halted": false,
+    "regs": {
+     "eax": 4,
+     "ebx": 1,
+     "ecx": 0,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512666
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512666,
+     "bytes": [
+      185,
+      0,
+      147,
+      4,
+      8
+     ],
+     "mnemonic": "mov",
+     "operands": "ecx, 0x08049300",
+     "comment": "buf = address of data to leak"
+    },
+    "diffs": [
+     {
+      "reg": "ecx",
+      "oldValue": 0,
+      "newValue": 134517504
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512666,
+      "newValue": 134512671
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804801a: mov ecx, 0x08049300 → ECX=0x08049300",
+    "halted": false,
+    "regs": {
+     "eax": 4,
+     "ebx": 1,
+     "ecx": 134517504,
+     "edx": 0,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512671
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512671,
+     "bytes": [
+      186,
+      0,
+      16,
+      0,
+      0
+     ],
+     "mnemonic": "mov",
+     "operands": "edx, 4096",
+     "comment": "len = 4096 bytes to exfiltrate"
+    },
+    "diffs": [
+     {
+      "reg": "edx",
+      "oldValue": 0,
+      "newValue": 4096
+     },
+     {
+      "reg": "eip",
+      "oldValue": 134512671,
+      "newValue": 134512676
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x0804801f: mov edx, 4096 → EDX=0x00001000",
+    "halted": false,
+    "regs": {
+     "eax": 4,
+     "ebx": 1,
+     "ecx": 134517504,
+     "edx": 4096,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512676
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512676,
+     "bytes": [
+      144
+     ],
+     "mnemonic": "nop",
+     "operands": "",
+     "comment": "write(1, data, 4096) — succeeds, leaks memory contents"
+    },
+    "diffs": [
+     {
+      "reg": "eip",
+      "oldValue": 134512676,
+      "newValue": 134512677
+     }
+    ],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048024: nop ",
+    "halted": false,
+    "regs": {
+     "eax": 4,
+     "ebx": 1,
+     "ecx": 134517504,
+     "edx": 4096,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512677
+    }
+   },
+   {
+    "instr": {
+     "addr": 134512677,
+     "bytes": [
+      244
+     ],
+     "mnemonic": "hlt",
+     "operands": "",
+     "comment": ""
+    },
+    "diffs": [],
+    "flagChanges": {},
+    "flags": {
+     "ZF": false,
+     "SF": false,
+     "CF": false,
+     "OF": false
+    },
+    "memWrites": [],
+    "memReads": [],
+    "log": "0x08048025: hlt ",
+    "halted": true,
+    "regs": {
+     "eax": 4,
+     "ebx": 1,
+     "ecx": 134517504,
+     "edx": 4096,
+     "esp": 3221160448,
+     "ebp": 3221160448,
+     "esi": 0,
+     "edi": 0,
+     "eip": 134512677
+    }
+   }
+  ],
+  "error": null
+ },
+ "killed": {
+  "eax": 11,
+  "at": 134512654
+ },
+ "checks": [
+  {
+   "what": "eax at the blocked int 0x80 = execve",
+   "got": 11,
+   "want": 11,
+   "ok": true
+  },
+  {
+   "what": "SIGSYS",
+   "got": 31,
+   "want": 31,
+   "ok": true
+  },
+  {
+   "what": "x86-64 write",
+   "got": 1,
+   "want": 1,
+   "ok": true
+  },
+  {
+   "what": "PROT_READ|PROT_WRITE|PROT_EXEC",
+   "got": 7,
+   "want": 7,
+   "ok": true
+  },
+  {
+   "what": "write path eax",
+   "got": 4,
+   "want": 4,
+   "ok": true
+  }
+ ],
+ "solved": true
+}

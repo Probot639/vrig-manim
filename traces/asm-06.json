@@ -1,0 +1,1383 @@
+{
+ "exercise": "asm-06",
+ "unit": "unit0-asm",
+ "title": "Jumps",
+ "desc": "Goal: See conditional jumps in action. This code sums 1+2+3+4+5 using a loop. JL (Jump if Less) creates the loop. JE (Jump if Equal) checks the result. Watch EIP jump backward!",
+ "arch": "x86",
+ "word": 4,
+ "hexW": 8,
+ "stackBase": 3221160448,
+ "vizMode": "asm",
+ "source": [
+  {
+   "text": "// Conditional Jumps",
+   "cls": "comment"
+  },
+  {
+   "text": "// JE/JZ  — jump if equal (ZF=1)",
+   "cls": "comment"
+  },
+  {
+   "text": "// JNE/JNZ — jump if not equal (ZF=0)",
+   "cls": "comment"
+  },
+  {
+   "text": "// JG/JNLE — jump if greater (signed)",
+   "cls": "comment"
+  },
+  {
+   "text": "// JL/JNGE — jump if less (signed)",
+   "cls": "comment"
+  },
+  {
+   "text": "// JLE/JNG — jump if less or equal",
+   "cls": "comment"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "mov eax, 1        ; counter",
+   "cls": "asm"
+  },
+  {
+   "text": "mov ebx, 0        ; accumulator",
+   "cls": "asm"
+  },
+  {
+   "text": "loop:",
+   "cls": "label"
+  },
+  {
+   "text": "  add ebx, eax",
+   "cls": "asm"
+  },
+  {
+   "text": "  inc eax",
+   "cls": "asm"
+  },
+  {
+   "text": "  cmp eax, 6",
+   "cls": "asm"
+  },
+  {
+   "text": "  jl loop",
+   "cls": "asm"
+  },
+  {
+   "text": "",
+   "cls": ""
+  },
+  {
+   "text": "  cmp ebx, 15",
+   "cls": "asm"
+  },
+  {
+   "text": "  je success",
+   "cls": "asm"
+  },
+  {
+   "text": "  mov ecx, 0",
+   "cls": "asm"
+  },
+  {
+   "text": "success:",
+   "cls": "label"
+  },
+  {
+   "text": "  mov ecx, 1",
+   "cls": "asm"
+  },
+  {
+   "text": "  hlt",
+   "cls": "asm"
+  }
+ ],
+ "instructions": [
+  {
+   "addr": 134512640,
+   "bytes": [
+    184,
+    1,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "eax, 1",
+   "comment": "Counter starts at 1",
+   "text": "mov eax, 1"
+  },
+  {
+   "addr": 134512645,
+   "bytes": [
+    187,
+    0,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ebx, 0",
+   "comment": "Accumulator starts at 0",
+   "text": "mov ebx, 0"
+  },
+  {
+   "addr": 134512650,
+   "bytes": [
+    1,
+    195
+   ],
+   "mnemonic": "add",
+   "operands": "ebx, eax",
+   "comment": "Add counter to accumulator",
+   "text": "add ebx, eax"
+  },
+  {
+   "addr": 134512652,
+   "bytes": [
+    64
+   ],
+   "mnemonic": "inc",
+   "operands": "eax",
+   "comment": "Increment counter",
+   "text": "inc eax"
+  },
+  {
+   "addr": 134512653,
+   "bytes": [
+    131,
+    248,
+    6
+   ],
+   "mnemonic": "cmp",
+   "operands": "eax, 6",
+   "comment": "Compare counter to 6",
+   "text": "cmp eax, 6"
+  },
+  {
+   "addr": 134512656,
+   "bytes": [
+    124,
+    248
+   ],
+   "mnemonic": "jl",
+   "operands": "0x0804800a",
+   "comment": "Loop back if <6",
+   "text": "jl 0x0804800a"
+  },
+  {
+   "addr": 134512658,
+   "bytes": [
+    131,
+    251,
+    15
+   ],
+   "mnemonic": "cmp",
+   "operands": "ebx, 15",
+   "comment": "Check result",
+   "text": "cmp ebx, 15"
+  },
+  {
+   "addr": 134512661,
+   "bytes": [
+    116,
+    7
+   ],
+   "mnemonic": "je",
+   "operands": "0x0804801e",
+   "comment": "Jump if equal",
+   "text": "je 0x0804801e"
+  },
+  {
+   "addr": 134512663,
+   "bytes": [
+    185,
+    0,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 0",
+   "comment": "Failure path",
+   "text": "mov ecx, 0"
+  },
+  {
+   "addr": 134512668,
+   "bytes": [
+    235,
+    5
+   ],
+   "mnemonic": "jmp",
+   "operands": "0x08048023",
+   "comment": "Skip success",
+   "text": "jmp 0x08048023"
+  },
+  {
+   "addr": 134512670,
+   "bytes": [
+    185,
+    1,
+    0,
+    0,
+    0
+   ],
+   "mnemonic": "mov",
+   "operands": "ecx, 1",
+   "comment": "Success path",
+   "text": "mov ecx, 1"
+  },
+  {
+   "addr": 134512675,
+   "bytes": [
+    244
+   ],
+   "mnemonic": "hlt",
+   "operands": "",
+   "comment": "",
+   "text": "hlt"
+  }
+ ],
+ "initialRegs": {},
+ "initialMemory": [],
+ "watch": [
+  3221160448
+ ],
+ "vrigRun": {
+  "stop": "halted",
+  "steps": 26,
+  "error": null
+ },
+ "patched": false,
+ "stop": "halted",
+ "initial": {
+  "regs": {
+   "eax": 0,
+   "ebx": 0,
+   "ecx": 0,
+   "edx": 0,
+   "esp": 3221160448,
+   "ebp": 3221160448,
+   "esi": 0,
+   "edi": 0,
+   "eip": 134512640
+  },
+  "flags": {
+   "ZF": false,
+   "SF": false,
+   "CF": false,
+   "OF": false
+  },
+  "words": {
+   "3221160448": 0
+  },
+  "bytes": []
+ },
+ "steps": [
+  {
+   "idx": 0,
+   "addr": 134512640,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 0,
+     "newValue": 1
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512640,
+     "newValue": 134512645
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048000: mov eax, 1 → EAX=0x00000001",
+   "halted": false,
+   "regs": {
+    "eax": 1,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512645
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 1,
+   "addr": 134512645,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512645,
+     "newValue": 134512650
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048005: mov ebx, 0",
+   "halted": false,
+   "regs": {
+    "eax": 1,
+    "ebx": 0,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512650
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 134512650,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 0,
+     "newValue": 1
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512650,
+     "newValue": 134512652
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800a: add ebx, eax → EBX=0x00000001",
+   "halted": false,
+   "regs": {
+    "eax": 1,
+    "ebx": 1,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512652
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 134512652,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 1,
+     "newValue": 2
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512652,
+     "newValue": 134512653
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800c: inc eax → EAX=0x00000002",
+   "halted": false,
+   "regs": {
+    "eax": 2,
+    "ebx": 1,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512653
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 134512653,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512653,
+     "newValue": 134512656
+    }
+   ],
+   "flagChanges": {
+    "SF": true,
+    "CF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800d: cmp eax, 6 [SF=1 CF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 2,
+    "ebx": 1,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512656
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": true,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 134512656,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512656,
+     "newValue": 134512650
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048010: jl 0x0804800a",
+   "halted": false,
+   "regs": {
+    "eax": 2,
+    "ebx": 1,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512650
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": true,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 134512650,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 1,
+     "newValue": 3
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512650,
+     "newValue": 134512652
+    }
+   ],
+   "flagChanges": {
+    "SF": false,
+    "CF": false
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800a: add ebx, eax → EBX=0x00000003 [SF=0 CF=0]",
+   "halted": false,
+   "regs": {
+    "eax": 2,
+    "ebx": 3,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512652
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 134512652,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 2,
+     "newValue": 3
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512652,
+     "newValue": 134512653
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800c: inc eax → EAX=0x00000003",
+   "halted": false,
+   "regs": {
+    "eax": 3,
+    "ebx": 3,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512653
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 134512653,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512653,
+     "newValue": 134512656
+    }
+   ],
+   "flagChanges": {
+    "SF": true,
+    "CF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800d: cmp eax, 6 [SF=1 CF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 3,
+    "ebx": 3,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512656
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": true,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 134512656,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512656,
+     "newValue": 134512650
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048010: jl 0x0804800a",
+   "halted": false,
+   "regs": {
+    "eax": 3,
+    "ebx": 3,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512650
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": true,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 134512650,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 3,
+     "newValue": 6
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512650,
+     "newValue": 134512652
+    }
+   ],
+   "flagChanges": {
+    "SF": false,
+    "CF": false
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800a: add ebx, eax → EBX=0x00000006 [SF=0 CF=0]",
+   "halted": false,
+   "regs": {
+    "eax": 3,
+    "ebx": 6,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512652
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 134512652,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 3,
+     "newValue": 4
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512652,
+     "newValue": 134512653
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800c: inc eax → EAX=0x00000004",
+   "halted": false,
+   "regs": {
+    "eax": 4,
+    "ebx": 6,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512653
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 134512653,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512653,
+     "newValue": 134512656
+    }
+   ],
+   "flagChanges": {
+    "SF": true,
+    "CF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800d: cmp eax, 6 [SF=1 CF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 4,
+    "ebx": 6,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512656
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": true,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 134512656,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512656,
+     "newValue": 134512650
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048010: jl 0x0804800a",
+   "halted": false,
+   "regs": {
+    "eax": 4,
+    "ebx": 6,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512650
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": true,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 134512650,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 6,
+     "newValue": 10
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512650,
+     "newValue": 134512652
+    }
+   ],
+   "flagChanges": {
+    "SF": false,
+    "CF": false
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800a: add ebx, eax → EBX=0x0000000a [SF=0 CF=0]",
+   "halted": false,
+   "regs": {
+    "eax": 4,
+    "ebx": 10,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512652
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 134512652,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 4,
+     "newValue": 5
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512652,
+     "newValue": 134512653
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800c: inc eax → EAX=0x00000005",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 10,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512653
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 134512653,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512653,
+     "newValue": 134512656
+    }
+   ],
+   "flagChanges": {
+    "SF": true,
+    "CF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800d: cmp eax, 6 [SF=1 CF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 10,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512656
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": true,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 134512656,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512656,
+     "newValue": 134512650
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048010: jl 0x0804800a",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 10,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512650
+   },
+   "flags": {
+    "ZF": false,
+    "SF": true,
+    "CF": true,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 2,
+   "addr": 134512650,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ebx",
+     "oldValue": 10,
+     "newValue": 15
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512650,
+     "newValue": 134512652
+    }
+   ],
+   "flagChanges": {
+    "SF": false,
+    "CF": false
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800a: add ebx, eax → EBX=0x0000000f [SF=0 CF=0]",
+   "halted": false,
+   "regs": {
+    "eax": 5,
+    "ebx": 15,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512652
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 3,
+   "addr": 134512652,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eax",
+     "oldValue": 5,
+     "newValue": 6
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512652,
+     "newValue": 134512653
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800c: inc eax → EAX=0x00000006",
+   "halted": false,
+   "regs": {
+    "eax": 6,
+    "ebx": 15,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512653
+   },
+   "flags": {
+    "ZF": false,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 4,
+   "addr": 134512653,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512653,
+     "newValue": 134512656
+    }
+   ],
+   "flagChanges": {
+    "ZF": true
+   },
+   "writes": [],
+   "reads": [],
+   "log": "0x0804800d: cmp eax, 6 [ZF=1]",
+   "halted": false,
+   "regs": {
+    "eax": 6,
+    "ebx": 15,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512656
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 5,
+   "addr": 134512656,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512656,
+     "newValue": 134512658
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048010: jl 0x0804800a",
+   "halted": false,
+   "regs": {
+    "eax": 6,
+    "ebx": 15,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512658
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 6,
+   "addr": 134512658,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512658,
+     "newValue": 134512661
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048012: cmp ebx, 15",
+   "halted": false,
+   "regs": {
+    "eax": 6,
+    "ebx": 15,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512661
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 7,
+   "addr": 134512661,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "eip",
+     "oldValue": 134512661,
+     "newValue": 134512670
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048015: je 0x0804801e",
+   "halted": false,
+   "regs": {
+    "eax": 6,
+    "ebx": 15,
+    "ecx": 0,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512670
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 10,
+   "addr": 134512670,
+   "patched": false,
+   "diffs": [
+    {
+     "reg": "ecx",
+     "oldValue": 0,
+     "newValue": 1
+    },
+    {
+     "reg": "eip",
+     "oldValue": 134512670,
+     "newValue": 134512675
+    }
+   ],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x0804801e: mov ecx, 1 → ECX=0x00000001",
+   "halted": false,
+   "regs": {
+    "eax": 6,
+    "ebx": 15,
+    "ecx": 1,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512675
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  },
+  {
+   "idx": 11,
+   "addr": 134512675,
+   "patched": false,
+   "diffs": [],
+   "flagChanges": {},
+   "writes": [],
+   "reads": [],
+   "log": "0x08048023: hlt ",
+   "halted": true,
+   "regs": {
+    "eax": 6,
+    "ebx": 15,
+    "ecx": 1,
+    "edx": 0,
+    "esp": 3221160448,
+    "ebp": 3221160448,
+    "esi": 0,
+    "edi": 0,
+    "eip": 134512675
+   },
+   "flags": {
+    "ZF": true,
+    "SF": false,
+    "CF": false,
+    "OF": false
+   },
+   "words": {
+    "3221160448": 0
+   },
+   "bytes": []
+  }
+ ],
+ "stall": null,
+ "quiz": [
+  {
+   "question": "What is EBX at the end? (sum of 1+2+3+4+5)",
+   "hint": "The loop adds counter values 1 through 5.",
+   "answer": 15,
+   "format": "decimal",
+   "vrigShows": "15",
+   "probe": {
+    "step": 25,
+    "value": 15,
+    "kind": "emulator",
+    "reg": "ebx",
+    "why": "ebx at hlt"
+   },
+   "correct": true
+  },
+  {
+   "question": "How many times does the loop body execute?",
+   "hint": "Counter goes 1,2,3,4,5 — the JL falls through when counter reaches 6 (6 is not less than 6).",
+   "answer": 5,
+   "format": "decimal",
+   "vrigShows": "5",
+   "probe": {
+    "step": 21,
+    "value": 5,
+    "kind": "derived",
+    "why": "times add ebx, eax ran"
+   },
+   "correct": true
+  }
+ ],
+ "solved": true,
+ "winTitle": "Jump Master!",
+ "winMsg": "You understand conditional jumps and loops in x86."
+}
